@@ -9,8 +9,7 @@ from src.counter import Counter
 
 def load_video(column):
     lang = st.session_state["lang"]
-    column.text_input(url_prompt[lang])
-    url = "https://www.youtube.com/watch?v=y84IV__hzhQ"
+    url = column.text_input(url_prompt[lang])
     if url != "":
         column.video(format_url(url))
 
