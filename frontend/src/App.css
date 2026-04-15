@@ -1,0 +1,23 @@
+.team-page {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.team-page__left,
+.team-page__right {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+/* Tablet / desktop */
+@media (min-width: 768px) {
+  .team-page {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}

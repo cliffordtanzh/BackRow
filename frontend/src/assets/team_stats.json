@@ -1,0 +1,19 @@
+{
+    "scored": [
+        {"en": "Service Ace", "cn": "发球得分"},
+        {"en": "Block Kill", "cn": "拦网得分"},
+        {"en": "Spike Kill", "cn": "扣球得分"},
+        {"en": "Opponent Mistake", "cn": "对面失误"}
+    ],
+
+    "lost": [
+        {"en": "Serve Receive Error", "cn": "接发球失误"},
+        {"en": "Spike Receive Error", "cn": "接扣球失误"},
+        {"en": "Tip Receive Error", "cn": "接掉球失误"},
+        {"en": "Freeball Error", "cn": "接球失误"},
+        {"en": "Spike Error", "cn": "扣球失误"},
+        {"en": "Serve Error", "cn": "发球失误"},
+        {"en": "Spike Blocked", "cn": "扣球被拦"},
+        {"en": "Our Error", "cn": "自己丢分"}
+    ]
+}

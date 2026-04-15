@@ -1,0 +1,36 @@
+{
+    "attacks": [
+        {"en": "Service Ace", "cn": "发球得分"},
+        {"en": "Block Kill", "cn": "拦网得分"},
+        {"en": "Spike Kill", "cn": "扣球得分"},
+        {"en": "Tip Kill", "cn": "吊球得分"},
+        {"en": "Attacks", "cn": "进攻"},
+        {"en": "Spike Attempt", "cn": "尝试扣球"}
+    ],
+
+    "attack_mistakes": [
+        {"en": "Spike Error", "cn": "扣球失误"},
+        {"en": "Serve Error", "cn": "发球失误"},
+        {"en": "Mistakes", "cn": "自己丢分"},
+        {"en": "Attack Errors", "cn": "进攻失误"},
+        {"en": "Spike Blocked", "cn": "扣球被拦"}
+    ],
+
+    "receives": [
+        {"en": "Serve Received", "cn": "接发球"},
+        {"en": "Spike Received", "cn": "接扣球"},
+        {"en": "Tip Received", "cn": "接吊球"},
+        {"en": "Freeball Received", "cn": "接机会球"},
+        {"en": "Spike Cover", "cn": "保护扣球"},
+        {"en": "Receives", "cn": "接球"}
+    ],
+
+    "receive_mistakes": [
+        {"en": "Serve Receive Error", "cn": "接发球失误"},
+        {"en": "Spike Receive Error", "cn": "接扣球失误"},
+        {"en": "Tip Receive Error", "cn": "接吊球失误"},
+        {"en": "Freeball Error", "cn": "接球失误"},
+        {"en": "Spike Cover Error", "cn": "保护扣球失误"},
+        {"en": "Receive Errors", "cn": "接球失误"}
+    ]
+}
