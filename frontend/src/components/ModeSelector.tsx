@@ -12,7 +12,7 @@ function ModeSelector({ isPlayerMode, setIsPlayerMode }: ModeSelectorProps) {
       <div className="mode-selector">
         <button 
           className={
-            `mode-selector__button ${isPlayerMode ? 'mode-selector__button--player' : 'mode-selector__button--team'}`
+            `mode-selector__button ${!isPlayerMode ? 'mode-selector__button--team' : 'mode-selector__button--player'}`
           }
           onClick={() => setIsPlayerMode((prev: boolean) => !prev)}
         >{isPlayerMode ? 'Player Mode' : 'Team Mode'}

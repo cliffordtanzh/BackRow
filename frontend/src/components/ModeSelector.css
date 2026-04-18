@@ -6,7 +6,6 @@
   background: var(--surface);
   border-radius: 999px;
   border: 1px solid var(--border);
-  width: fit-content;
 }
 
 .mode-selector__button {
@@ -19,12 +18,30 @@
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+  line-height: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  min-width: 8.75rem;
+  min-height: 2.5rem;
+  white-space: nowrap;
+  flex: 0 0 140px;
+
 }
 
 .mode-selector__button--active {
   background: var(--accent);
   color: var(--bg);
   box-shadow: var(--shadow);
+}
+
+.mode-selector__button:hover {
+  filter: brightness(1.20);
 }
 
 .mode-selector__button--player {

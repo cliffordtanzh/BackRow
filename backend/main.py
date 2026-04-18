@@ -17,17 +17,17 @@ app.add_middleware(
 )
 
 players = [
-    Player(player_id = 1, player_name = "Cliffy", player_number = 7, team_name = "SKVB"),
-    Player(player_id = 2, player_name = "Julian", player_number = 19, team_name = "SKVB"),
-    Player(player_id = 3, player_name = "Yolo", player_number = 13, team_name = "SKVB"),
-    Player(player_id = 4, player_name = "Hong", player_number = 11, team_name = "SKVB"),
+    Player(playerID = 1, playerName = "Cliffy", playerNumber = 7, teamName = "SKVB"),
+    Player(playerID = 2, playerName = "Julian", playerNumber = 19, teamName = "SKVB"),
+    Player(playerID = 3, playerName = "Yolo", playerNumber = 13, teamName = "SKVB"),
+    Player(playerID = 4, playerName = "Hong", playerNumber = 11, teamName = "SKVB"),
     
-    Player(player_id = 5, player_name = "Terrence", player_number = 21, team_name = "Super Titans"),
-    Player(player_id = 6, player_name = "Eric", player_number = 69, team_name = "Super Titans"),
+    Player(playerID = 5, playerName = "Terrence", playerNumber = 21, teamName = "Super Titans"),
+    Player(playerID = 6, playerName = "Eric", playerNumber = 69, teamName = "Super Titans"),
 ]
 teams = [
-    Team(team_id = 1, team_name = "SKVB"), 
-    Team(team_id = 2, team_name = "Super Titans"), 
+    Team(teamID = 1, teamName = "SKVB"), 
+    Team(teamID = 2, teamName = "Super Titans"), 
 ]
 
 @app.post("/players")

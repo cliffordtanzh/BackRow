@@ -1,0 +1,40 @@
+.team-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.team-inputs__button {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-content: flex-start;
+}
+
+.team-inputs__button--right {
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .team-inputs {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .team-inputs__button--right {
+    justify-content: center;
+  }
+
+  .team-inputs__button {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-content: center;
+    justify-content: center;
+  }
+  
+  .team-inputs__button--right {
+    justify-content: center;
+  }
+}

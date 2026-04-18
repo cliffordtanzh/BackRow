@@ -1,6 +1,6 @@
 import type { Team } from '../types/Team.ts';
 
-import '../components/TeamSelector.css'
+import './TeamSelector.css'
 
 
 type TeamSelectorProps = {
@@ -16,25 +16,26 @@ function TeamSelector({
   setSelectedTeam, 
 }: TeamSelectorProps) {
   const updateTeamName = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const team_name = event.target.value;
-    const selected_team = teams.find((t) => t.team_name === team_name);
-    if (selected_team) {
-      setSelectedTeam(selected_team);
+    const teamName = event.target.value;
+    const selectedTeam = teams.find((team) => team.teamName === teamName);
+    if (selectedTeam) {
+      setSelectedTeam(selectedTeam);
     }
   }
 
   return (
     <div className='team-selector'>
-      <select className='team-selector__label'
-        value={selectedTeam.team_name}
+      <select className='team-selector select'
+        value={selectedTeam.teamName}
         onChange={updateTeamName}
       >
         {
-          (teams.map((t) => <option 
-          key={t.team_id} 
-          value={t.team_name}
-          ><p className='team-selector__select'>{t.team_name}</p>
-          </option>))
+          teams.map(({teamID, teamName}: Team) => (
+            <option 
+              key={teamID} 
+              value={teamName}
+            >{teamName}</option>
+          ))
         }
       </select>
     </div>

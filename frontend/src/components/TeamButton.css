@@ -1,0 +1,35 @@
+.team-button {
+  padding: 12px 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
+  width: 12rem;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.team-button:hover {
+  background: var(--accent);
+  color: var(--bg);
+  transform: translateY(-1px);
+}
+
+.team-button:active {
+  transform: translateY(0);
+}
+
+.team-button--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.team-button--hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}

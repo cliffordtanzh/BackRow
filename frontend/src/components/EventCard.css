@@ -1,0 +1,23 @@
+.history-panel__card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 6px;
+  padding: 12px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  box-sizing: border-box;
+}
+
+.history-panel__card-title {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.history-panel__card-subtitle {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
