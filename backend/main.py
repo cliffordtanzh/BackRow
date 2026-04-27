@@ -30,14 +30,23 @@ teams = [
     Team(teamID = 2, teamName = "Super Titans"), 
 ]
 
+
 @app.post("/players")
-def post_player(player: Player):
+def post_players(player: Player):
     players.append(player)
     return player
+
+
+@app.post("/teams")
+def post_teams(team: Team):
+    teams.append(team)
+    return teams
+
 
 @app.get("/players")
 def get_players():
     return players
+
 
 @app.get("/teams")
 def get_teams():

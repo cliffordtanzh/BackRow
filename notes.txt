@@ -1,0 +1,4 @@
+// limit keystrokes to what they are meant to do
+- left, right arrows: advance/retreat by 10s (based on react-player)
+- anything else is treated as no input
+- clear button for next game

@@ -1,0 +1,53 @@
+.manage-shell {
+  height: 100vh;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--text);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.manage-shell__controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+.manage-shell__main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  flex: 1;
+}
+
+.manage-shell__panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  height: 70vh;
+}
+
+.manage-shell__panel-title {
+  margin: 0 0 12px;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .manage-shell__main {
+    grid-template-columns: 1fr;
+  }
+}

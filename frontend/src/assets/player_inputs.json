@@ -1,0 +1,5 @@
+[
+    {"key": "playerName", "en": "Name", "cn": "名字"},
+    {"key": "playerNumber", "en": "Jersey Number", "cn": "球衣号"},
+    {"key": "teamName", "en": "Team", "cn": "队名"}
+]

@@ -1,5 +1,10 @@
 {
-  "dependencies": {
-    "react-router-dom": "^7.14.1"
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "frontend": "cd frontend && npm run dev",
+    "backend": "python -m uvicorn backend.main:app --reload"
   }
 }

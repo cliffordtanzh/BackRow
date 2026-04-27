@@ -12,6 +12,7 @@
         {"en": "Tip Receive Error", "cn": "接掉球失误"},
         {"en": "Freeball Error", "cn": "接球失误"},
         {"en": "Spike Error", "cn": "扣球失误"},
+        {"en": "Set Error", "cn": "举球失误"},
         {"en": "Serve Error", "cn": "发球失误"},
         {"en": "Spike Blocked", "cn": "扣球被拦"},
         {"en": "Our Error", "cn": "自己丢分"}
