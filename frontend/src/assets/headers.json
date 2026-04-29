@@ -1,7 +1,25 @@
 {
     "stats_page": {"en": "Statistics Entry", "cn": "数据输入"},
-    "history_panel": {"en": "History", "cn": "历史记录"},
-    "undo": {"en": "Undo", "cn": "撤消"},
+    "title": {"en": "BackRow", "cn": "后排"},
+
+    "mode_selector-player": {"en": "Player Mode", "cn": "模式"},
+    "mode_selector-team": {"en": "Team Mode", "cn": "队伍模式"},
     "manage_button": {"en": "Manage Team/Player", "cn": "队伍/球员管理"},
-    "statistics_button": {"en": "Statistics Entry Page", "cn": "输入数据"}
+
+    "video": {"en": "YouTube Playback", "cn": "YouTube 回放"},
+
+    "statistics_button": {"en": "Statistics Entry", "cn": "输入数据"},
+    "stats_submit_button": {"en": "Save", "cn": "输入"},
+    "stats_clear_button": {"en": "Clear", "cn": "清除"},
+    
+    "undo": {"en": "↶Undo", "cn": "↶撤消"},
+    "clear": {"en": "✖Clear", "cn": "✖清除"},
+    "history_panel": {"en": "History", "cn": "历史记录"},
+    
+    "player_management": {"en": "Player Entry", "cn": "队员输入"},
+    "team_management": {"en": "Team Entry", "cn": "队伍输入"},
+    "role_management": {"en": "Assign Roles", "cn": "分配角色"},
+    "manage_submit_button": {"en": "Submit", "cn": "提交"},
+
+    "login": {"en": "Login", "cn": "登记"}
 }

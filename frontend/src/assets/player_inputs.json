@@ -1,5 +1,7 @@
 [
     {"key": "playerName", "en": "Name", "cn": "名字"},
+    {"key": "email", "en": "Email", "cn": "邮件"},
+    {"key": "password", "en": "Password", "cn": "密码"},
     {"key": "playerNumber", "en": "Jersey Number", "cn": "球衣号"},
-    {"key": "teamName", "en": "Team", "cn": "队名"}
+    {"key": "teamName", "en": "Team Name", "cn": "队名"}
 ]

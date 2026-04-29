@@ -1,9 +1,7 @@
 .language-selector {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   width: 8.75rem;
-  box-sizing: border-box;
-  gap: 0;
   padding: 4px;
   box-sizing: border-box;
   background: var(--surface);
@@ -28,7 +26,6 @@
   width: 100%;
   max-width: 8.75rem;
   text-align: center;
-  display: inline-flex;
   align-items: center;
   white-space: nowrap;
   line-height: 1;

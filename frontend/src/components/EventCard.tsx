@@ -6,17 +6,17 @@ import './EventCard.css';
 type EventCardProps = {
   lang: Lang,
   teamEvent: TeamEvent
+  teamName: string
 }
 
 
-function EventCard({lang, teamEvent}: EventCardProps) {
-  const {selectedTeam, pointMethod, ownPointTotal, oppPointTotal} = teamEvent;
-  const {teamName} = selectedTeam;
+function EventCard({ lang, teamEvent, teamName }: EventCardProps) {
+  const {pointMethod, ownTotal, oppTotal} = teamEvent;
 
   return (
     <div className='history-panel__card'>
       <div className='history-panel__card-title'>
-        {`${teamName}: ${ownPointTotal} - ${oppPointTotal}`}
+        {`${teamName}: ${ownTotal} - ${oppTotal}`}
       </div>
 
       <div className='history-panel__card-subtitle'>

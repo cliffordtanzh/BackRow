@@ -1,35 +1,56 @@
 import { useState } from 'react';
 import axios from 'axios';
 
-import type { Lang } from '../types/Lang';
-import type { Team } from '../types/Team';
+import ErrorMessage from './ErrorMessage';
 
+import type { Lang } from '../types/Lang';
+import type { Player } from '../types/Player';
+import type { TeamCreate } from '../types/TeamCreate';
+
+import headers from '../assets/headers.json';
 import teamHeaders from '../assets/team_inputs.json';
 
-import './ManageInputs.css'
+import './ManageInputs.css';
+import './ErrorMessage.css';
 
 
 type TeamManageInputsProps = {
   lang: Lang
+  onSuccess: () => void
 }
+
+const DEFAULT_TEAM: TeamCreate = {'teamName': ''}
 
 
 function TeamManageInputs ({ 
-  lang
+  lang,
+  onSuccess
 }: TeamManageInputsProps) {
 
-  const[teamState, setTeamState] = useState<Team>({
-    teamID: 0,
-    teamName: 'SKVB',
-  });
+  const[error, setError] = useState<string | null>(null);
+  const[teamState, setTeamState] = useState<TeamCreate>(DEFAULT_TEAM);
 
-  function handleSubmit(event: React.SubmitEvent) {
+  const handleSubmit = async (event: React.SubmitEvent) => {
     event.preventDefault();
-    axios.post('http://localhost:8000/teams', teamState)
+    if(teamState.teamName === DEFAULT_TEAM.teamName) {
+      setError('Team must not be empty')
+      return;
+    }
+
+    try {
+      await axios.post(`${import.meta.env.VITE_API_URL}/teams`, teamState)
+      onSuccess();
+      setTeamState(DEFAULT_TEAM);
+      setError(null);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        setError(error.response?.data?.detail ?? 'Something went wrong')
+      }
+    }
   }
 
   return (
-    <div className='manage-inputs'>
+    <div className='team_manage-inputs'>
       <form onSubmit={handleSubmit}>
 
         {
@@ -39,16 +60,31 @@ function TeamManageInputs ({
               key={header['key']}
             >
               <label className='manage-inputs__label'>{header[lang]}</label>
-              <input className='field-input'
+              <input 
+                className='field-input'
+                type={header['key'] === 'password' ? 'password' : 'text'}
+                value={String(teamState[header['key'] as keyof TeamCreate])}
                 onChange={(event) => (
-                  setTeamState((prev) => ({...prev, [header['key']]: event.target.value}))
+                  setTeamState((prev) => (
+                    {...prev, [header['key']]: 
+                      header['key'] === 'playerNumber' ? 
+                      Number(event.target.value) : 
+                      event.target.value
+                    }
+                  ))
                 )}
               />
             </div>
           ))
         }
 
-        <button className='manage-inputs__submit' type='submit'>Submit</button>
+        <div className='manage-inputs__field'>
+          <button className='manage-inputs__submit' type='submit'>
+            {headers['manage_submit_button'][lang]}
+          </button>
+          {error && <ErrorMessage error={error}/>}
+        </div>
+
       </form>
     </div>
   )

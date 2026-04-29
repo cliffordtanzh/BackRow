@@ -1,10 +1,14 @@
 {
   "devDependencies": {
+    "@types/jwt-decode": "^2.2.1",
     "concurrently": "^8.2.0"
   },
   "scripts": {
     "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
     "frontend": "cd frontend && npm run dev",
     "backend": "python -m uvicorn backend.main:app --reload"
+  },
+  "dependencies": {
+    "jwt-decode": "^4.0.0"
   }
 }

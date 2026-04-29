@@ -1,8 +1,16 @@
-.team-inputs {
+.team_input {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  align-items: start;
+}
+
+.team-inputs__keypad {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
   gap: 16px;
-  align-items: start;
 }
 
 .team-inputs__button {
@@ -12,18 +20,36 @@
   align-content: flex-start;
 }
 
-.team-inputs__button--right {
-  justify-content: flex-end;
+.team-inputs__submit {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.2s ease, transform 0.15s ease;
+  border: 1px solid var(--accent-2);
+  background: transparent;
+  color: var(--accent-2);
+  line-height: 1;
+  text-align: center;
 }
 
-@media (max-width: 900px) {
-  .team-inputs {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
+.team-inputs__submit:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
 
-  .team-inputs__button--right {
-    justify-content: center;
+.team-inputs__submit:active {
+  transform: translateY(0);
+}
+
+
+@media (max-width: 790px) {
+  .team-inputs__keypad {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
   }
 
   .team-inputs__button {
@@ -31,10 +57,6 @@
     flex-wrap: wrap;
     gap: 10px;
     align-content: center;
-    justify-content: center;
-  }
-  
-  .team-inputs__button--right {
     justify-content: center;
   }
 }

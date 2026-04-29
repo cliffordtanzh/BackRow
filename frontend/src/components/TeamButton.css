@@ -9,7 +9,10 @@
   cursor: pointer;
   transition: background 0.2s ease, transform 0.15s ease, opacity 0.2s ease;
   width: 12rem;
+  height: 2.75rem;
   white-space: nowrap;
+  text-align: center;
+  line-height: 1;
   box-sizing: border-box;
 }
 

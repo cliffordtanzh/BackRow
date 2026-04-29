@@ -14,9 +14,9 @@ type NavButtonProps = {
 
 function NavButton({ lang, navigate, buttonHeader }: NavButtonProps) {
   return (
-    <div className='management-button'>
+    <div className='navigation-button'>
       <button 
-        className='management-button__button'
+        className='navigation-button__button'
         onClick={() => navigate('/manage')}
       >
         {buttonHeader[lang]}

@@ -17,7 +17,7 @@ function LanguageSelector({
       <button 
         className='language-selector__button'
         onClick={() => setLang((prev) => (prev === 'cn' ? 'en' : 'cn'))}
-        >{lang === 'cn' ? '中文' : 'English'}</button>
+        >{lang === 'en' ? '中文' : 'English'}</button>
     </div>
   )
 }

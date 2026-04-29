@@ -1,0 +1,21 @@
+.history-button {
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 6rem;
+  height: 2.75rem;
+  line-height: 1;
+  text-align: center;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.history-button:hover {
+  background: var(--accent);
+  color: var(--bg);
+  transform: translateY(-1px);
+}

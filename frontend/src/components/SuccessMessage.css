@@ -1,0 +1,28 @@
+.success-message {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  box-sizing: border-box;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  background: rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #4caf50;
+  height: 2.5rem;
+}
+
+.success-message__text {
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  width: 100%;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: normal;
+  line-height: 1;
+  box-sizing: border-box;
+}

@@ -5,4 +5,17 @@ class Player(BaseModel):
     playerID: int
     playerName: str
     playerNumber: int
-    teamName: str
+    email: str
+    isVerified: bool
+
+
+class PlayerCreate(BaseModel):
+    playerName: str
+    playerNumber: int
+    email: str
+    password: str
+
+
+class PlayerLogin(BaseModel):
+    email: str
+    password: str

@@ -1,5 +1,5 @@
-.management-button {
-  display: inline-flex;
+.navigation-button {
+  display: flex;
   align-items: center;
   width: 8.75rem;
   padding: 4px;
@@ -10,13 +10,13 @@
   box-shadow: var(--shadow);
 }
 
-.management-button__button {
+.navigation-button__button {
   border: none;
   background: transparent;
   color: var(--muted);
   padding: 10px 18px;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: color 0.2s ease, background 0.2s ease;
@@ -31,7 +31,7 @@
   box-sizing: border-box;
 }
 
-.management-button__button:hover {
+.navigation-button__button:hover {
   background: var(--accent-2);
   color: var(--bg);
 }

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import type { Lang } from '../types/Lang';
 import type { TeamEvent } from '../types/TeamEvent';
@@ -10,30 +10,34 @@ import './HistoryPanel.css'
 type HistoryPanelProps = {
   lang: Lang,
   history: TeamEvent[],
-  scrollDown: React.RefObject<HTMLDivElement | null>
+  teamName: string
 }
 
 
 function HistoryPanel({
   lang,
   history,
-  scrollDown,
+  teamName,
 }: HistoryPanelProps) {
 
+  const panelRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
-    scrollDown.current?.scrollIntoView({behavior: "smooth"})
+    if (panelRef.current) {
+    panelRef.current.scrollTop = panelRef.current.scrollHeight
+  }
   }, [history])
   
   return (
-    <div className='history-panel'>
+    <div className='history-panel' ref={panelRef}>
       {history.map((teamEvent: TeamEvent) => (
         <EventCard 
           lang={lang}
           teamEvent={teamEvent}
+          teamName={teamName}
           key={`event_${teamEvent.eventID}`}
         />
       ))}
-    <div ref={scrollDown}></div>
     </div>
   )
 };
