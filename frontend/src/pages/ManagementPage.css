@@ -30,6 +30,7 @@
 .manage-shell__error {
   display: inline-flex;
   justify-content: space-evenly;
+  align-items: center;
   padding: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -44,15 +45,17 @@
 }
 
 .manage-shell__panel {
+  display: flex;
+  width: 25vw;
+  flex-direction: column;
+  justify-content: space-evenly;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 16px;
   gap: 16px;
   box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  height: 70vh;
+  height: 75vh;
 }
 
 .manage-shell__panel-title {
@@ -61,18 +64,6 @@
   font-size: 0.95rem;
   font-weight: 700;
   text-transform: uppercase;
-}
-
-.manage-shell__panel-center {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 16px;
-  gap: 16px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  height: 70vh;
 }
 
 .blurred {
@@ -87,13 +78,20 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  .manage-shell__controls {
+    padding: 8px;
+    gap: 8px;
+  }
+
   .manage-shell__bot {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
   }
 
   .manage-shell__panel {
     height: 100%;
     box-sizing: border-box;
     max-height: 100%;
+    width: 100%;
   }
 }

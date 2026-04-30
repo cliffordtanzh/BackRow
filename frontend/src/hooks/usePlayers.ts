@@ -5,8 +5,9 @@ import type { Player } from '../types/Player';
 
 
 export function usePlayers() {
-  const [players, setPlayers] = useState<Player[]>([])
-  const [playerError, setPlayerError] = useState<string | null>(null)
+  const[players, setPlayers] = useState<Player[]>([])
+  const[playerError, setPlayerError] = useState<string | null>(null);
+
 
   const fetchPlayers = async () => {
     try {

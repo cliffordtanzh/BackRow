@@ -3,12 +3,13 @@ import './SuccessMessage.css'
 
 type successMessageProps = {
   success: string | null
+  fade: boolean
 }
 
 
-function SuccessMessage({ success }: successMessageProps) {
+function SuccessMessage({ success, fade }: successMessageProps) {
   return (
-    <div key={`stats: ${success}`} className='success-message'>
+    <div className={`success-message ${fade ? 'fade-out' : ''}`}>
       <div className='success-message__text'>{success}</div>
     </div>
   )

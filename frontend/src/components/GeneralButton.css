@@ -1,4 +1,4 @@
-.goodluck-button {
+.button {
   display: flex;
   align-items: center;
   width: 8.75rem;
@@ -10,7 +10,7 @@
   box-shadow: var(--shadow);
 }
 
-.goodluck-button__button {
+.button__button {
   border: none;
   background: transparent;
   color: var(--muted);
@@ -31,7 +31,7 @@
   box-sizing: border-box;
 }
 
-.goodluck-button__button:active {
+.button__button:active {
   background: var(--accent-2);
   color: var(--bg);
 }

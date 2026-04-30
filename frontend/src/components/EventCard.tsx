@@ -11,12 +11,12 @@ type EventCardProps = {
 
 
 function EventCard({ lang, teamEvent, teamName }: EventCardProps) {
-  const {pointMethod, ownTotal, oppTotal} = teamEvent;
+  const {eventID, pointMethod, ownTotal, oppTotal} = teamEvent;
 
   return (
     <div className='history-panel__card'>
       <div className='history-panel__card-title'>
-        {`${teamName}: ${ownTotal} - ${oppTotal}`}
+        {`${eventID} ${teamName}: ${ownTotal} - ${oppTotal}`}
       </div>
 
       <div className='history-panel__card-subtitle'>

@@ -11,6 +11,12 @@
   border: 1px solid rgba(76, 175, 80, 0.3);
   color: #4caf50;
   height: 2.5rem;
+  opacity: 1;
+  transition: opacity 2s ease;
+}
+
+.fade-out {
+  opacity: 0
 }
 
 .success-message__text {

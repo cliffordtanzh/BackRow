@@ -5,8 +5,8 @@ import type { Team } from '../types/Team';
 
 
 export function useTeams() {
-  const [teams, setTeams] = useState<Team[]>([])
-  const [teamError, setTeamError] = useState<string | null>(null)
+  const[teams, setTeams] = useState<Team[]>([]);
+  const[teamError, setTeamError] = useState<string | null>(null);
 
   const fetchTeams = async () => {
     try {

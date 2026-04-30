@@ -13,7 +13,7 @@ function FieldInput({ setField, placeholder }: FieldInputProps) {
 
   return (
     <input 
-      className='team-page__field-input' 
+      className='team-page__field-input'
       placeholder={placeholder}
       onChange={updateField}
     />

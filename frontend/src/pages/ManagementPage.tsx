@@ -8,16 +8,17 @@ import { useTeams } from '../hooks/useTeams';
 import LanguageSelector from '../components/LanguageSelector';
 import NavButton from '../components/NavButton';
 import ErrorMessage from '../components/ErrorMessage';
-import GoodLuckButton from '../components/GoodLuckButton';
+import SuccessMessage from '../components/SuccessMessage';
+import GeneralButton from '../components/GeneralButton';
 import TeamManageInputs from '../components/TeamManageInputs';
 import PlayerManageInputs from '../components/PlayerManageInputs';
 import LoginCard from '../components/LoginCard';
-import ManageRole from '../components/ManageRole';
+import ManageMembership from '../components/ManageMembership';
 
 import type { Lang } from '../types/Lang';
 import type { Player } from '../types/Player';
 import type { Team } from '../types/Team';
-import type { Role } from '../types/Role';
+import type { Membership } from '../types/Membership';
 import type { JwtPayload } from '../types/JwtPayload';
 
 import headers from '../assets/headers.json';
@@ -30,7 +31,8 @@ function ManagementPage() {
   const navigate = useNavigate();
 
   const[jwtToken, setJwtToken] = useState<string | null>(null);
-  const[isAuthorised, setIsAuthorised] = useState<boolean>(false);
+  const[isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const[authorisation, setAuthorisation] = useState<'player' | 'manager' | 'root'>('player');
 
   const[selectedPlayer, setSelectedPlayer] = useState<Player>({
     playerID: 0,
@@ -45,7 +47,7 @@ function ManagementPage() {
     teamName: ''
   })
 
-  const[selectedRole, setSelectedRole] = useState<Role>({
+  const[selectedMembership, setSelectedMembership] = useState<Membership>({
     playerID: 0,
     teamID: 0,
     role: 'player'
@@ -54,6 +56,7 @@ function ManagementPage() {
   
   const {players, playerError, fetchPlayers} = usePlayers();
   const {teams, teamError, fetchTeams} = useTeams();
+  
   const roles = [
     { playerID: 0, teamID: 0, role: 'player' },
     { playerID: 0, teamID: 0, role: 'manager' },
@@ -70,33 +73,53 @@ function ManagementPage() {
   })
 
   const chooseProps = (header: string) => {
-    return header === 'player' ? {
-      items: players,
-      selected: selectedPlayer,
-      setSelected: setSelectedPlayer,
-      getID: (item: Player) => `${header}_${item.playerID}`,
-      getName: (item: Player) => (item.playerName),
-    } : {
-      items: roles,
-      selected: selectedRole,
-      setSelected: setSelectedRole,
-      getID: (item: Role) => `${header}_${item.role}`,
-      getName: (item: Role) => (item.role.charAt(0).toUpperCase() + item.role.slice(1)),
+    if(header === 'player') {
+      return {
+        items: players,
+        selected: selectedPlayer,
+        setSelected: setSelectedPlayer,
+        getID: (item: Player) => `${header}_${item.playerID}`,
+        getName: (item: Player) => (item.playerName),
+      }
+
+    } else if(header === 'role') {
+      return {
+        items: roles,
+        selected: selectedMembership,
+        setSelected: setSelectedMembership,
+        getID: (item: Membership) => `${header}_${item.role}`,
+        getName: (item: Membership) => (item.role.charAt(0).toUpperCase() + item.role.slice(1)),
+      }
+
+    } else {
+      return {
+        items: teams,
+        selected: selectedTeam,
+        setSelected: setSelectedTeam,
+        getID: (item: Team) => `${header}_${item.teamID}`,
+        getName: (item: Team) => (item.teamName),
+      }
     }
   }
 
-  const checkAuthorised = () => {
+  const checkAuthorisation = () => {
     const token = localStorage.getItem('JWT_token')
     if(token === null) {
-      return false;
+      setIsLoggedIn(false);
+      return 'player';
     }
 
     const decoded = jwtDecode<JwtPayload>(token)
-    if(decoded['role'] === 'player') {
-      return false;
-    }
+    setIsLoggedIn(true);
+    return decoded['role']
+  }
 
-    return true;
+  const logOut = () => {
+    localStorage.removeItem('JWT_token');
+    localStorage.removeItem('userName');
+    setIsLoggedIn(false);
+    setJwtToken(null);
+    setAuthorisation('player');
   }
 
   useEffect(() => {
@@ -112,8 +135,9 @@ function ManagementPage() {
   }, [teams])
 
   useEffect(() => {
-    setIsAuthorised(checkAuthorised())
+    setAuthorisation(checkAuthorisation())
   }, [jwtToken])
+
 
   return (
     <div className='manage-shell'>
@@ -128,35 +152,52 @@ function ManagementPage() {
             navigate={() => navigate('/')}
             buttonHeader={headers['statistics_button']}
           />
+          <GeneralButton 
+            label={headers['logout'][lang]} 
+            onClick={logOut}
+          />
         </div>
 
         <div className='manage-shell__error'>
+          {isLoggedIn && <SuccessMessage 
+            success={`Hello ${localStorage.getItem('userName')}`}
+            fade={false}
+          />}
+          
           {hasError ? allErrors.map((error: string | null) => (
-            error && <ErrorMessage key={error} error={error}/>
-          )) : <GoodLuckButton/>}
+            error && <ErrorMessage key={error} error={error} fade={true}/>
+          )) : <GeneralButton
+            label="Good Luck"
+            onClick={() => (null)}
+          />}
         </div>
       </div>
 
       <div className='manage-shell__bot'>
 
         <div className='manage-shell__panel'>
-          <div className='manage-inputs__title'>
-            {headers['login'][lang]}
+          <div>
+            <div className='manage-inputs__title'>
+              {headers['login'][lang]}
+            </div>
+            <LoginCard
+              lang={lang}
+              setJwtToken={setJwtToken}
+            />
           </div>
-          <LoginCard
-            setJwtToken={setJwtToken}
-          />
 
-          <div className='manage-inputs__title'>
-            {headers['team_management'][lang]}
+          <div className={['manager', 'root'].includes(authorisation) ? '' : 'blurred'}>
+            <div className='manage-inputs__title'>
+              {headers['team_management'][lang]}
+            </div>
+            <TeamManageInputs
+              lang={lang}
+              onSuccess={fetchTeams}
+            />
           </div>
-          <TeamManageInputs
-            lang={lang}
-            onSuccess={fetchTeams}
-          />
         </div>
 
-        <div className={`manage-shell__panel-center ${isAuthorised ? '' : 'blurred'}`}>
+        <div className={'manage-shell__panel'}>
           <div className='manage-inputs__title'>
             {headers['player_management'][lang]}
           </div>
@@ -165,14 +206,15 @@ function ManagementPage() {
             onSuccess={fetchPlayers}
           />
 
-          <div className='manage-inputs__title'>
-            {headers['role_management'][lang]}
+          <div className={['root'].includes(authorisation) ? '' : 'blurred'}>
+            <div className='manage-inputs__title'>
+              {headers['membership_management'][lang]}
+            </div>
+            <ManageMembership
+              lang={lang}
+              chooseProps={chooseProps}
+            />
           </div>
-          <ManageRole
-            lang={lang}
-            chooseProps={chooseProps}
-          />
-          
         </div>
 
       </div>

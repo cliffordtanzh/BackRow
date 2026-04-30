@@ -14,7 +14,7 @@
 
 .role_manage-inputs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 0.5fr 1fr;
 }
 
 .manage-inputs__title {
@@ -42,6 +42,7 @@
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  font-weight: 600;
 }
 
 .field-input {

@@ -2,23 +2,24 @@ import { useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 
-import SuccessMessage from './SuccessMessage';
 import ErrorMessage from './ErrorMessage';
 
+import type { Lang } from '../types/Lang';
 import type { PlayerLogin } from '../types/PlayerLogin';
 import type { JwtPayload } from '../types/JwtPayload';
 
+import headers from '../assets/headers.json';
 import './LoginCard.css';
 
 
 type loginCardProps = {
+  lang: Lang,
   setJwtToken: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 
-function LoginCard({ setJwtToken }: loginCardProps) {
+function LoginCard({ lang, setJwtToken }: loginCardProps) {
   const[postError, setPostError] = useState<string | null>(null)
-  const[postSuccess, setPostSuccess] = useState<string | null>(null)
 
   const[playerState, setPlayerState] = useState<PlayerLogin>({
     email: '',
@@ -38,14 +39,14 @@ function LoginCard({ setJwtToken }: loginCardProps) {
       const decoded: JwtPayload = jwtDecode(token)
 
       localStorage.setItem("JWT_token", token)
+      localStorage.setItem("userName", decoded['name'])
+
       setPostError(null);
-      setPostSuccess(`Logged in as ${decoded['name']}`)
       setJwtToken(token)
 
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setPostError(error.response?.data?.detail ?? 'Something went wrong')
-        setPostSuccess(null)
       }
     }
   }
@@ -55,7 +56,7 @@ function LoginCard({ setJwtToken }: loginCardProps) {
       <form onSubmit={handleSubmit}>
         
         <div className='logincard-input'>
-          <label className='logincard-input__header'>Email</label>
+          <label className='logincard-input__header'>{headers['email'][lang]}</label>
           <input 
             className='logincard-field__input'
             onChange={(event) => (
@@ -65,7 +66,7 @@ function LoginCard({ setJwtToken }: loginCardProps) {
         </div>
 
         <div className='logincard-input'>
-          <label className='logincard-input__header'>Password</label>
+          <label className='logincard-input__header'>{headers['password'][lang]}</label>
           <input 
             className='logincard-field__input'
             type='password'
@@ -76,9 +77,8 @@ function LoginCard({ setJwtToken }: loginCardProps) {
         </div>
         
         <div className='logincard-input'>
-          <button className='logincard__submit' type='submit'>Login</button>
-          {postSuccess && <SuccessMessage success={postSuccess}/>}
-          {postError && <ErrorMessage error={postError}/>}
+          <button className='logincard__submit' type='submit'>{headers['login_button'][lang]}</button>
+          {postError && <ErrorMessage error={postError} fade={true}/>}
         </div>
           
       </form>

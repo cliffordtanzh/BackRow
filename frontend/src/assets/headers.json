@@ -3,8 +3,8 @@
     "title": {"en": "BackRow", "cn": "后排"},
 
     "mode_selector-player": {"en": "Player Mode", "cn": "模式"},
-    "mode_selector-team": {"en": "Team Mode", "cn": "队伍模式"},
-    "manage_button": {"en": "Manage Team/Player", "cn": "队伍/球员管理"},
+    "mode_selector-team": {"en": "Team Mode", "cn": "团队模式"},
+    "manage_button": {"en": "Manage Team/Player", "cn": "团队/球员管理"},
 
     "video": {"en": "YouTube Playback", "cn": "YouTube 回放"},
 
@@ -16,10 +16,14 @@
     "clear": {"en": "✖Clear", "cn": "✖清除"},
     "history_panel": {"en": "History", "cn": "历史记录"},
     
-    "player_management": {"en": "Player Entry", "cn": "队员输入"},
-    "team_management": {"en": "Team Entry", "cn": "队伍输入"},
-    "role_management": {"en": "Assign Roles", "cn": "分配角色"},
+    "player_management": {"en": "Player Sign Up", "cn": "队员报名"},
+    "team_management": {"en": "New Team", "cn": "团队输入"},
+    "membership_management": {"en": "Assign Membership", "cn": "分配成员资格"},
     "manage_submit_button": {"en": "Submit", "cn": "提交"},
 
-    "login": {"en": "Login", "cn": "登记"}
+    "login": {"en": "Login", "cn": "登记"},
+    "email": {"en": "Email", "cn": "邮件"},
+    "password": {"en": "Password", "cn": "密码"},
+    "login_button": {"en": "Login", "cn": "登入"},
+    "logout": {"en": "Logout", "cn": "登出"}
 }

@@ -21,11 +21,10 @@ function HistoryPanel({
 }: HistoryPanelProps) {
 
   const panelRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     if (panelRef.current) {
-    panelRef.current.scrollTop = panelRef.current.scrollHeight
-  }
+      panelRef.current.scrollTop = panelRef.current.scrollHeight
+    }
   }, [history])
   
   return (

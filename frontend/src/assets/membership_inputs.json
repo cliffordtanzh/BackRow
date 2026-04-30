@@ -1,4 +1,5 @@
 [
     {"key": "player", "en": "Player", "cn": "队员"},
+    {"key": "team", "en": "Team", "cn": "团队"},
     {"key": "role", "en": "Role", "cn": "角色"}
 ]

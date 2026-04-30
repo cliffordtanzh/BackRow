@@ -8,7 +8,6 @@ import LanguageSelector from '../components/LanguageSelector.tsx';
 import ModeSelector from '../components/ModeSelector.tsx';
 import TeamSelector from '../components/TeamSelector.tsx';
 import ErrorMessage from '../components/ErrorMessage.tsx';
-import GoodLuckButton from '../components/GoodLuckButton.tsx';
 import FieldInput from '../components/FieldInput.tsx';
 import HistoryButton from '../components/HistoryButton.tsx';
 import HistoryPanel from '../components/HistoryPanel.tsx';
@@ -25,7 +24,15 @@ import type { Lang } from '../types/Lang.ts'
 import { useTeams } from '../hooks/useTeams';
 
 import './StatsPage.css';
-import { toBoolean } from 'validator';
+import GeneralButton from '../components/GeneralButton.tsx';
+
+
+const DEFAULT_TEAM_EVENT: TeamEvent = {
+  eventID: 0,
+  pointMethod: {"en": '', "cn": ''},
+  ownTotal: 0,
+  oppTotal: 0
+}
 
 
 function StatsPage() {
@@ -45,21 +52,23 @@ function StatsPage() {
     teamName: '',
   });
 
-  const [eventID, setEventID] = useState<number>(0);
   const [history, setHistory] = useState<TeamEvent[]>([]);
-  const [ownPointTotal, setOwnTotal] = useState<number>(0);
-  const [oppPointTotal, setOppTotal] = useState<number>(0);
+  const [teamEventState, setTeamEventState] = useState<TeamEvent>(DEFAULT_TEAM_EVENT)
+
   const [postError, setPostError] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const {teams, teamError, fetchTeams} = useTeams();
 
-  const allErrors = [teamError, postError];
+  const allErrors = [teamError, postError, fetchError];
   const hasError = allErrors.reduce((a, b) => {
-    if ((a === null) || (b === null)) {
+    if ((a === null) && (b === null)) {
       return null;
+    } 
+    else {
+      return 'true';
     }
-    return (a || b);
-  })
+  }) === 'true'
 
   // Hooks
   useEffect(() => { fetchTeams() }, []);
@@ -79,7 +88,12 @@ function StatsPage() {
       setGameName(query.data.title)
     }
 
-    fetchTitle();
+    try {
+      fetchTitle();
+    } catch (error) {
+      setGameName('');
+      setFetchError('Game name could not be fetched')
+    }
   }, [videoURL])
 
   useEffect(() => {
@@ -87,55 +101,36 @@ function StatsPage() {
       setSelectedTeam(teams[0])
     }
   }, [teams])
-
-  function undoHistory() {
-    setHistory((prev) => {
-        if (prev.length === 0) {
-        return prev;
-        }
-    
-        const undid = prev.slice(0, -1);
-        const prevEvent = undid[undid.length - 1];
-
-        setOwnTotal(prevEvent?.ownTotal ?? 0);
-        setOppTotal(prevEvent?.oppTotal ?? 0);
-
-        return undid;
-    });
-  }
+  
 
   function clearHistory() {
     setHistory([]);
-    setEventID(0);
-    setOwnTotal(0);
-    setOppTotal(0);
+    setTeamEventState(DEFAULT_TEAM_EVENT);
   }
 
-  function onRecordEvent(pointMethod: BiLabel) {
-    let updatedOwn;
-    let updatedOpp;
-    const pointEng = pointMethod.en
-
-    if (pointEng.includes("Error") || pointEng.includes("Blocked")) {
-      updatedOwn = ownPointTotal
-      updatedOpp = oppPointTotal + 1
-      setOppTotal((prev) => prev + 1);
-    } 
-    
-    else {
-      updatedOwn = ownPointTotal + 1
-      updatedOpp = oppPointTotal
-      setOwnTotal((prev) => prev + 1);
+  function undoHistory() {
+    if (history.length > 0) {
+      const undid = history.slice(0, -1);
+      const prevEvent = undid.length > 0 ? undid[undid.length - 1] : DEFAULT_TEAM_EVENT;
+      
+      setHistory([...undid]);
+      setTeamEventState({...prevEvent});
     }
+  }
+  
+  function onRecordEvent(pointMethod: BiLabel) {
+    const pointEng = pointMethod.en
+    const pointLost = (pointEng.includes("Error") || pointEng.includes("Blocked"));
 
-    setHistory((prev) => ([...prev, {
-      eventID,
-      pointMethod,
-      ownTotal: updatedOwn,
-      oppTotal: updatedOpp,
-    }]));
+    const nextEvent: TeamEvent = {
+      eventID: teamEventState.eventID + 1,
+      pointMethod: pointMethod,
+      ownTotal: teamEventState.ownTotal + Number(!pointLost),
+      oppTotal: teamEventState.oppTotal + Number(pointLost),
+    };
 
-    setEventID((prev) => prev + 1)
+    setTeamEventState(nextEvent)
+    setHistory((prev) => ([...prev, {...nextEvent}]));
   }
 
   return (
@@ -165,8 +160,11 @@ function StatsPage() {
 
         <div className='stats-shell__error'>
           {hasError ? allErrors.map((error: string | null) => (
-            error && <ErrorMessage key={error} error={error}/>
-          )) : <GoodLuckButton/>}
+            error && <ErrorMessage key={error} error={error} fade={true}/>
+          )) : <GeneralButton
+            label="Good Luck"
+            onClick={() => (null)}
+          />}
         </div>
 
         <div className='stats-shell__title'>

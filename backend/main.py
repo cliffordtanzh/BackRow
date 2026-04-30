@@ -6,12 +6,15 @@ import secrets
 from jose import jwt
 from jose.exceptions import JWTError
 
+import smtplib
+from email.message import EmailMessage
+
 from pathlib import Path
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
 
-from fastapi import FastAPI
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import FastAPI, Depends, HTTPException, status, Request
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.datatypes import *
@@ -20,7 +23,7 @@ from backend.datatypes import *
 load_dotenv(Path(__file__).parent / ".env")
 
 
-ORIGIN_URL = os.getenv("ORIGIN_URL")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 app = FastAPI()
@@ -28,7 +31,7 @@ app = FastAPI()
 # Adding CORS to allow cross-origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = [ORIGIN_URL],
+    allow_origins = [FRONTEND_URL],
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"],
@@ -37,13 +40,11 @@ app.add_middleware(
 
 @app.get("/player", status_code = 200)
 def get_player():
-    try:
-        conn = sqlite3.connect(DATABASE_URL)
-        cursor = conn.cursor()
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
 
-        player_query = cursor.execute(
-            "SELECT * FROM player"
-        )
+    try:
+        player_query = cursor.execute("SELECT * FROM player")
         query_col = [col[0] for col in player_query.description]
         query_res = player_query.fetchall()
 
@@ -51,9 +52,13 @@ def get_player():
         for player_info in query_res:
             # Have to convert teamID to teamName
             data = dict(zip(query_col, player_info))
+            del data["passwordHash"]
             players.append(Player.model_validate(data))
     
         return {"data": players, "detail": "Player queried successfully"}
+    
+    except:
+        raise HTTPException(status_code = 500, detail = "Player query failed")
     
     finally:
         conn.close()
@@ -61,10 +66,10 @@ def get_player():
 
 @app.get("/team", status_code = 200)
 def get_team():
-    try:
-        conn = sqlite3.connect(DATABASE_URL)
-        cursor = conn.cursor()
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
 
+    try:
         team_query = cursor.execute("SELECT * FROM team")
         team_columns = [col[0] for col in team_query.description]
 
@@ -78,16 +83,19 @@ def get_team():
         
         return {"data": teams, "detail": "Team queried successfully"}
     
+    except:
+        raise HTTPException(status_code = 500, detail = "Team query failed")
+    
     finally:
         conn.close()
 
 
 @app.post("/team", status_code = 201)
 def post_team(team: TeamCreate):
-    try:
-        conn = sqlite3.connect(DATABASE_URL)
-        cursor = conn.cursor()
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
 
+    try:
         cursor.execute(
             "INSERT INTO team (teamName) VALUES (?)",
             (team.teamName, )
@@ -96,16 +104,19 @@ def post_team(team: TeamCreate):
         conn.commit()
         return {"detail": "Team posted successfully"}
     
+    except:
+        raise HTTPException(status_code = 500, detail = "Team post failed")
+    
     finally:
         conn.close()
 
 
 @app.post("/team_results", status_code = 201)
 def post_team_results(payload: TeamResults):
-    try:
-        conn = sqlite3.connect(DATABASE_URL)
-        cursor = conn.cursor()
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
 
+    try:
         history = payload.history
         gameName = payload.gameName
         teamName = payload.teamName
@@ -141,9 +152,11 @@ def post_team_results(payload: TeamResults):
                 )
             )
 
-        # conn.commit()
-        conn.rollback()
+        conn.commit()
         return {"detail": "Team results posted succssfully"}
+    
+    except:
+        raise HTTPException(status_code = 500, detail = "Team results post failed")
     
     finally:
         conn.close()
@@ -151,10 +164,10 @@ def post_team_results(payload: TeamResults):
 
 @app.post("/register", status_code = 201)
 def register(player: PlayerCreate):
-    try:
-        conn = sqlite3.connect(DATABASE_URL)
-        cursor = conn.cursor()
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
 
+    try:
         email_query = cursor.execute(
             "SELECT email FROM player WHERE email == (?)",
             (player.email, )
@@ -188,10 +201,35 @@ def register(player: PlayerCreate):
             (playerID, verf_token, expiry)
         )
 
-        print(verf_token)
+        # Set up email details
+        sender_email = os.getenv("EMAIL_ADDRESS")
+        password = os.getenv("EMAIL_PASSWORD") 
+        receiver_email = player.email
+
+        # Create the message
+        msg = EmailMessage()
+        msg["Subject"] = "Backrow Verification"
+        msg["From"] = sender_email
+        msg["To"] = receiver_email
+        msg.set_content(
+            "Click on this link to verify your account\n"
+            f"{os.getenv('BACKEND_URL')}/verify?token={verf_token}"
+        )
+        
+        try:
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                server.starttls()  # Secure the connection
+                server.login(sender_email, password)
+                server.send_message(msg)
+            print("Email sent successfully!")
+        except Exception as e:
+            print(f"Error: {e}")
 
         conn.commit()
         return {"detail": "Player registration request sent"}
+    
+    except:
+        raise HTTPException(status_code = 500, detail = "Player registration failed")
 
     finally:
         conn.close()
@@ -199,18 +237,20 @@ def register(player: PlayerCreate):
 
 @app.get("/verify", status_code = 200)
 def verify(token: str):
-    try:
-        conn = sqlite3.connect(DATABASE_URL)
-        cursor = conn.cursor()
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
 
+    try:
         time_now = datetime.now(timezone.utc)
         token_query = cursor.execute(
-            """SELECT 
+            """
+            SELECT 
                 *
             FROM 
                 player 
             INNER JOIN verification ON verification.playerID = player.playerID
-            WHERE verification.token = (?)""",
+            WHERE verification.token = (?)
+            """,
             (token, )
         )
         query_res = token_query.fetchone()
@@ -238,7 +278,10 @@ def verify(token: str):
         cursor.execute("DELETE FROM verification WHERE token = (?)", (token, ))
         
         conn.commit()
-        return {"detail": "Player registered successfully"}
+        return RedirectResponse(url = os.envget("FRONTEND_URL"))
+    
+    except:
+        raise HTTPException(status_code = 500, detail = "Verificationfailed")
 
     finally:
         conn.close()
@@ -246,10 +289,10 @@ def verify(token: str):
 
 @app.post("/login", status_code = 201)
 def login(player: PlayerLogin):
-    try:
-        conn = sqlite3.connect(DATABASE_URL)
-        cursor = conn.cursor()
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
 
+    try:
         email_query = cursor.execute(
             """
             SELECT 
@@ -286,6 +329,9 @@ def login(player: PlayerLogin):
         
         jwt_string = jwt.encode(payload, secret, algorithm = "HS256")
         return {"data": jwt_string, "detail": "Login successful"}
+    
+    except:
+        raise HTTPException(status_code = 500, detail = "Log in failed")
         
     finally:
         conn.close()
@@ -293,9 +339,9 @@ def login(player: PlayerLogin):
 
 # JWT dependency
 async def get_current_user(request: Request):
-    auth_header = request.headers.get("Authorization")
+    auth_header = request.headers.get("Authorisation")
     if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code = 401, detail = "Missing of invalid Authorization header")
+        raise HTTPException(status_code = 401, detail = "Missing of invalid Authorisation header")
     
     token = auth_header.split(" ")[1]
 
@@ -308,7 +354,52 @@ async def get_current_user(request: Request):
         raise HTTPException(status_code = 401, detail = "Invalid or Expired token")
     
 
-@app.get("/me")
-async def read_me(user = Depends(get_current_user)):
-    print(user)
-    return user
+# Protected Endpoints
+@app.post("/update_membership")
+async def update_membership(update: Membership, user = Depends(get_current_user)):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        if user["role"] not in ["root"]:
+            raise HTTPException(status_code = 401, detail = "Invalid Authorisation")
+
+        query = cursor.execute(
+            """
+            SELECT 
+                * 
+            FROM player
+            INNER JOIN membership ON membership.playerID = player.playerID
+            INNER JOIN team ON membership.teamID = team.teamID
+            WHERE player.playerID = (?)
+            """,
+            (update.playerID, )
+        )
+
+        result = query.fetchone()
+        if result is None:
+            raise HTTPException(status_code = 404, detail = "Player not found")
+        
+        cols = [col[0] for col in query.description]
+        data = dict(zip(cols, result))
+
+        if data["teamID"] != update.teamID:
+            cursor.execute(
+                "UPDATE membership SET teamID = (?) WHERE playerID = (?)",
+                (update.teamID, update.playerID)
+            )
+
+        if data["role"] != update.role:
+            cursor.execute(
+                "UPDATE membership SET role = (?) WHERE playerID = (?)",
+                (update.role, update.playerID)
+            )
+
+        conn.commit()
+        return user
+    
+    except:
+        raise HTTPException(status_code = 500, detail = "Update membership failed")
+    
+    finally:
+        conn.close()
