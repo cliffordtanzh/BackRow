@@ -2,11 +2,17 @@ import { useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 
-import ErrorMessage from './ErrorMessage';
+import useResponse from '../hooks/useResponse';
+
+import ErrorMessage from './general/ErrorMessage';
+import SuccessMessage from './general/ErrorMessage';
+import FieldInput from './general/FieldInput';
 
 import type { Lang } from '../types/Lang';
 import type { PlayerLogin } from '../types/PlayerLogin';
 import type { JwtPayload } from '../types/JwtPayload';
+import type { Response } from '../types/Response';
+import { DEFAULT_RESPONSE } from '../types/Response';
 
 import headers from '../assets/headers.json';
 import './LoginCard.css';
@@ -19,36 +25,39 @@ type loginCardProps = {
 
 
 function LoginCard({ lang, setJwtToken }: loginCardProps) {
-  const[postError, setPostError] = useState<string | null>(null)
+  const [success, setSuccess, error, setError] = useResponse();
 
   const[playerState, setPlayerState] = useState<PlayerLogin>({
     email: '',
     password: '',
   })
 
-  const handleSubmit = async (event: React.SubmitEvent) => {
+  const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault();
 
-    try {
-      const payload = await axios.post(
-        `${import.meta.env.VITE_API_URL}/login`,
-        {...playerState}
-      )
-      
-      const token = payload.data.data
+    if((playerState.email === '') || (playerState.password)) {
+      setError((prev) => ({...prev, message: 'Email or password cannot be empty'}))
+      setSuccess(DEFAULT_RESPONSE)
+    }
+
+    axios.post(
+      `${import.meta.env.VITE_API_URL}/login`,
+      {...playerState}
+    ).then((resp) => {
+      const token = resp.data.data
       const decoded: JwtPayload = jwtDecode(token)
 
       localStorage.setItem("JWT_token", token)
-      localStorage.setItem("userName", decoded['name'])
+      localStorage.setItem("userName", decoded['playerName'])
 
-      setPostError(null);
+      setError(DEFAULT_RESPONSE);
+      setSuccess((prev) => ({...prev, message: resp.data.detail}))
       setJwtToken(token)
 
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setPostError(error.response?.data?.detail ?? 'Something went wrong')
-      }
-    }
+    }).catch((resp) => {
+      setError((prev) => ({...prev, message: resp.response.data.detail}))
+      setSuccess(DEFAULT_RESPONSE)
+    })
   }
  
   return (
@@ -57,28 +66,27 @@ function LoginCard({ lang, setJwtToken }: loginCardProps) {
         
         <div className='logincard-input'>
           <label className='logincard-input__header'>{headers['email'][lang]}</label>
-          <input 
-            className='logincard-field__input'
-            onChange={(event) => (
-              setPlayerState((prev) => ({...prev, 'email': event.target.value}))
+          <FieldInput
+            setField={(value) => (
+              setPlayerState((prev) => ({...prev, 'email': value}))
             )} 
           />
         </div>
 
         <div className='logincard-input'>
           <label className='logincard-input__header'>{headers['password'][lang]}</label>
-          <input 
-            className='logincard-field__input'
-            type='password'
-            onChange={(event) => (
-              setPlayerState((prev) => ({...prev, 'password': event.target.value}))
+          <FieldInput
+            setField={(value) => (
+              setPlayerState((prev) => ({...prev, 'password': value}))
             )} 
+            password={true}
           />
         </div>
         
         <div className='logincard-input'>
           <button className='logincard__submit' type='submit'>{headers['login_button'][lang]}</button>
-          {postError && <ErrorMessage error={postError} fade={true}/>}
+          {error.message && <ErrorMessage response={error}/>}
+          {success.message && <SuccessMessage response={success}/>}
         </div>
           
       </form>

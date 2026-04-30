@@ -1,5 +1,4 @@
 .manage-shell {
-  height: 100vh;
   padding: 16px;
   gap: 24px;
   background: var(--bg);
@@ -11,7 +10,7 @@
 
 .manage-shell__top {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 0.5fr 1fr;
   gap: 16px;
 }
 
@@ -40,22 +39,20 @@
 
 .manage-shell__bot {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
 }
 
 .manage-shell__panel {
   display: flex;
-  width: 25vw;
   flex-direction: column;
   justify-content: space-evenly;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 16px;
-  gap: 16px;
+  padding: 24px;
+  gap: 24px;
   box-shadow: var(--shadow);
-  height: 75vh;
 }
 
 .manage-shell__panel-title {
@@ -63,6 +60,7 @@
   color: var(--text);
   font-size: 0.95rem;
   font-weight: 700;
+  font-size: large;
   text-transform: uppercase;
 }
 

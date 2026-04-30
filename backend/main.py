@@ -57,8 +57,8 @@ def get_player():
     
         return {"data": players, "detail": "Player queried successfully"}
     
-    except:
-        raise HTTPException(status_code = 500, detail = "Player query failed")
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
     
     finally:
         conn.close()
@@ -83,8 +83,8 @@ def get_team():
         
         return {"data": teams, "detail": "Team queried successfully"}
     
-    except:
-        raise HTTPException(status_code = 500, detail = "Team query failed")
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
     
     finally:
         conn.close()
@@ -104,8 +104,8 @@ def post_team(team: TeamCreate):
         conn.commit()
         return {"detail": "Team posted successfully"}
     
-    except:
-        raise HTTPException(status_code = 500, detail = "Team post failed")
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
     
     finally:
         conn.close()
@@ -155,8 +155,8 @@ def post_team_results(payload: TeamResults):
         conn.commit()
         return {"detail": "Team results posted succssfully"}
     
-    except:
-        raise HTTPException(status_code = 500, detail = "Team results post failed")
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
     
     finally:
         conn.close()
@@ -228,8 +228,8 @@ def register(player: PlayerCreate):
         conn.commit()
         return {"detail": "Player registration request sent"}
     
-    except:
-        raise HTTPException(status_code = 500, detail = "Player registration failed")
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
 
     finally:
         conn.close()
@@ -280,8 +280,8 @@ def verify(token: str):
         conn.commit()
         return RedirectResponse(url = os.envget("FRONTEND_URL"))
     
-    except:
-        raise HTTPException(status_code = 500, detail = "Verificationfailed")
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
 
     finally:
         conn.close()
@@ -330,8 +330,8 @@ def login(player: PlayerLogin):
         jwt_string = jwt.encode(payload, secret, algorithm = "HS256")
         return {"data": jwt_string, "detail": "Login successful"}
     
-    except:
-        raise HTTPException(status_code = 500, detail = "Log in failed")
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
         
     finally:
         conn.close()
@@ -398,8 +398,8 @@ async def update_membership(update: Membership, user = Depends(get_current_user)
         conn.commit()
         return user
     
-    except:
-        raise HTTPException(status_code = 500, detail = "Update membership failed")
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail = str(e))
     
     finally:
         conn.close()

@@ -2,18 +2,25 @@ import './FieldInput.css';
 
 
 type FieldInputProps = {
-  setField: React.Dispatch<React.SetStateAction<string>>
-  placeholder: string
+  setField: (value: any) => void
+  placeholder?: string
+  password?: boolean
 }
 
-function FieldInput({ setField, placeholder }: FieldInputProps) {
+
+function FieldInput({ 
+  setField, 
+  password = false, 
+  placeholder = ''
+}: FieldInputProps) {
   const updateField = (event: React.ChangeEvent<HTMLInputElement>) => {
     setField(event.target.value)
   }
 
   return (
     <input 
-      className='team-page__field-input'
+      type={password ? 'password' : 'text'}
+      className='field-input'
       placeholder={placeholder}
       onChange={updateField}
     />

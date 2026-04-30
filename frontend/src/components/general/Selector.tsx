@@ -7,7 +7,7 @@ type selectorProps<T> = {
   items: T[],
   selected: T,
   setSelected: React.Dispatch<React.SetStateAction<T>>,
-  getID: (item: T) => string,
+  getID: (item: T) => string | number,
   getName: (item: T) => string,
 }
 

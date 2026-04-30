@@ -1,0 +1,1 @@
+export type Role = 'none' | 'player' | 'manager' | 'root'

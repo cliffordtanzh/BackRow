@@ -4,27 +4,28 @@ import { useNavigate } from 'react-router-dom';
 import ReactPlayer from 'react-player'
 import axios from 'axios';
 
-import LanguageSelector from '../components/LanguageSelector.tsx';
-import ModeSelector from '../components/ModeSelector.tsx';
-import TeamSelector from '../components/TeamSelector.tsx';
-import ErrorMessage from '../components/ErrorMessage.tsx';
-import FieldInput from '../components/FieldInput.tsx';
+import LanguageSelector from '../components/general/LanguageSelector.tsx';
+import ModeSelector from '../components/general/ModeSelector.tsx';
+import Selector from '../components/general/Selector.tsx';
+import ErrorMessage from '../components/general/ErrorMessage.tsx';
+import FieldInput from '../components/general/FieldInput.tsx';
+import NavButton from '../components/general/NavButton.tsx';
+import GeneralButton from '../components/general/GeneralButton.tsx';
+
 import HistoryButton from '../components/HistoryButton.tsx';
 import HistoryPanel from '../components/HistoryPanel.tsx';
 import TeamStatsInputs from '../components/TeamStatsInputs.tsx'
-import NavButton from '../components/NavButton.tsx';
 
 import headers from '../assets/headers.json';
 
-import type { TeamEvent } from '../types/TeamEvent.tsx';
-import type { BiLabel } from '../types/BiLabel.ts';
-import type { Team } from '../types/Team.ts';
-import type { Lang } from '../types/Lang.ts'
+import type { TeamEvent } from '../types/TeamEvent';
+import type { BiLabel } from '../types/BiLabel';
+import type { Team } from '../types/Team';
+import type { Lang } from '../types/Lang'
 
 import { useTeams } from '../hooks/useTeams';
 
 import './StatsPage.css';
-import GeneralButton from '../components/GeneralButton.tsx';
 
 
 const DEFAULT_TEAM_EVENT: TeamEvent = {
@@ -151,20 +152,22 @@ function StatsPage() {
             isPlayerMode={isPlayerMode}
             setIsPlayerMode={setIsPlayerMode}
           />
-          <TeamSelector
-            teams={teams}
-            selectedTeam={selectedTeam}
-            setSelectedTeam={setSelectedTeam}
+          <Selector
+            items={teams}
+            selected={selectedTeam}
+            setSelected={setSelectedTeam}
+            getID={(item: Team) => item.teamID}
+            getName={(item: Team) => item.teamName}
           />
         </div>
 
         <div className='stats-shell__error'>
-          {hasError ? allErrors.map((error: string | null) => (
+          {/* {hasError ? allErrors.map((error: string | null) => (
             error && <ErrorMessage key={error} error={error} fade={true}/>
           )) : <GeneralButton
             label="Good Luck"
             onClick={() => (null)}
-          />}
+          />} */}
         </div>
 
         <div className='stats-shell__title'>

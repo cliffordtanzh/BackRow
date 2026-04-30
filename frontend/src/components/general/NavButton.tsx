@@ -1,6 +1,6 @@
-import type { Lang } from '../types/Lang';
+import type { Lang } from '../../types/Lang';
 import type { NavigateFunction } from 'react-router-dom';
-import type { BiLabel } from '../types/BiLabel';
+import type { BiLabel } from '../../types/BiLabel';
 
 import './NavButton.css';
 

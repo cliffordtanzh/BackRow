@@ -16,14 +16,20 @@
     "clear": {"en": "✖Clear", "cn": "✖清除"},
     "history_panel": {"en": "History", "cn": "历史记录"},
     
-    "player_management": {"en": "Player Sign Up", "cn": "队员报名"},
+    "player_management": {"en": "Register Player", "cn": "队员报名"},
     "team_management": {"en": "New Team", "cn": "团队输入"},
     "membership_management": {"en": "Assign Membership", "cn": "分配成员资格"},
     "manage_submit_button": {"en": "Submit", "cn": "提交"},
 
+    "player_login": {"en": "Player Login", "cn": "登入"},
     "login": {"en": "Login", "cn": "登记"},
     "email": {"en": "Email", "cn": "邮件"},
+
     "password": {"en": "Password", "cn": "密码"},
     "login_button": {"en": "Login", "cn": "登入"},
-    "logout": {"en": "Logout", "cn": "登出"}
+    "logout": {"en": "Logout", "cn": "登出"},
+
+    "change_password": {"en": "Change Password", "cn": "改密码"},
+    "old_password": {"en": "Old Password", "cn": "旧密码"},
+    "new_password": {"en": "New Password", "cn": "新密码"}
 }

@@ -1,6 +1,6 @@
-import type { Lang } from '../types/Lang';
+import type { Lang } from '../../types/Lang';
 
-import header from '../assets/headers.json'
+import header from '../../assets/headers.json'
 import './ModeSelector.css';
 
 

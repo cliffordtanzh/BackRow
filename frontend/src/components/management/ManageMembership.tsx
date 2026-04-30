@@ -1,15 +1,18 @@
 import axios from 'axios';
-import { useState } from 'react';
 
-import SuccessMessage from './SuccessMessage';
-import ErrorMessage from './ErrorMessage';
-import Selector from './general/Selector';
+import SuccessMessage from '../general/SuccessMessage';
+import ErrorMessage from '../general/ErrorMessage';
+import Selector from '../general/Selector';
 
-import type { Lang } from '../types/Lang';
-import type { Membership } from '../types/Membership';
+import useResponse from '../../hooks/useResponse';
 
-import headers from '../assets/headers.json';
-import membershipHeaders from '../assets/membership_inputs.json';
+import type { Lang } from '../../types/Lang';
+import type { Membership } from '../../types/Membership';
+import type { Role } from '../../types/Role';
+import { DEFAULT_RESPONSE } from '../../types/Response';
+
+import headers from '../../assets/headers.json';
+import membershipHeaders from '../../assets/membership_inputs.json';
 
 import './ManageInputs.css'
 
@@ -17,16 +20,17 @@ import './ManageInputs.css'
 type manageRoleProps = {
   lang: Lang
   chooseProps: (header: string) => any
+  setAuthorisation: React.Dispatch<React.SetStateAction<Role>>
 }
 
 
 function ManageRole({ 
   lang,
   chooseProps,
+  setAuthorisation,
 }: manageRoleProps) {
 
-  const[error, setError] = useState<string | null>(null);
-  const[success, setSuccess] = useState<string | null>(null);
+  const [error, setError, success, setSuccess] = useResponse();
 
   const playerProps = chooseProps('player')
   const teamProps = chooseProps('team')
@@ -41,28 +45,28 @@ function ManageRole({
       role: roleProps.selected.role
     }
 
-    try {
-      const token = localStorage.getItem('JWT_token')
-      axios.post(
-        `${import.meta.env.VITE_API_URL}/update_membership`, 
-        payload,
-        {headers: {Authorisation: `Bearer ${token}`}}
-      )
-
-      setSuccess('Membership Updated')
-      setError(null)
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.detail ?? 'Something went wrong')
-        setSuccess(null)
-      }
-    }
+    const token = localStorage.getItem('JWT_token')
+    axios.post(
+      `${import.meta.env.VITE_API_URL}/update_membership`, 
+      payload,
+      {headers: {Authorisation: `Bearer ${token}`}}
+    )
+    .then((resp) => {
+      setSuccess((prev) => ({...prev, message: resp.data.detail}))
+      setError(DEFAULT_RESPONSE)
+      setAuthorisation(payload.role);
+    })
+    .catch((resp) => {
+      setSuccess(DEFAULT_RESPONSE)
+      setError((prev) => ({...prev, message: resp.response.data.detail}))
+    })
   }
 
   return (
     <div className='manage-inputs'>
       <form onSubmit={handleSubmit}>
         <div className='role_manage-inputs'>
+
           <div className='manage-inputs__field'>
             <label className='manage-inputs__label'>
               {membershipHeaders[0][lang]}
@@ -91,8 +95,8 @@ function ManageRole({
           <button className='manage-inputs__submit' type='submit'>
             {headers['manage_submit_button'][lang]}
           </button>
-          {error && <ErrorMessage error={error} fade={true}/>}
-          {success && <SuccessMessage success={success} fade={true}/>}
+          {error.message && <ErrorMessage response={error}/>}
+          {success.message && <SuccessMessage response={success}/>}
         </div>
 
       </form>

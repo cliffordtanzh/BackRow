@@ -10,7 +10,6 @@ import type { TeamEvent } from '../types/TeamEvent';
 import type { TeamResults } from '../types/TeamResults';
 
 import './TeamStatsInputs.css';
-import './ErrorMessage.css';
 
 
 type TeamStatsInputsProps = {

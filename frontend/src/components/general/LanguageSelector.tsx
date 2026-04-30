@@ -1,4 +1,4 @@
-import type { Lang } from '../types/Lang.ts';
+import type { Lang } from '../../types/Lang.ts';
 import './LanguageSelector.css';
 
 

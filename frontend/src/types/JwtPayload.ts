@@ -1,6 +1,10 @@
+import type { Role } from "./Role"
+
+
 export type JwtPayload = {
-    name: string,
+    playerName: string,
+    playerID: number,
     email: string,
-    role: 'player' | 'manager' | 'root',
+    role: Role,
     exp: number,
 }
