@@ -10,18 +10,7 @@
 .role_manage-inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-}
-
-.manage-inputs__title {
-  padding-left: 16px;
-  display: inline-flex;
-  justify-content: space-evenly;
   align-items: center;
-  margin-bottom: 12px;
-  font-weight: 600;
-  font-size: large;
-  height: 2rem;
-  color: var(--text)
 }
 
 .manage-inputs__field {
@@ -29,7 +18,7 @@
   grid-template-columns: 0.5fr 1fr;
   gap: 8px;
   padding: 16px;
-  align-items: center;
+  height: 2.5rem;
 }
 
 .manage-inputs__label {
@@ -38,8 +27,9 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 600;
-  line-height: 1;
-  width: 6rem;
+  width: 100%;
+  height: 2.5rem;
+  line-height: 3;
 }
 
 .manage-inputs__submit {
@@ -55,6 +45,7 @@
   color: var(--accent-2);
   line-height: 1;
   text-align: center;
+  height: 2.5rem;
 }
 
 .manage-inputs__submit:hover {

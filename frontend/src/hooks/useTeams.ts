@@ -1,26 +1,20 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-import type { Team } from '../types/Team';
+import { type Team } from '../types/Team';
+import { type Response, DEFAULT_RESPONSE } from '../types/Response';
 
 
 export function useTeams() {
-  const[teams, setTeams] = useState<Team[]>([]);
-  const[teamError, setTeamError] = useState<string | null>(null);
+  const[teams, setTeams] = useState<Team[]>([])
+  const[teamError, setTeamsError] = useState<Response>(DEFAULT_RESPONSE);
 
-  const fetchTeams = async () => {
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/team`)
-      setTeams(res.data.data);
-      setTeamError(null);
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setTeamError(err.response?.data?.detail ?? 'Something went wrong')
-      }
-    }
+  const fetchTeams = () => {
+    axios.get(`${import.meta.env.VITE_API_URL}/team`)
+    .then((resp) => setTeams(resp.data.data))
+    .catch((resp) => setTeamsError((prev) => ({...prev, message: resp.response.data.detail})))
   }
 
   useEffect(() => { fetchTeams() }, [])
-
   return { teams, teamError, fetchTeams }
 }

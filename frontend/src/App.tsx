@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import StatsPage from "./pages/StatsPage";
+import StatsPage from "./pages/EntryPage";
 import ManagementPage from "./pages/ManagementPage";
 
 import './App.css';

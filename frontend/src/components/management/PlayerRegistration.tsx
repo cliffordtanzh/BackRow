@@ -1,6 +1,7 @@
-import { useState } from 'react';
 import validator from 'validator';
 import axios from 'axios';
+
+import { useState } from 'react';
 
 import SuccessMessage from '../general/SuccessMessage';
 import ErrorMessage from '../general/ErrorMessage';
@@ -8,42 +9,30 @@ import FieldInput from '../general/FieldInput';
 
 import useResponse from '../../hooks/useResponse';
 
-import type { Lang } from '../../types/Lang';
-import type { PlayerCreate } from '../../types/PlayerCreate';
+import { type PlayerCreate, DEFAULT_PLAYER_CREATE } from '../../types/PlayerCreate';
+import { type Lang } from '../../types/Lang';
 import { DEFAULT_RESPONSE } from '../../types/Response';
 
 import headers from '../../assets/headers.json';
 import playerHeaders from '../../assets/player_inputs.json';
-
 import './ManageInputs.css'
 
 
-type PlayerManageInputsProps = {
-  lang: Lang
+type PlayerRegistrationProps = {
+  lang: Lang,
   onSuccess: () => void
 }
 
-const DEFAULT_PLAYER: PlayerCreate = {
-  playerName: '', 
-  playerNumber: -1, 
-  email: '', 
-  password: ''
-}
 
-
-function PlayerManageInputs ({ 
-  lang,
-  onSuccess
-}: PlayerManageInputsProps) {
-
+function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
   const [error, setError, success, setSuccess] = useResponse();
-  const [playerState, setPlayerState] = useState<PlayerCreate>(DEFAULT_PLAYER);
+  const [playerState, setPlayerState] = useState<PlayerCreate>(DEFAULT_PLAYER_CREATE);
 
-  const handleSubmit = async (event: React.SubmitEvent) => {
+  const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault();
 
-    if(playerState.playerName === DEFAULT_PLAYER.playerName) {
-      setError((prev) => ({...prev, message: 'Player name must not be empty'}));
+    if(playerState.playerName === DEFAULT_PLAYER_CREATE.playerName) {
+      setError((prev) => ({...prev, message: 'Player name cannot be empty'}));
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
@@ -55,27 +44,23 @@ function PlayerManageInputs ({
     }
 
     if(playerState.playerNumber === -1) {
-      setError((prev) => ({...prev, message: 'Player number must not be empty'}));
+      setError((prev) => ({...prev, message: 'Player number cannot be empty'}));
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
 
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/register`, 
-        {...playerState}
-      )
+    axios.post(
+      `${import.meta.env.VITE_API_URL}/register`, 
+      {...playerState}
+    ).then((resp) => {
       onSuccess();
-      setPlayerState(DEFAULT_PLAYER);
+      setPlayerState(DEFAULT_PLAYER_CREATE);
       setError(DEFAULT_RESPONSE);
-      setSuccess((prev) => ({...prev, message: 'Request submitted'}));
+      setSuccess((prev) => ({...prev, message: resp.data.detail}));
 
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.detail ?? 'Something went wrong')
-      }
-
-    }
+    }).catch((resp) => {
+      setError((prev) => ({...prev, message: resp.response.data.detail}))
+    })
   }
 
   return (
@@ -93,13 +78,14 @@ function PlayerManageInputs ({
                 <FieldInput
                   key={header['key']}
                   password={header['key'] === 'password'}
+                  value={
+                    (header['key'] !== 'playerNumber' || playerState.playerNumber !== -1) ? 
+                    String(playerState[header['key'] as keyof PlayerCreate]) :
+                    ''
+                  }
                   setField={(val) => (
-                    setPlayerState((prev) => (
-                      {...prev, [header['key']]: 
-                        header['key'] === 'playerNumber' ? 
-                        Number(val) : 
-                        val
-                      }
+                    setPlayerState((prev) => ({...prev, [header['key']]: 
+                        header['key'] === 'playerNumber' ? Number(val) : val}
                     ))
                   )}
                 />
@@ -120,4 +106,4 @@ function PlayerManageInputs ({
   )
 }
 
-export default PlayerManageInputs;
+export default PlayerRegistration;

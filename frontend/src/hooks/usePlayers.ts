@@ -1,26 +1,21 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-import type { Player } from '../types/Player';
+import { type Player } from '../types/Player';
+import { type Response, DEFAULT_RESPONSE } from '../types/Response';
 
 
 export function usePlayers() {
   const[players, setPlayers] = useState<Player[]>([])
-  const[playerError, setPlayerError] = useState<string | null>(null);
+  const[playerError, setPlayersError] = useState<Response>(DEFAULT_RESPONSE);
 
 
-  const fetchPlayers = async () => {
-    try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/player`)
-      setPlayers(res.data.data)
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setPlayerError(err.response?.data?.detail ?? 'Something went wrong')
-      }
-    }
+  const fetchPlayers = () => {
+    axios.get(`${import.meta.env.VITE_API_URL}/player`)
+    .then((resp) => setPlayers(resp.data.data))
+    .catch((resp) => setPlayersError((prev) => ({...prev, message: resp.response.data.detail})))
   }
 
   useEffect(() => { fetchPlayers() }, [])
-
   return { players, playerError, fetchPlayers }
 }

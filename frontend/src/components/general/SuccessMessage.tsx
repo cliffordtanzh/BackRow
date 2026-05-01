@@ -1,12 +1,12 @@
-import type { Response } from '../../types/Response'
+import { type Response } from '../../types/Response'
 
 import './SuccessMessage.css'
 
 
-type successMessageProps = {response: Response}
+type SuccessMessageProps = {response: Response}
 
 
-function SuccessMessage({ response }: successMessageProps) {
+function SuccessMessage({ response }: SuccessMessageProps) {
   const { message, fade } = response;
 
   return (

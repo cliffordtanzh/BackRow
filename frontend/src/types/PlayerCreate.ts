@@ -4,3 +4,10 @@ export type PlayerCreate = {
     email: string,
     password: string,
 }
+
+export const DEFAULT_PLAYER_CREATE: PlayerCreate = {
+  playerName: '', 
+  playerNumber: -1, 
+  email: '', 
+  password: ''
+}

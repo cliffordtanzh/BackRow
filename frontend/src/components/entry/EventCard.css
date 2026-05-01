@@ -1,7 +1,8 @@
-.history-panel__card {
+.event_card {
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 4.5rem;
   gap: 6px;
   padding: 12px 14px;
   background: var(--surface-2);
@@ -11,13 +12,13 @@
   box-sizing: border-box;
 }
 
-.history-panel__card-title {
+.event_card-title {
   color: var(--text);
   font-size: 0.95rem;
   font-weight: 700;
 }
 
-.history-panel__card-subtitle {
+.event_card-subtitle {
   color: var(--muted);
   font-size: 0.85rem;
 }

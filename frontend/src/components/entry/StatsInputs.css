@@ -1,4 +1,4 @@
-.team_input {
+.stats_input {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -6,21 +6,26 @@
   align-items: start;
 }
 
-.team-inputs__keypad {
+.stats-inputs__keypad {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr auto;
+  align-items: flex-start;
   gap: 16px;
 }
 
-.team-inputs__button {
+.stats-inputs__button {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
+  padding: 10px;
   gap: 10px;
   align-content: flex-start;
+  border: 1px solid var(--border);
+  border-radius: 24px;
 }
 
-.team-inputs__submit {
+.stats-inputs__submit {
   width: 100%;
   padding: 0.65rem 1rem;
   border-radius: 12px;
@@ -35,28 +40,35 @@
   text-align: center;
 }
 
-.team-inputs__submit:hover {
+.stats-inputs__submit:hover {
   filter: brightness(1.15);
   transform: translateY(-1px);
 }
 
-.team-inputs__submit:active {
+.stats-inputs__submit:active {
   transform: translateY(0);
 }
 
 
 @media (max-width: 790px) {
-  .team-inputs__keypad {
-    grid-template-columns: 1fr;
+  .stats_input {
+    display: grid;
+  }
+
+  .stats-inputs__keypad {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
     gap: 16px;
     padding: 16px;
   }
-
-  .team-inputs__button {
+  
+  .stats-inputs__button {
     display: flex;
+    flex-direction: column;
     flex-wrap: wrap;
-    gap: 10px;
     align-content: center;
-    justify-content: center;
+    gap: 10px;
   }
 }

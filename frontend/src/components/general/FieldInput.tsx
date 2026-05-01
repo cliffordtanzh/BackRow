@@ -3,14 +3,16 @@ import './FieldInput.css';
 
 type FieldInputProps = {
   setField: (value: any) => void
-  placeholder?: string
   password?: boolean
+  value?: string
+  placeholder?: string
 }
 
 
 function FieldInput({ 
   setField, 
   password = false, 
+  value = '',
   placeholder = ''
 }: FieldInputProps) {
   const updateField = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,6 +23,7 @@ function FieldInput({
     <input 
       type={password ? 'password' : 'text'}
       className='field-input'
+      value={value}
       placeholder={placeholder}
       onChange={updateField}
     />

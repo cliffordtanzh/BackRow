@@ -1,21 +1,17 @@
-import type { Lang } from '../types/Lang';
+import { type Lang } from '../../types/Lang';
 
-import headers from '../assets/headers.json';
+import headers from '../../assets/headers.json';
 import './HistoryButton.css'
 
 
-type historyButtonProps = {
+type HistoryButtonProps = {
   lang: Lang,
   onClick: () => void;
   type: 'undo' | 'clear',
 }
 
-function HistoryButton({
-  lang,
-  onClick,
-  type,
-}: historyButtonProps) {
 
+function HistoryButton({ lang, onClick, type }: HistoryButtonProps) {
   return (
     <button 
       className='history-button'

@@ -4,7 +4,6 @@
         {"en": "Block Kill", "cn": "拦网得分"},
         {"en": "Spike Kill", "cn": "扣球得分"},
         {"en": "Tip Kill", "cn": "吊球得分"},
-        {"en": "Attacks", "cn": "进攻"},
         {"en": "Spike Attempt", "cn": "尝试扣球"}
     ],
 
@@ -22,7 +21,7 @@
         {"en": "Tip Received", "cn": "接吊球"},
         {"en": "Freeball Received", "cn": "接机会球"},
         {"en": "Spike Cover", "cn": "保护扣球"},
-        {"en": "Receives", "cn": "接球"}
+        {"en": "Receive Attempt", "cn": "尝试接球"}
     ],
 
     "receive_mistakes": [
@@ -30,7 +29,6 @@
         {"en": "Spike Receive Error", "cn": "接扣球失误"},
         {"en": "Tip Receive Error", "cn": "接吊球失误"},
         {"en": "Freeball Error", "cn": "接球失误"},
-        {"en": "Spike Cover Error", "cn": "保护扣球失误"},
-        {"en": "Receive Errors", "cn": "接球失误"}
+        {"en": "Spike Cover Error", "cn": "保护扣球失误"}
     ]
 }

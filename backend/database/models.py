@@ -48,20 +48,31 @@ class Membership(Base):
     role = Column(Enum(Role), nullable = False)
 
 
-class TeamSummary(Base):
-    __tablename__ = "team_summary"
+class TeamEvent(Base):
+    __tablename__ = "team_event"
+    summaryID = Column(Integer, ForeignKey("team_result.summaryID"), primary_key = True)
+    eventID = Column(Integer, primary_key = True)
+    pointMethod = Column(String, nullable = False)
+    pointDelta = Column(Integer, nullable = False)
+
+
+class TeamResult(Base):
+    __tablename__ = "team_result"
     summaryID = Column(Integer, primary_key = True, autoincrement = True)
     gameName = Column(String, nullable = False)
     teamName = Column(String, nullable = False)
-    ownTotal = Column(Integer, nullable = False)
-    oppTotal = Column(Integer, nullable = False)
 
 
-class TeamEvent(Base):
-    __tablename__ = "team_event"
+class PlayerEvent(Base):
+    __tablename__ = "player_event"
+    summaryID = Column(Integer, ForeignKey("player_result.summaryID"), primary_key = True)
     eventID = Column(Integer, primary_key = True)
-    summaryID = Column(Integer, ForeignKey("team_summary.summaryID"), primary_key = True)
-    pointMethod = Column(String, nullable = False)
-    ownTotal = Column(Integer, nullable = False)
-    oppTotal = Column(Integer, nullable = False)
-    
+    eventType = Column(String, nullable = False)
+    pointDelta = Column(Integer, nullable = False)
+
+
+class PlayerResult(Base):
+    __tablename__ = "player_result"
+    summaryID = Column(Integer, primary_key = True, autoincrement = True)
+    gameName = Column(String, nullable = False)
+    playerName = Column(String, nullable = False)

@@ -1,7 +1,7 @@
 from backend.datatypes.player import Player, PlayerCreate, PlayerLogin
 from backend.datatypes.team import Team, TeamCreate
-from backend.datatypes.team_event import TeamEvent
-from backend.datatypes.team_results import TeamResults
+from backend.datatypes.event import Event
+from backend.datatypes.results import Results, ResultsCreate
 from backend.datatypes.membership import Membership
 
 __all__ = [
@@ -10,7 +10,8 @@ __all__ = [
     "PlayerLogin",
     "Team",
     "TeamCreate",
-    "TeamEvent",
-    "TeamResults",
     "Membership",
+    "Event",
+    "Results",
+    "ResultsCreate",
 ]

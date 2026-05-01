@@ -6,6 +6,7 @@ type teamButtonProps = {
   onClick: () => void
 }
 
+
 function TeamButton({
   label,
   onClick,

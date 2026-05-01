@@ -1,6 +1,7 @@
+import axios from 'axios';
+
 import { useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
 
 import ErrorMessage from '../general/ErrorMessage';
 import SuccessMessage from '../general/SuccessMessage';
@@ -8,10 +9,10 @@ import FieldInput from '../general/FieldInput';
 
 import useResponse from '../../hooks/useResponse';
 
-import type { Lang } from '../../types/Lang';
-import type { PlayerLogin } from '../../types/PlayerLogin';
-import type { JwtPayload } from '../../types/JwtPayload';
+import { DEFAULT_PLAYER_LOGIN, type PlayerLogin } from '../../types/PlayerLogin';
 import { DEFAULT_RESPONSE } from '../../types/Response';
+import { type Lang } from '../../types/Lang';
+import { type JwtPayload } from '../../types/JwtPayload';
 
 import headers from '../../assets/headers.json';
 import './ManageInputs.css';
@@ -24,18 +25,15 @@ type loginCardProps = {
 
 
 function LoginCard({ lang, setJwtToken }: loginCardProps) {
-  const [error, setError, success, setSuccess] = useResponse();
 
-  const [playerState, setPlayerState] = useState<PlayerLogin>({
-    email: '',
-    password: '',
-  })
+  const [error, setError, success, setSuccess] = useResponse();
+  const [playerState, setPlayerState] = useState<PlayerLogin>(DEFAULT_PLAYER_LOGIN)
 
   const handleSubmit = async (event: React.SubmitEvent) => {
     event.preventDefault();
 
     if ((playerState.email === '') || (playerState.password === '')) {
-      setError((prev) => ({...prev, message: 'Email and password must be provided'}));
+      setError((prev) => ({...prev, message: 'Email and password cannot be empty'}));
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
@@ -48,16 +46,20 @@ function LoginCard({ lang, setJwtToken }: loginCardProps) {
       const token = resp.data.data
       const decoded: JwtPayload = jwtDecode(token)
       
-      localStorage.setItem("JWT_token", token)
-      localStorage.setItem("userName", decoded['playerName'])
+      localStorage.setItem('Jwt_token', token)
+      localStorage.setItem('playerID', String(decoded['playerID']))
+      localStorage.setItem('playerName', decoded['playerName'])
+      localStorage.setItem('teamID', String(decoded['teamID']))
+      localStorage.setItem('teamName', decoded['teamName'])
   
       setError(DEFAULT_RESPONSE);
       setSuccess((prev) => ({...prev, message: resp.data.detail}))
       setJwtToken(token)
+      setPlayerState(DEFAULT_PLAYER_LOGIN)
     })
     .catch((resp) => setError((prev) => ({...prev, message: resp.response.data.detail})))
   }
- 
+  
   return (
     <div className='manage-inputs'>
       <form onSubmit={handleSubmit}>
@@ -68,6 +70,7 @@ function LoginCard({ lang, setJwtToken }: loginCardProps) {
           </label>
           <FieldInput
             setField={(val) => setPlayerState((prev) => ({...prev, email: val}))} 
+            value={playerState.email}
           />
         </div>
 
@@ -76,8 +79,9 @@ function LoginCard({ lang, setJwtToken }: loginCardProps) {
             {headers['password'][lang]}
           </label>
           <FieldInput
-            password={true}
             setField={(val) => setPlayerState((prev) => ({...prev, password: val}))}
+            password={true}
+            value={playerState.password}
           />
         </div>
         

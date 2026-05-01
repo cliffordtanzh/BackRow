@@ -1,25 +1,25 @@
-import './TeamButton.css';
+import './StatsButton.css';
 
 
-type teamButtonProps = {
+type StatsButtonProps = {
   label: string,
   onClick: () => void
 }
 
-function TeamButton({
+function StatsButton({
   label,
   onClick,
-}: teamButtonProps) {
+}: StatsButtonProps) {
   const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1)
 
   return (
     <div>
       <button 
-        className='team-button'
+        className='stats-button'
         onClick={onClick}
         >{formattedLabel}</button>
     </div>
   )
 }
 
-export default TeamButton;
+export default StatsButton;

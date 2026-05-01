@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { useState } from 'react';
 
 import ErrorMessage from '../general/ErrorMessage';
@@ -7,20 +8,19 @@ import FieldInput from '../general/FieldInput';
 
 import useResponse from '../../hooks/useResponse';
 
-import type { Lang } from '../../types/Lang';
 import { DEFAULT_RESPONSE } from '../../types/Response';
+import { type Lang } from '../../types/Lang';
 
 import headers from '../../assets/headers.json';
-
 import './ManageInputs.css';
 
 
-type passwordChangeProps = {
-  lang: Lang
+type PasswordChangeProps = {
+  lang: Lang,
 }
 
 
-function PasswordChange({ lang }: passwordChangeProps) {
+function PasswordChange({ lang }: PasswordChangeProps) {
   const [error, setError, success, setSuccess] = useResponse();
 
   const [oldPassword, setOldPassword] = useState<string>('');
@@ -31,7 +31,7 @@ function PasswordChange({ lang }: passwordChangeProps) {
 
     if((oldPassword === '') || (newPassword === '')) {
       setError((prev) => ({...prev, message: 'Password cannot be empty'}))
-      return 
+      return;
     }
 
     const passwords = {
@@ -39,13 +39,16 @@ function PasswordChange({ lang }: passwordChangeProps) {
       new: newPassword
     }
 
-    const token = localStorage.getItem("JWT_token")
+    const token = localStorage.getItem("Jwt_token")
     axios.post(
       `${import.meta.env.VITE_API_URL}/change_password`,
       passwords,
       {headers: {Authorisation: `Bearer ${token}`}}
     )
     .then((resp) => {
+      setNewPassword('')
+      setOldPassword('')
+
       setError(DEFAULT_RESPONSE)
       setSuccess((prev) => ({...prev, message: resp.data.detail}))
     })
@@ -66,6 +69,7 @@ function PasswordChange({ lang }: passwordChangeProps) {
           <FieldInput
             setField={setOldPassword}
             password={true}
+            value={oldPassword}
           />
         </div>
 
@@ -76,6 +80,7 @@ function PasswordChange({ lang }: passwordChangeProps) {
           <FieldInput
             setField={setNewPassword}
             password={true}
+            value={newPassword}
           />
         </div>
 

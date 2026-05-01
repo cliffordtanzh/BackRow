@@ -6,37 +6,34 @@ import Selector from '../general/Selector';
 
 import useResponse from '../../hooks/useResponse';
 
-import type { Lang } from '../../types/Lang';
-import type { Membership } from '../../types/Membership';
-import type { Role } from '../../types/Role';
 import { DEFAULT_RESPONSE } from '../../types/Response';
+import { type Lang } from '../../types/Lang';
+import { type Membership } from '../../types/Membership';
 
 import headers from '../../assets/headers.json';
 import membershipHeaders from '../../assets/membership_inputs.json';
-
 import './ManageInputs.css'
 
 
 type manageRoleProps = {
-  lang: Lang
+  lang: Lang,
   chooseProps: (header: string) => any
-  setAuthorisation: React.Dispatch<React.SetStateAction<Role>>
+  setJwtToken: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 
 function ManageRole({ 
   lang,
   chooseProps,
-  setAuthorisation,
+  setJwtToken,
 }: manageRoleProps) {
-
   const [error, setError, success, setSuccess] = useResponse();
 
   const playerProps = chooseProps('player')
   const teamProps = chooseProps('team')
   const roleProps = chooseProps('role')
 
-  const handleSubmit = async (event: React.SubmitEvent) => {
+  const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault();
 
     const payload: Membership = {
@@ -45,16 +42,21 @@ function ManageRole({
       role: roleProps.selected.role
     }
 
-    const token = localStorage.getItem('JWT_token')
+    const token = localStorage.getItem('Jwt_token')
     axios.post(
       `${import.meta.env.VITE_API_URL}/update_membership`, 
       payload,
       {headers: {Authorisation: `Bearer ${token}`}}
-    )
-    .then((resp) => {
+
+    ).then((resp) => {
       setSuccess((prev) => ({...prev, message: resp.data.detail}))
       setError(DEFAULT_RESPONSE)
-      setAuthorisation(payload.role);
+
+      if (payload.playerID === Number(localStorage.getItem('playerID'))) {
+        localStorage.setItem('Jwt_token', resp.data.data)
+        setJwtToken(resp.data.data);
+      }
+      
     })
     .catch((resp) => {
       setSuccess(DEFAULT_RESPONSE)

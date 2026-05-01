@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import './Selector.css'
 
 
-type selectorProps<T> = {
+type SelectorProps<T> = {
   items: T[],
   selected: T,
   setSelected: React.Dispatch<React.SetStateAction<T>>,
@@ -18,21 +18,21 @@ function Selector<T>({
   setSelected, 
   getID,
   getName,
-}: selectorProps<T>) {
+}: SelectorProps<T>) {
 
   const[query, setQuery] = useState<string>(getName(selected));
   const[isOpen, setIsOpen] = useState<boolean>(false);
 
   const filtered: T[] = items
-    .sort((a, b) => {
-      const q = query.toLowerCase()
-      const aStarts = getName(a).toLowerCase().startsWith(q)
-      const bStarts = getName(b).toLowerCase().startsWith(q)
-
-      if (aStarts && !bStarts) return -1;
-      if (!aStarts && bStarts) return 1;
-      return 0
-    })
+  .sort((a, b) => {
+    const q = query.toLowerCase()
+    const aStarts = getName(a).toLowerCase().startsWith(q)
+    const bStarts = getName(b).toLowerCase().startsWith(q)
+    
+    if (aStarts && !bStarts) return -1;
+    if (!aStarts && bStarts) return 1;
+    return 0
+  })
   
   // For closing dropbox when clicking outside the dropbox
   const ref = useRef<HTMLDivElement>(null)

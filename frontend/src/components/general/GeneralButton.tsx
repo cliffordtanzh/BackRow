@@ -1,12 +1,13 @@
 import './GeneralButton.css';
 
-type generalButtonProps = {
+
+type GeneralButtonProps = {
   label: string,
   onClick: () => any,
 }
 
 
-function GeneralButton({ label, onClick }: generalButtonProps) {
+function GeneralButton({ label, onClick }: GeneralButtonProps) {
   return (
     <div className='button'>
       <button 

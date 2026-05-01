@@ -1,7 +1,0 @@
-- Error and Success to use Responses
-- Refactor all axios requests into .then .catch
-- Graceful exit for all endpoints
-- Organise Stats components
-- Messages to have same height as Submit buttons
-- Change password endpoint
-- Change all field-inputs to FieldInput
