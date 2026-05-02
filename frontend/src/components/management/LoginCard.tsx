@@ -15,6 +15,7 @@ import { type Lang } from '../../types/Lang';
 import { type JwtPayload } from '../../types/JwtPayload';
 
 import headers from '../../assets/headers.json';
+import responses from '../../assets/responses.json';
 import './ManageInputs.css';
 
 
@@ -33,7 +34,7 @@ function LoginCard({ lang, setJwtToken }: loginCardProps) {
     event.preventDefault();
 
     if ((playerState.email === '') || (playerState.password === '')) {
-      setError((prev) => ({...prev, message: 'Email and password cannot be empty'}));
+      setError((prev) => ({...prev, message: responses['empty_login_details_error'][lang]}));
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
@@ -45,7 +46,7 @@ function LoginCard({ lang, setJwtToken }: loginCardProps) {
     .then((resp) => {
       const token = resp.data.data
       const decoded: JwtPayload = jwtDecode(token)
-      
+
       localStorage.setItem('Jwt_token', token)
       localStorage.setItem('playerID', String(decoded['playerID']))
       localStorage.setItem('playerName', decoded['playerName'])
@@ -53,11 +54,22 @@ function LoginCard({ lang, setJwtToken }: loginCardProps) {
       localStorage.setItem('teamName', decoded['teamName'])
   
       setError(DEFAULT_RESPONSE);
-      setSuccess((prev) => ({...prev, message: resp.data.detail}))
+      setSuccess((prev) => ({
+        ...prev, 
+        message: responses[resp.data.detail as keyof typeof responses][lang]
+      }))
       setJwtToken(token)
       setPlayerState(DEFAULT_PLAYER_LOGIN)
     })
-    .catch((resp) => setError((prev) => ({...prev, message: resp.response.data.detail})))
+
+    .catch((resp) => {
+      console.log(resp)
+      const response_key: string = resp.response.data.detail.split(': ')[1]
+      setError((prev) => ({
+        ...prev, 
+        message: responses[response_key as keyof typeof responses][lang]
+      })
+    )})
   }
   
   return (

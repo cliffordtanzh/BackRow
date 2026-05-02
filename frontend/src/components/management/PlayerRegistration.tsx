@@ -15,6 +15,7 @@ import { DEFAULT_RESPONSE } from '../../types/Response';
 
 import headers from '../../assets/headers.json';
 import playerHeaders from '../../assets/player_inputs.json';
+import responses from '../../assets/responses.json';
 import './ManageInputs.css'
 
 
@@ -31,20 +32,20 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
   const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault();
 
-    if(playerState.playerName === DEFAULT_PLAYER_CREATE.playerName) {
-      setError((prev) => ({...prev, message: 'Player name cannot be empty'}));
+    if(playerState.name === DEFAULT_PLAYER_CREATE.name) {
+      setError((prev) => ({...prev, message: responses['empty_player_name_error'][lang]}));
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
 
     if (!validator.isEmail(playerState.email)) {
-      setError((prev) => ({...prev, message: 'Email is not valid'}));
+      setError((prev) => ({...prev, message: responses['invalid_email_error'][lang]}));
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
 
     if(playerState.playerNumber === -1) {
-      setError((prev) => ({...prev, message: 'Player number cannot be empty'}));
+      setError((prev) => ({...prev, message: responses['empty_player_number_error'][lang]}));
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
@@ -55,11 +56,19 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
     ).then((resp) => {
       onSuccess();
       setPlayerState(DEFAULT_PLAYER_CREATE);
+      
       setError(DEFAULT_RESPONSE);
-      setSuccess((prev) => ({...prev, message: resp.data.detail}));
+      setSuccess((prev) => ({
+        ...prev, 
+        message: responses[resp.data.detail as keyof typeof responses][lang]
+      }));
 
     }).catch((resp) => {
-      setError((prev) => ({...prev, message: resp.response.data.detail}))
+      const response_key: string = resp.response.data.detail.split(': ')[1]
+      setError((prev) => ({
+        ...prev, 
+        message: responses[response_key as keyof typeof responses][lang]
+      }))
     })
   }
 

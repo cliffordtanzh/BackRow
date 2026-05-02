@@ -1,0 +1,120 @@
+{
+    "url_input_error": {"en": "Not a YouTube URL", "cn": "不是YouTube链接"},
+    "title_fetch_success": {"en": "Game name fetched", "cn": "已获取标题"},
+    "title_fetch_error": {"en": "Game name could not be fetched", "cn": "标题获取失败"},
+
+    "prelogin_error": {
+        "en": "Log in before submitting results", 
+        "cn": "请先登录再提交数据"
+    },
+    "unassigned_team_error": {
+        "en": "A team has not been assigned to you yet", 
+        "cn": "您尚未被分配球队"
+    },
+    "no_results_error": {
+        "en": "No data to post",
+        "cn": "未输入数据"
+    },
+    "team_results_post_success": {
+        "en": "Team results posted succssfully",
+        "cn": "球队成绩已成功公布"
+    },
+    "player_results_post_success": {
+        "en": "Player results posted succssfully",
+        "cn": "球员成绩已成功公布"
+    },
+    
+    "empty_login_details_error": {
+        "en": "Email or Password cannot be empty",
+        "cn": "电子邮件或密码不能为空"
+    },
+
+    "empty_password_error": {
+        "en": "Passwords cannot be empty",
+        "cn": "密码不能为空"
+    },
+
+    "empty_player_name_error": {
+        "en": "Player name cannot be empty",
+        "cn": "球员名字不能为空"
+    },
+    "invalid_email_error": {
+        "en": "Email is not valid",
+        "cn": "电子电子邮件无效"
+    },
+    "empty_player_number_error": {
+        "en": "Player number cannot be empty",
+        "cn": "球员号码不能为空"
+    },
+
+    "empty_team_name_error": {
+        "en": "Team name cannot be empty",
+        "cn": "队名不能为空"
+    },
+    "team_post_success": {
+        "en": "Team posted successfully",
+        "cn": "球队发布成功"
+    },
+    "team_query_success": {
+        "en": "Team queried successfully",
+        "cn": "球队查询成功"
+    },
+
+    "email_in_use_error": {
+        "en": "Email is already in use",
+        "cn": "电子邮件已在使用中"
+    },
+    "player_registration_success": {
+        "en": "Player registration request sent via email",
+        "cn": "球员注册申请已通过电子电子邮件发送"
+    },
+    "verification_error": {
+        "en": "Authentication failed, contact Cliffy",
+        "cn": "认证失败, 请联系Cliffy"
+    },
+    "player_query_success": {
+        "en": "Player queried successfully",
+        "cn": "球员查询成功"
+    },
+
+    "email_not_found_error": {
+        "en": "Email not found",
+        "cn": "未找到电子邮件"
+    },
+    "wrong_password_error": {
+        "en": "Wrong password",
+        "cn": "密码错误"
+    },
+    "login_success": {
+        "en": "Login successful",
+        "cn": "登录成功"
+    },
+
+    "invalid_auth_error": {
+        "en": "Missing or invalid Authorisation header",
+        "cn": "缺少或无效的授权标头"
+    },
+    "invalid_token_error": {
+        "en": "Invalid or Expired token",
+        "cn": "无效或过期的令牌"
+    },
+
+    "funnyman": {
+        "en": "trying something funny?",
+        "cn": "嫑玩"
+    },
+    "player_not_found_error": {
+        "en": "Player not found",
+        "cn": "未查到球员"
+    },
+    "membership_update_success": {
+        "en": "Membership updated",
+        "cn": "球员资格已更新"
+    },
+
+    "password_change_success": {
+        "en": "Password changed",
+        "cn": "密码已更改"
+    }
+
+}

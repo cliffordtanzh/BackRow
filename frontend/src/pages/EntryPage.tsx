@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { type NavigateFunction } from 'react-router-dom';
 
 import ReactPlayer from 'react-player'
 import axios from 'axios';
@@ -25,6 +25,9 @@ import { type ResultsCreate } from '../types/ResultsCreate';
 import { type Lang } from '../types/Lang'
 
 import headers from '../assets/headers.json';
+import responses from '../assets/responses.json';
+
+import '../App.css'
 import './EntryPage.css';
 
 
@@ -54,21 +57,33 @@ function useResultsCreate(itemKey: 'player' | 'team', gameName: string): [
 }
 
 
-function EntryPage() {
-  const navigate = useNavigate();
+type EntryPageProps = {
+  navigate: NavigateFunction,
+  lang: Lang,
+  setLang: React.Dispatch<React.SetStateAction<Lang>>,
+  isLoggedIn: boolean
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>,
+}
 
-  // All states needed
-  const [lang, setLang] = useState<Lang>(() => localStorage.getItem('lang') as Lang || 'en');
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    const stored = localStorage.getItem('Jwt_token') || null;
-    return stored !== null;
-  })
+
+function EntryPage({
+  navigate,
+  lang,
+  setLang,
+  isLoggedIn,
+  setIsLoggedIn,
+}: EntryPageProps) {
 
   const loggedInResponse: Response = {
     message: `Hello ${localStorage.getItem('playerName')}`,
     fade: false,
   }
 
+  useEffect(() => {
+    setIsLoggedIn((localStorage.getItem('Jwt_token') || null) !== null);
+  }, [])
+
+  // All states needed
   const [gameName, setGameName] = useState<string>('');
   const [teamResultsCreate, setTeamHistory] = useResultsCreate('team', gameName);
   const [playerResultsCreate, setPlayerHistory] = useResultsCreate('player', gameName);
@@ -86,8 +101,6 @@ function EntryPage() {
 
   const hasError = allErrors.some((resp) => (resp && resp.message))
   const hasSuccess = allSuccess.some((resp) => (resp && resp.message))
-
-  console.log(teamResultsCreate)
 
   const clearHistory = (
     itemKey: string,
@@ -111,7 +124,7 @@ function EntryPage() {
     }
 
     if (!videoURL.includes('youtube.com/watch?v=')) {
-      setFetchError((prev) => ({...prev, message: 'Not a YouTube URL'}))
+      setFetchError((prev) => ({...prev, message: responses['url_input_error'][lang]}))
       setFetchSuccess(DEFAULT_RESPONSE)
       return;
     }
@@ -120,30 +133,31 @@ function EntryPage() {
     .then((resp) => {
       setGameName(resp.data.title)
       setFetchError(DEFAULT_RESPONSE)
-      setFetchSuccess((prev) => ({...prev, message: 'Title fetched'}))
+      setFetchSuccess((prev) => ({...prev, message: responses['title_fetch_success'][lang]}))
       
     })
     .catch(() => {
       setGameName('');
-      setFetchError((prev) => ({...prev, message: 'Game name could not be fetched'}))
+      setFetchError((prev) => ({...prev, message: responses['title_fetch_error'][lang]}))
       setFetchSuccess(DEFAULT_RESPONSE)
     })
 
   }, [videoURL])
 
-  useEffect(() => {
-    setIsLoggedIn((localStorage.getItem('Jwt_token') || null) !== null);
-  }, [])
-
   return (
-    <div className='stats-shell'>
-      <div className='stats-shell__main'>
-        <div className='stats-shell__controls'>
+    <div className='shell'>
+      <div className='control-panel'>
+        <div className='control-panel__controls'>
           <LanguageSelector lang={lang} setLang={setLang}/>
           <NavButton
             lang={lang}
-            navigate={() => navigate('/manage')}
+            navigate={() => navigate('/')}
             buttonHeader={headers['manage_button']}
+          />
+          <NavButton
+            lang={lang}
+            navigate={() => navigate('/analysis')}
+            buttonHeader={headers['analysis_button']}
           />
           <ModeSelector
             lang={lang}
@@ -152,7 +166,7 @@ function EntryPage() {
           />
         </div>
 
-        <div className='stats-shell__error'>
+        <div className='shell-error'>
           {isLoggedIn && <SuccessMessage response={loggedInResponse}/>}
           {hasSuccess && allSuccess.map((success: Response) => (
             success.message && <SuccessMessage key={success.message} response={success}/>
@@ -166,14 +180,15 @@ function EntryPage() {
             />}
         </div>
 
-        <div className='stats-shell__title'>
+        <div className='shell-title'>
           {headers['title'][lang]}
         </div>
       </div>
 
-      <div className='stats-shell__main'>
-        <div className='stats-shell__video'>
-          <div className='stats-shell__header'>
+
+      <div className='entry'>
+        <div className='entry-video'>
+          <div className='entry-header'>
             {headers['video'][lang]}
           </div>
           <FieldInput
@@ -181,7 +196,7 @@ function EntryPage() {
             value={videoURL}
             placeholder={'YouTube URL'}
           />
-          <div className='stats-shell__video-frame'>
+          <div className='entry-video__frame'>
             {videoURL && <ReactPlayer
               src={videoURL}
               controls={true} 
@@ -189,9 +204,9 @@ function EntryPage() {
           </div>
         </div>
 
-        <div className='stats-shell__center'>
-          <div className='stats-shell__header'>
-            {headers['statistics_button'][lang]}
+        <div className='entry-center'>
+          <div className='entry-header'>
+            {headers['entry_button'][lang]}
           </div>
             <StatsInputs
               lang={lang}
@@ -203,8 +218,8 @@ function EntryPage() {
             />
         </div>
         
-        <div className='stats-shell__right'>
-          <div className='stats-shell__header'>
+        <div className='entry-right'>
+          <div className='entry-header'>
             <HistoryButton
               lang={lang}
               onClick={() => undoHistory(

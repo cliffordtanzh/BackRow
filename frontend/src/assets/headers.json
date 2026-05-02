@@ -1,14 +1,14 @@
 {
-    "stats_page": {"en": "Statistics Entry", "cn": "数据输入"},
     "title": {"en": "BackRow", "cn": "后排"},
-
-    "mode_selector-player": {"en": "Player Mode", "cn": "模式"},
-    "mode_selector-team": {"en": "Team Mode", "cn": "团队模式"},
-    "manage_button": {"en": "Manage Team/Player", "cn": "团队/球员管理"},
-
+    
+    "mode_selector-player": {"en": "Player Mode", "cn": "球员模式"},
+    "mode_selector-team": {"en": "Team Mode", "cn": "球队模式"},
+    "manage_button": {"en": "Manage Team/Player", "cn": "球队/球员管理"},
+    "analysis_button": {"en": "Analysis", "cn": "数据分析"},
+    "entry_button": {"en": "Statistics Entry", "cn": "数据输入"},
+    
     "video": {"en": "YouTube Playback", "cn": "YouTube 回放"},
 
-    "statistics_button": {"en": "Statistics Entry", "cn": "输入数据"},
     "stats_submit_button": {"en": "Save", "cn": "输入"},
     "stats_clear_button": {"en": "Clear", "cn": "清除"},
     
@@ -16,20 +16,19 @@
     "clear": {"en": "✖Clear", "cn": "✖清除"},
     "history_panel": {"en": "History", "cn": "历史记录"},
     
-    "player_management": {"en": "Register Player", "cn": "队员报名"},
-    "team_management": {"en": "New Team", "cn": "团队输入"},
+    "player_management": {"en": "Register Player", "cn": "球员报名"},
+    "team_management": {"en": "New Team", "cn": "球队输入"},
     "membership_management": {"en": "Assign Membership", "cn": "分配成员资格"},
     "manage_submit_button": {"en": "Submit", "cn": "提交"},
 
     "player_login": {"en": "Player Login", "cn": "登入"},
     "login": {"en": "Login", "cn": "登记"},
-    "email": {"en": "Email", "cn": "邮件"},
-
+    "email": {"en": "Email", "cn": "电子邮件"},
     "password": {"en": "Password", "cn": "密码"},
-    "login_button": {"en": "Login", "cn": "登入"},
+    "login_button": {"en": "Login", "cn": "登录"},
     "logout": {"en": "Logout", "cn": "登出"},
 
-    "change_password": {"en": "Change Password", "cn": "改密码"},
+    "change_password": {"en": "Change Password", "cn": "更改密码"},
     "old_password": {"en": "Old Password", "cn": "旧密码"},
     "new_password": {"en": "New Password", "cn": "新密码"}
 }

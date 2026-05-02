@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { type NavigateFunction } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 
 import LanguageSelector from '../components/general/LanguageSelector';
@@ -14,54 +14,82 @@ import TeamEntry from '../components/management/TeamEntry';
 import PlayerRegistration from '../components/management/PlayerRegistration';
 import ManageMembership from '../components/management/ManageMembership';
 
-import { usePlayers } from '../hooks/usePlayers';
-import { useTeams } from '../hooks/useTeams';
+import { useEntity } from '../hooks/useEntity';
 
-import { type Player, DEFAULT_PLAYER } from '../types/Player';
-import { type Team, DEFAULT_TEAM } from '../types/Team';
+import { 
+  type Membership, 
+  DEFAULT_MEMBERSHIP,
+  DEFAULT_MEMBER_PLAYER, 
+  DEFAULT_MEMBER_MANAGER 
+} from '../types/Membership';
+
 import { type Role, DEFAULT_ROLE } from '../types/Role';
-import { type Membership, DEFAULT_MEMBERSHIP } from '../types/Membership';
-
 import { type Lang } from '../types/Lang';
+import { type Team } from '../types/Team';
+import { type Player } from '../types/Player';
 import { type JwtPayload } from '../types/JwtPayload';
 import { type Response } from '../types/Response';
 
 import headers from '../assets/headers.json';
+
+import '../App.css'
 import './ManagementPage.css';
 
 
-function ManagementPage() {
-  const [lang, setLang] = useState<Lang>(() => 
-    localStorage.getItem('lang') as Lang || 'en'
-  );
+type ManagementPageProps = {
+  navigate: NavigateFunction,
+  lang: Lang,
+  setLang: React.Dispatch<React.SetStateAction<Lang>>,
+  isLoggedIn: boolean
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>,
+}
 
-  const navigate = useNavigate();
 
-  const[jwtToken, setJwtToken] = useState<string | null>(null);
-  const[isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  
-  const[authorisation, setAuthorisation] = useState<Role>(DEFAULT_ROLE);
-  const[selectedPlayer, setSelectedPlayer] = useState<Player>(DEFAULT_PLAYER)
-  const[selectedTeam, setSelectedTeam] = useState<Team>(DEFAULT_TEAM)
-  const[selectedMembership, setSelectedMembership] = useState<Membership>(DEFAULT_MEMBERSHIP)
-
-  const {players, playerError, fetchPlayers} = usePlayers();
-  const {teams, teamError, fetchTeams} = useTeams();
-  
-  const roles = [
-    { playerID: 0, teamID: 0, role: 'none' },
-    { playerID: 0, teamID: 0, role: 'player' },
-    { playerID: 0, teamID: 0, role: 'manager' },
-    { playerID: 0, teamID: 0, role: 'root' },
-  ]
-
-  const allErrors = [playerError, teamError];
-  const hasError = allErrors.some((resp) => (resp && resp.message))
+function ManagementPage({
+  navigate,
+  lang,
+  setLang,
+  isLoggedIn,
+  setIsLoggedIn,
+}: ManagementPageProps) {
 
   const loggedInResponse: Response = {
     message: `Hello ${localStorage.getItem('playerName')}`,
     fade: false,
   }
+
+  useEffect(() => {
+    setIsLoggedIn((localStorage.getItem('Jwt_token') || null) !== null);
+  }, [])
+
+  // All states needed
+  const[jwtToken, setJwtToken] = useState<string | null>(null);
+  const[authorisation, setAuthorisation] = useState<Role>(DEFAULT_ROLE);
+
+  const[selectedMembership, setSelectedMembership] = useState<Membership>(DEFAULT_MEMBERSHIP)
+  const roles = [DEFAULT_MEMBER_PLAYER, DEFAULT_MEMBER_MANAGER]
+
+  const [
+    teams, 
+    selectedTeam, 
+    setSelectedTeam, 
+    teamError, 
+    fetchTeams
+  ] = useEntity(lang, 'team');
+  
+  const [
+    players, 
+    selectedPlayer, 
+    setSelectedPlayer, 
+    playerError, 
+    fetchPlayers
+  ] = useEntity(lang, 'player');
+
+  console.log(selectedTeam, selectedPlayer)
+
+  const allErrors: Response[] = [playerError, teamError];
+  const hasError = allErrors.some((resp) => (resp && resp.message))
+
 
   const chooseProps = (header: string) => {
     if (header === 'player') {
@@ -69,8 +97,8 @@ function ManagementPage() {
         items: players,
         selected: selectedPlayer,
         setSelected: setSelectedPlayer,
-        getID: (item: Player) => `${header}_${item.playerID}`,
-        getName: (item: Player) => (item.playerName),
+        getID: (item: Player) => `${header}_${item.ID}`,
+        getName: (item: Player) => (item.name),
       }
 
     } else if (header === 'role') {
@@ -87,8 +115,8 @@ function ManagementPage() {
         items: teams,
         selected: selectedTeam,
         setSelected: setSelectedTeam,
-        getID: (item: Team) => `${header}_${item.teamID}`,
-        getName: (item: Team) => (item.teamName),
+        getID: (item: Team) => `${header}_${item.ID}`,
+        getName: (item: Team) => (item.name),
       }
     }
   }
@@ -102,6 +130,14 @@ function ManagementPage() {
 
     const decoded = jwtDecode<JwtPayload>(token)
     setIsLoggedIn(true);
+    setSelectedMembership((prev) => ({...prev, role: decoded['role']}))
+
+    setSelectedPlayer((prev) => (
+      players.find((player) => player.ID = decoded['playerID']) || prev
+    ))
+    setSelectedTeam((prev) => (
+      teams.find((team) => team.ID = decoded['teamID']) || prev
+    ))
     return decoded['role']
   }
 
@@ -118,34 +154,24 @@ function ManagementPage() {
   }
 
   useEffect(() => {
-    if(players.length > 0) {
-      setSelectedPlayer(players[0])
-    }
-  }, [players])
-
-  useEffect(() => {
-    if(teams.length > 0) {
-      setSelectedTeam(teams[0])
-    }
-  }, [teams])
-
-  useEffect(() => {
     setAuthorisation(checkAuthorisation())
   }, [jwtToken])
 
-  console.log(players)
-  
-
   return (
-    <div className='manage-shell'>
-      <div className='manage-shell__top'>
+    <div className='shell'>
+      <div className='control-panel'>
 
-        <div className='manage-shell__controls'>
+        <div className='control-panel__controls'>
           <LanguageSelector lang={lang} setLang={setLang}/>
           <NavButton
             lang={lang}
-            navigate={() => navigate('/')}
-            buttonHeader={headers['statistics_button']}
+            navigate={() => navigate('/entry')}
+            buttonHeader={headers['entry_button']}
+          />
+          <NavButton
+            lang={lang}
+            navigate={() => navigate('/analysis')}
+            buttonHeader={headers['analysis_button']}
           />
           <GeneralButton 
             label={headers['logout'][lang]} 
@@ -153,7 +179,7 @@ function ManagementPage() {
           />
         </div>
 
-        <div className='manage-shell__error'>
+        <div className='shell-error'>
           {isLoggedIn && <SuccessMessage response={loggedInResponse}/>}
           {hasError ? allErrors.map((error: Response) => (
             error.message && <ErrorMessage response={error}/>
@@ -162,15 +188,19 @@ function ManagementPage() {
             onClick={() => (null)}
           />}
         </div>
+
+        <div className='shell-title'>
+          {headers['title'][lang]}
+        </div>
         
       </div>
 
 
-      <div className='manage-shell__bot'>
-        <div className='manage-shell__panel'>
+      <div className='manage'>
+        <div className='manage-panel'>
 
           <div>
-            <div className='manage-shell__panel-title'>
+            <div className='manage-panel__title'>
               {headers['player_login'][lang]}
             </div>
             <LoginCard
@@ -180,7 +210,7 @@ function ManagementPage() {
           </div>
 
           <div>
-            <div className='manage-shell__panel-title'>
+            <div className='manage-panel__title'>
               {headers['player_management'][lang]}
             </div>
             <PlayerRegistration
@@ -192,17 +222,17 @@ function ManagementPage() {
         </div>
 
 
-        <div className='manage-shell__panel'>
+        <div className='manage-panel'>
 
           <div className={['player', 'manager', 'root'].includes(authorisation) ? '' : 'blurred'}>
-            <div className='manage-shell__panel-title'>
+            <div className='manage-panel__title'>
               {headers['change_password'][lang]}
             </div>
               <PasswordChange lang={lang}/>
           </div>
 
           <div className={['manager', 'root'].includes(authorisation) ? '' : 'blurred'}>
-            <div className='manage-shell__panel-title'>
+            <div className='manage-panel__title'>
               {headers['team_management'][lang]}
             </div>
             <TeamEntry
@@ -212,7 +242,7 @@ function ManagementPage() {
           </div>
 
           <div className={['root'].includes(authorisation) ? '' : 'blurred'}>
-            <div className='manage-shell__panel-title'>
+            <div className='manage-panel__title'>
               {headers['membership_management'][lang]}
             </div>
             <ManageMembership

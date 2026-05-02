@@ -11,6 +11,7 @@ import { type ResultsCreate } from '../../types/ResultsCreate';
 import playerStats from '../../assets/player_stats.json'
 import teamStats from '../../assets/team_stats.json'
 import header from '../../assets/headers.json';
+import responses from '../../assets/responses.json'
 import './StatsInputs.css';
 
 
@@ -92,40 +93,47 @@ function StatsInputs({
   const submitEvents = () => {
     const token = localStorage.getItem('Jwt_token') || null
     const teamID = localStorage.getItem('teamID') || null
-    if (token === null) {
-      setPostError((prev) => ({...prev, message: 'Log in before submitting results'}))
-      setPostSuccess(DEFAULT_RESPONSE);
-      return;
-    }
-
-    if (teamID === null) {
-      setPostError((prev) => ({...prev, message: 'A team has not been assigned to you yet'}))
-      setPostSuccess(DEFAULT_RESPONSE);
-      return;
-    }
-
-    if (history.length === 0) {
-      setPostError((prev) => ({...prev, message: 'No data to post'}));
-      setPostSuccess(DEFAULT_RESPONSE);
-      return;
-    }
-
     const payload = {
       ...results,
       history: results.history.map(obj => ({...obj}))
     }
 
+    if (token === null) {
+      setPostError((prev) => ({...prev, message: responses['prelogin_error'][lang]}))
+      setPostSuccess(DEFAULT_RESPONSE);
+      return;
+    }
+
+    if ((!isPlayerMode) && (teamID === null)) {
+      setPostError((prev) => ({...prev, message: responses['unassigned_team_error'][lang]}))
+      setPostSuccess(DEFAULT_RESPONSE);
+      return;
+    }
+
+    if (payload.history.length === 0) {
+      setPostError((prev) => ({...prev, message: responses['no_results_error'][lang]}));
+      setPostSuccess(DEFAULT_RESPONSE);
+      return;
+    }
+
     axios.post(
-      `${import.meta.env.VITE_API_URL}/${isPlayerMode ? 'player' : 'team'}_results`,
+      `${import.meta.env.VITE_API_URL}/post_${isPlayerMode ? 'player' : 'team'}_results`,
       payload,
       {headers: {Authorisation: `Bearer ${token}`}}
 
     ).then((resp) => {
       setPostError(DEFAULT_RESPONSE);
-      setPostSuccess((prev) => ({...prev, message: resp.data.detail}));
+      setPostSuccess((prev) => ({
+        ...prev, 
+        message: responses[resp.data.detail as keyof typeof responses][lang]
+      }));
 
     }).catch((resp) => {
-      setPostError((prev) => ({...prev, message: resp.response.data.detail}))
+      const response_key: string = resp.response.data.detail.split(': ')[1]
+      setPostError((prev) => ({
+        ...prev, 
+        message: responses[response_key as keyof typeof responses][lang]
+      }))
       setPostSuccess(DEFAULT_RESPONSE)
     })
   }

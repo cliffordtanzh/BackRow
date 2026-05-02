@@ -12,6 +12,7 @@ import { DEFAULT_RESPONSE } from '../../types/Response';
 import { type Lang } from '../../types/Lang';
 
 import headers from '../../assets/headers.json';
+import responses from '../../assets/responses.json';
 import './ManageInputs.css';
 
 
@@ -30,7 +31,7 @@ function PasswordChange({ lang }: PasswordChangeProps) {
     event.preventDefault()
 
     if((oldPassword === '') || (newPassword === '')) {
-      setError((prev) => ({...prev, message: 'Password cannot be empty'}))
+      setError((prev) => ({...prev, message: responses['empty_password_error'][lang]}))
       return;
     }
 
@@ -48,12 +49,19 @@ function PasswordChange({ lang }: PasswordChangeProps) {
     .then((resp) => {
       setNewPassword('')
       setOldPassword('')
-
+      
       setError(DEFAULT_RESPONSE)
-      setSuccess((prev) => ({...prev, message: resp.data.detail}))
+      setSuccess((prev) => ({
+        ...prev, 
+        message: responses[resp.data.detail as keyof typeof responses][lang]
+      }))
     })
     .catch((resp) => {
-      setError((prev) => ({...prev, message: resp.response.data.detail}))
+      const response_key: string = resp.response.data.detail.split(': ')[1]
+      setError((prev) => ({
+        ...prev, 
+        message: responses[response_key as keyof typeof responses][lang]
+      }))
       setSuccess(DEFAULT_RESPONSE)
     })
   }

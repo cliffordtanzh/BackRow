@@ -2,9 +2,9 @@ from pydantic import BaseModel
 
 
 class Team(BaseModel):
-    teamID: int
-    teamName: str
+    ID: int
+    name: str
 
 
 class TeamCreate(BaseModel):
-    teamName: str
+    name: str

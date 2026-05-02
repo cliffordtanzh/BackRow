@@ -20,14 +20,14 @@ class Role(enum.Enum):
 
 class Team(Base):
     __tablename__ = "team"
-    teamID = Column(Integer, primary_key = True, autoincrement = True)
-    teamName = Column(String, nullable = False)
+    ID = Column(Integer, primary_key = True, autoincrement = True)
+    name = Column(String, nullable = False)
 
 
 class Player(Base):
     __tablename__ = "player"
-    playerID = Column(Integer, primary_key = True, autoincrement = True)
-    playerName = Column(String, nullable = False)
+    ID = Column(Integer, primary_key = True, autoincrement = True)
+    name = Column(String, nullable = False)
     playerNumber = Column(Integer, nullable = False)
     email = Column(String, nullable = False, unique = True)
     passwordHash = Column(String, nullable = False)
@@ -36,22 +36,22 @@ class Player(Base):
 
 class Verification(Base):
     __tablename__ = "verification"
-    playerID = Column(Integer, ForeignKey("player.playerID"), primary_key = True)
+    playerID = Column(Integer, ForeignKey("player.ID"), primary_key = True)
     token = Column(String, nullable = False)
     expiry = Column(DateTime, nullable = False)
 
 
 class Membership(Base):
     __tablename__ = "membership"
-    playerID = Column(Integer, ForeignKey("player.playerID"), primary_key = True)
-    teamID = Column(Integer, ForeignKey("team.teamID"), nullable = True)
+    playerID = Column(Integer, ForeignKey("player.ID"), primary_key = True)
+    teamID = Column(Integer, ForeignKey("team.ID"), nullable = True)
     role = Column(Enum(Role), nullable = False)
 
 
 class TeamEvent(Base):
     __tablename__ = "team_event"
+    ID = Column(Integer, primary_key = True)
     summaryID = Column(Integer, ForeignKey("team_result.summaryID"), primary_key = True)
-    eventID = Column(Integer, primary_key = True)
     pointMethod = Column(String, nullable = False)
     pointDelta = Column(Integer, nullable = False)
 
@@ -65,8 +65,8 @@ class TeamResult(Base):
 
 class PlayerEvent(Base):
     __tablename__ = "player_event"
+    ID = Column(Integer, primary_key = True)
     summaryID = Column(Integer, ForeignKey("player_result.summaryID"), primary_key = True)
-    eventID = Column(Integer, primary_key = True)
     eventType = Column(String, nullable = False)
     pointDelta = Column(Integer, nullable = False)
 

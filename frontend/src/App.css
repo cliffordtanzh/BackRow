@@ -1,0 +1,67 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 16px;
+  gap: 24px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.control-panel {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+}
+
+.control-panel__controls {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 16px;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  height: 3rem;
+}
+
+.shell-error {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  height: 3rem;
+}
+
+.shell-title {
+  display: inline-flex;
+  justify-content: space-evenly;
+  align-items: center;
+  font-size: xx-large;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text);
+}
+
+
+@media (max-width: 790px) {
+  .control-panel {
+    display: inline-flex;
+    flex-wrap: wrap-reverse;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .control-panel__controls {
+    width: 100%;
+  }
+  
+}

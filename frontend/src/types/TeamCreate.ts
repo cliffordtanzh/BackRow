@@ -1,5 +1,5 @@
 export type TeamCreate = {
-    teamName: string,
+  name: string,
 }
 
-export const DEFAULT_TEAM_CREATE: TeamCreate = {'teamName': ''}
+export const DEFAULT_TEAM_CREATE: TeamCreate = {name: ''}

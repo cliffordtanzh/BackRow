@@ -2,15 +2,15 @@ from pydantic import BaseModel
 
 
 class Player(BaseModel):
-    playerID: int
-    playerName: str
+    ID: int
+    name: str
     playerNumber: int
     email: str
     isVerified: bool
 
 
 class PlayerCreate(BaseModel):
-    playerName: str
+    name: str
     playerNumber: int
     email: str
     password: str

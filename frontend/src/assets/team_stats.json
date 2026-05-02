@@ -6,11 +6,13 @@
         {"en": "Opponent Mistake", "cn": "对面失误"}
     ],
 
-    "lost": [
+    "attack_lost": [
         {"en": "Serve Receive Error", "cn": "接发球失误"},
         {"en": "Spike Receive Error", "cn": "接扣球失误"},
         {"en": "Tip Receive Error", "cn": "接掉球失误"},
-        {"en": "Freeball Error", "cn": "接球失误"},
+        {"en": "Freeball Error", "cn": "接球失误"}
+    ],
+    "receive_lost":[
         {"en": "Spike Error", "cn": "扣球失误"},
         {"en": "Set Error", "cn": "举球失误"},
         {"en": "Serve Error", "cn": "发球失误"},

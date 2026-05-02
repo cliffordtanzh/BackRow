@@ -13,7 +13,7 @@ import { DEFAULT_RESPONSE } from '../../types/Response';
 
 import headers from '../../assets/headers.json';
 import teamHeaders from '../../assets/team_inputs.json';
-
+import responses from '../../assets/responses.json';
 import './ManageInputs.css';
 
 
@@ -29,8 +29,8 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
 
   const handleSubmit = async (event: React.SubmitEvent) => {
     event.preventDefault();
-    if(teamState.teamName === DEFAULT_TEAM_CREATE.teamName) {
-      setError((prev) => ({...prev, message: 'Team cannot be empty'}))
+    if(teamState.name === DEFAULT_TEAM_CREATE.name) {
+      setError((prev) => ({...prev, message: responses['empty_player_number_error'][lang]}))
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
@@ -39,12 +39,20 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
     .then((resp) => {
       onSuccess();
       setTeamState(DEFAULT_TEAM_CREATE);
+
       setError(DEFAULT_RESPONSE);
-      setSuccess((prev) => ({...prev, message: resp.data.detail}))
+      setSuccess((prev) => ({
+        ...prev, 
+        message: responses[resp.data.detail as keyof typeof responses][lang]
+      }))
       
     })
     .catch((resp) => {
-      setError((prev) => ({...prev, message: resp.response.data.detail}))
+      const response_key: string = resp.response.data.detail.split(': ')[1]
+      setError((prev) => ({
+        ...prev, 
+        message: responses[response_key as keyof typeof responses][lang]
+      }))
       setSuccess(DEFAULT_RESPONSE)
     })
   }

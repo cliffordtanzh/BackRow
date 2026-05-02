@@ -1,0 +1,23 @@
+.analysis {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+}
+
+.analysis-panel {
+  display: flex;
+  justify-content: space-evenly;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  height: 100vh;
+}
+
+
+@media (max-width: 790px) {
+  .analysis {
+    display: flex;
+    flex-direction: column;
+  }
+}

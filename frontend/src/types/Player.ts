@@ -1,14 +1,14 @@
 export type Player = {
-  playerID: number,
-  playerName: string,
+  ID: number,
+  name: string,
   playerNumber: number,
   email: string,
   isVerified: boolean
 }
 
 export const DEFAULT_PLAYER: Player = {
-  playerID: 0,
-  playerName: '',
+  ID: 0,
+  name: '',
   playerNumber: 0,
   email: '',
   isVerified: false,

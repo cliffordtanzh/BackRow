@@ -12,6 +12,7 @@ import { type Membership } from '../../types/Membership';
 
 import headers from '../../assets/headers.json';
 import membershipHeaders from '../../assets/membership_inputs.json';
+import responses from '../../assets/responses.json';
 import './ManageInputs.css'
 
 
@@ -37,10 +38,12 @@ function ManageRole({
     event.preventDefault();
 
     const payload: Membership = {
-      playerID: playerProps.selected.playerID,
-      teamID: teamProps.selected.teamID,
+      playerID: playerProps.selected.ID,
+      teamID: teamProps.selected.ID,
       role: roleProps.selected.role
     }
+
+    console.log(payload)
 
     const token = localStorage.getItem('Jwt_token')
     axios.post(
@@ -49,7 +52,10 @@ function ManageRole({
       {headers: {Authorisation: `Bearer ${token}`}}
 
     ).then((resp) => {
-      setSuccess((prev) => ({...prev, message: resp.data.detail}))
+      setSuccess((prev) => ({
+        ...prev, 
+        message: responses[resp.data.detail as keyof typeof responses][lang]
+      }))
       setError(DEFAULT_RESPONSE)
 
       if (payload.playerID === Number(localStorage.getItem('playerID'))) {
@@ -59,8 +65,13 @@ function ManageRole({
       
     })
     .catch((resp) => {
+      const response_key: string = resp.response.data.detail.split(': ')[1]
+      
       setSuccess(DEFAULT_RESPONSE)
-      setError((prev) => ({...prev, message: resp.response.data.detail}))
+      setError((prev) => ({
+        ...prev, 
+        message: responses[response_key as keyof typeof responses][lang]
+      }))
     })
   }
 

@@ -44,18 +44,18 @@ def get_player():
     cursor = conn.cursor()
 
     try:
-        player_query = cursor.execute("SELECT * FROM player")
-        query_col = [col[0] for col in player_query.description]
-        query_res = player_query.fetchall()
+        query = cursor.execute("SELECT * FROM player")
+        cols = [col[0] for col in query.description]
+        result = query.fetchall()
 
         players = []
-        for player_info in query_res:
-            # Have to convert teamID to teamName
-            data = dict(zip(query_col, player_info))
+        for values in result:
+            data = dict(zip(cols, values))
             del data["passwordHash"]
+
             players.append(Player.model_validate(data))
 
-        return {"data": players, "detail": "Player queried successfully"}
+        return {"data": players, "detail": "player_query_success"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -71,18 +71,16 @@ def get_team():
     cursor = conn.cursor()
 
     try:
-        team_query = cursor.execute("SELECT * FROM team")
-        team_columns = [col[0] for col in team_query.description]
+        query = cursor.execute("SELECT * FROM team")
+        cols = [col[0] for col in query.description]
+        result = query.fetchall()
 
         teams = []
-        for team_info in team_query.fetchall():
-            model_data = {
-                key: value for key, value in zip(team_columns, team_info)
-                if key != "passwordHash"
-            }
-            teams.append(Team.model_validate(model_data))
+        for values in result:
+            data = dict(zip(cols, values))
+            teams.append(Team.model_validate(data))
 
-        return {"data": teams, "detail": "Team queried successfully"}
+        return {"data": teams, "detail": "team_query_success"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -99,12 +97,12 @@ def post_team(team: TeamCreate):
 
     try:
         cursor.execute(
-            "INSERT INTO team (teamName) VALUES (?)",
-            (team.teamName, )
+            "INSERT INTO team (name) VALUES (?)",
+            (team.name, )
         )
 
         conn.commit()
-        return {"detail": "Team posted successfully"}
+        return {"detail": "team_post_success"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -120,16 +118,16 @@ def register(player: PlayerCreate):
     cursor = conn.cursor()
 
     try:
-        email_query = cursor.execute(
+        query = cursor.execute(
             "SELECT email FROM player WHERE email == (?)",
             (player.email, )
         )
-        query_res = email_query.fetchone()
+        values = query.fetchone()
 
         # Email query from DB should return None
-        if query_res is not None:
+        if values is not None:
             raise HTTPException(
-                status_code=409, detail="Email is already in use")
+                status_code=409, detail="email_in_use_error")
 
         password_hash = bcrypt.hashpw(
             player.password.encode("utf-8"), bcrypt.gensalt())
@@ -141,13 +139,13 @@ def register(player: PlayerCreate):
         cursor.execute(
             """
             INSERT INTO player (
-                playerName, 
+                name, 
                 playerNumber, 
                 email, 
                 passwordHash, 
                 isVerified
             ) VALUES (?, ?, ?, ?, ?)""",
-            (player.playerName, player.playerNumber, player.email, password_hash, 0)
+            (player.name, player.playerNumber, player.email, password_hash, 0)
         )
         playerID = cursor.lastrowid
 
@@ -181,7 +179,6 @@ def register(player: PlayerCreate):
                 server.starttls()  # Secure the connection
                 server.login(sender_email, password)
                 server.send_message(msg)
-            print("Email sent successfully!")
 
         except Exception as e:
             print(f"Error: {e}")
@@ -205,35 +202,35 @@ def verify(token: str):
 
     try:
         time_now = datetime.now(timezone.utc)
-        token_query = cursor.execute(
+        query = cursor.execute(
             """
             SELECT 
                 *
             FROM 
                 player 
-            INNER JOIN verification ON verification.playerID = player.playerID
+            INNER JOIN verification ON verification.playerID = player.ID
             WHERE verification.token = (?)
             """,
             (token, )
         )
-        query_res = token_query.fetchone()
-        table_col = [col[0] for col in token_query.description]
+        cols = [col[0] for col in query.description]
+        values = query.fetchone()
 
-        if query_res is None:
+        if values is None:
             raise HTTPException(status_code=404, detail="Token not found")
 
-        data = dict(zip(table_col, query_res))
+        data = dict(zip(cols, values))
         expiry = datetime.fromisoformat(
             data["expiry"]).replace(tzinfo=timezone.utc)
 
         if time_now > expiry:
             cursor.execute(
                 "DELETE FROM verification WHERE token = (?)", (token, ))
-            raise HTTPException(status_code=410, detail="Token expired")
+            raise HTTPException(status_code=410, detail="verification_error")
 
         # Verification complete
         cursor.execute(
-            "UPDATE player SET isVerified = 1 WHERE playerID = (?)",
+            "UPDATE player SET isVerified = 1 WHERE ID = (?)",
             (data["playerID"], )
         )
         cursor.execute(
@@ -259,31 +256,40 @@ def login(player: PlayerLogin):
     cursor = conn.cursor()
 
     try:
-        email_query = cursor.execute(
+        query = cursor.execute(
             """
             SELECT 
-                * 
+                player.ID AS playerID,
+                player.name AS playerName,
+                player.playerNumber,
+                player.email,
+                player.passwordHash,
+                membership.role,
+                team.ID AS teamID,
+                team.name AS teamName
             FROM 
                 player 
-            INNER JOIN membership ON membership.playerID = player.playerID
-            LEFT OUTER JOIN team ON team.teamID = membership.teamID
+            INNER JOIN membership ON membership.playerID = player.ID
+            LEFT OUTER JOIN team ON team.ID = membership.teamID
             WHERE player.email = (?)""",
             (player.email, )
         )
 
-        query_col = [col[0] for col in email_query.description]
-        query_res = email_query.fetchone()
-        if query_res is None:
-            raise HTTPException(status_code=404, detail="Email not found")
+        cols = [col[0] for col in query.description]
 
-        data = dict(zip(query_col, query_res))
+        values = query.fetchone()
+        if values is None:
+            raise HTTPException(
+                status_code=404, detail="email_not_found_error")
+
+        data = dict(zip(cols, values))
         login = bcrypt.checkpw(
             player.password.encode("utf-8"),
             data["passwordHash"].encode("utf-8")
         )
 
         if not login:
-            raise HTTPException(status_code=401, detail="Wrong password")
+            raise HTTPException(status_code=401, detail="wrong_password_error")
 
         secret = os.getenv("JWT_SECRET")
         jwt_exp = datetime.now(timezone.utc) + timedelta(hours=24)
@@ -297,10 +303,11 @@ def login(player: PlayerLogin):
             "exp": int(jwt_exp.timestamp())
         }
 
-        Jwt_token = jwt.encode(payload, secret, algorithm="HS256")
-        return {"data": Jwt_token, "detail": "Login successful"}
+        jwt_token = jwt.encode(payload, secret, algorithm="HS256")
+        return {"data": jwt_token, "detail": "login_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -313,7 +320,7 @@ async def get_current_user(request: Request):
     auth_header = request.headers.get("Authorisation")
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(
-            status_code=401, detail="Missing of invalid Authorisation header")
+            status_code=401, detail="invalid_auth_error")
 
     token = auth_header.split(" ")[1]
 
@@ -323,7 +330,7 @@ async def get_current_user(request: Request):
         return payload
 
     except JWTError:
-        raise HTTPException(status_code=401, detail="Invalid or Expired token")
+        raise HTTPException(status_code=401, detail="invalid_token_error")
 
 
 # Protected Endpoints
@@ -334,24 +341,24 @@ async def update_membership(update: Membership, user: dict = Depends(get_current
 
     try:
         if user["role"] not in ["root"]:
-            raise HTTPException(
-                status_code=401, detail="trying something funny?")
+            raise HTTPException(status_code=401, detail="funnyman")
 
         query = cursor.execute(
             """
             SELECT 
                 * 
             FROM player
-            INNER JOIN membership ON membership.playerID = player.playerID
-            FULL OUTER JOIN team ON membership.teamID = team.teamID
-            WHERE player.playerID = (?)
+            INNER JOIN membership ON membership.playerID = player.ID
+            FULL OUTER JOIN team ON membership.teamID = team.ID
+            WHERE player.ID = (?)
             """,
             (update.playerID, )
         )
 
         result = query.fetchone()
         if result is None:
-            raise HTTPException(status_code=404, detail="Player not found")
+            raise HTTPException(
+                status_code=404, detail="player_not_found_error")
 
         cols = [col[0] for col in query.description]
         data = dict(zip(cols, result))
@@ -371,12 +378,11 @@ async def update_membership(update: Membership, user: dict = Depends(get_current
             )
             new_user["role"] = update.role
 
-
         secret = os.getenv("JWT_SECRET")
         new_token = jwt.encode(new_user, secret, algorithm="HS256")
 
         conn.commit()
-        return {"data": new_token, "detail": "Membership updated"}
+        return {"data": new_token, "detail": "membership_update_success"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -400,7 +406,8 @@ def change_password(passwords: dict[str, str], user: dict = Depends(get_current_
         result = query.fetchone()
 
         if result is None:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(
+                status_code=404, detail="player_not_found_error")
 
         data = dict(zip(cols, result))
         login = bcrypt.checkpw(
@@ -409,7 +416,7 @@ def change_password(passwords: dict[str, str], user: dict = Depends(get_current_
         )
 
         if (not login) and (passwords["old"] != "forgot..."):
-            raise HTTPException(status_code=401, detail="Wrong password")
+            raise HTTPException(status_code=401, detail="wrong_password_error")
 
         password_hash = bcrypt.hashpw(
             passwords["new"].encode("utf-8"), bcrypt.gensalt())
@@ -421,18 +428,41 @@ def change_password(passwords: dict[str, str], user: dict = Depends(get_current_
         )
 
         conn.commit()
-        return {"detail": "Password changed"}
+        return {"detail": "password_change_success"}
 
     finally:
         conn.rollback()
         conn.close()
 
 
-@app.post("/team_results", status_code=201)
+@app.get("/get_team_results", status_code=200)
+def get_team_results(payload: dict, user=Depends(get_current_user)):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            """
+            SELECT 
+                player.ID AS playerID
+            """
+        )
+        payload['selectedPlayerID']
+        payload['selectedTeamID']
+
+    except Exception as e:
+        return HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        conn.rollback()
+        conn.close()
+
+
+@app.post("/post_team_results", status_code=201)
 def post_team_results(payload: ResultsCreate, user=Depends(get_current_user)):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
-    
+
     try:
         history = payload.history
         gameName = payload.gameName
@@ -440,13 +470,13 @@ def post_team_results(payload: ResultsCreate, user=Depends(get_current_user)):
 
         if user["teamID"] is None:
             raise HTTPException(
-                status_code = 404, 
-                detail = "A team has not been assign to you yet"
+                status_code=404,
+                detail="unassigned_team_error"
             )
-        
+
         if len(history) == 0:
-            raise HTTPException(status_code = 422, detail = "No data to post")
-        
+            raise HTTPException(status_code=422, detail="no_results_error")
+
         cursor.execute(
             """
             INSERT INTO team_result (
@@ -476,7 +506,7 @@ def post_team_results(payload: ResultsCreate, user=Depends(get_current_user)):
 
         # conn.commit()
         conn.rollback()
-        return {"detail": "Team results posted succssfully"}
+        return {"detail": "team_results_post_success"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -486,12 +516,14 @@ def post_team_results(payload: ResultsCreate, user=Depends(get_current_user)):
         conn.close()
 
 
-@app.post("/player_results", status_code=201)
+@app.post("/post_player_results", status_code=201)
 def post_player_results(payload: ResultsCreate, user=Depends(get_current_user)):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
+        if user["playerID"] is None:
+            raise HTTPException(status_code=401, detail="prelogin_error")
         history = payload.history
         gameName = payload.gameName
         playerName = payload.playerName
@@ -525,7 +557,7 @@ def post_player_results(payload: ResultsCreate, user=Depends(get_current_user)):
 
         # conn.commit()
         conn.rollback()
-        return {"detail": "Player results posted succssfully"}
+        return {"detail": "player_results_post_success"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

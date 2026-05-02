@@ -1,53 +1,21 @@
-.stats-shell {
-  padding: 16px;
-  gap: 16px;
-  background: var(--bg);
-  display: flex;
-  flex-direction: column;
-}
-
-.stats-shell__main {
+.entry {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   gap: 16px;
 }
 
-.stats-shell__controls {
+.entry-video {
   display: flex;
-  justify-content: space-evenly;
-  align-items: center;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
   padding: 16px;
   gap: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
 }
 
-.stats-shell__error {
-  display: inline-flex;
-  justify-content: space-evenly;
-  align-items: center;
-  padding: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-}
-
-.stats-shell__title {
-  display: inline-flex;
-  justify-content: space-evenly;
-  align-items: center;
-  font-size: xx-large;
-  font-weight: 600;
-  line-height: 1;
-  text-align: center;
-  white-space: nowrap;
-  color: var(--text);
-}
-
-.stats-shell__header {
+.entry-header {
   display: inline-flex; 
   justify-content: space-evenly;
   align-items: center;
@@ -57,20 +25,7 @@
   color: var(--text);
 }
 
-.stats-shell__video {
-  display: flex;
-  flex-direction: column;
-  /* align-items: center;
-  justify-content: space-evenly; */
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  padding: 16px;
-  gap: 16px;
-}
-
-.stats-shell__video-frame {
+.entry-video__frame {
   width: 100%;
   max-width: min(100%, 56rem);
   aspect-ratio: 16 / 9;
@@ -81,13 +36,13 @@
   background: var(--surface);
 }
 
-.stats-shell__video-frame > * {
+.entry-video__frame > * {
   width: 100% !important;
   height: 100% !important;
 }
 
-.stats-shell__center,
-.stats-shell__right {
+.entry-center,
+.entry-right {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -100,19 +55,11 @@
 
 
 @media (max-width: 790px) {
-  .stats-shell__main {
+  .entry {
     grid-template-columns: 1fr;
   }
 
-  .stats-shell__right {
+  .entry-right {
     height: 60vh;
-  }
-
-  .stats-shell__error {
-    max-height: 84px;
-  }
-
-  .stats-shell__title {
-    visibility: hidden;
   }
 }

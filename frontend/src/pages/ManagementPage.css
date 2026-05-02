@@ -1,49 +1,11 @@
-.manage-shell {
-  padding: 16px;
-  gap: 24px;
-  background: var(--bg);
-  color: var(--text);
-  box-sizing: border-box;
+.manage {
   display: flex;
-  flex-direction: column;
-}
-
-.manage-shell__top {
-  display: grid;
-  grid-template-columns: 1fr 0.5fr 1fr;
-  gap: 16px;
-}
-
-.manage-shell__controls {
-  display: flex;
+  flex-direction: row;
   justify-content: space-evenly;
-  align-items: center;
-  padding: 16px;
-  gap: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-}
-
-.manage-shell__error {
-  display: inline-flex;
-  justify-content: space-evenly;
-  align-items: center;
-  padding: 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-}
-
-.manage-shell__bot {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
 }
 
-.manage-shell__panel {
+.manage-panel {
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -53,9 +15,10 @@
   padding: 24px;
   gap: 54px;
   box-shadow: var(--shadow);
+  width: 40vw;
 }
 
-.manage-shell__panel-title {
+.manage-panel__title {
   margin: 0 0 12px;
   color: var(--text);
   font-size: large;
@@ -72,21 +35,12 @@
 }
 
 @media (max-width: 790px) {
-  .manage-shell__top {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .manage-shell__controls {
-    padding: 8px;
-    gap: 8px;
-  }
-
-  .manage-shell__bot {
+  .manage {
     display: flex;
     flex-direction: column;
   }
 
-  .manage-shell__panel {
+  .manage-panel {
     height: 100%;
     box-sizing: border-box;
     max-height: 100%;

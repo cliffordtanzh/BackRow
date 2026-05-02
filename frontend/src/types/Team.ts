@@ -1,9 +1,9 @@
 export type Team = {
-  teamID: number,
-  teamName: string,
+  ID: number,
+  name: string,
 }
 
 export const DEFAULT_TEAM: Team = {
-  teamID: 0,
-  teamName: '',
+  ID: 0,
+  name: '',
 }
