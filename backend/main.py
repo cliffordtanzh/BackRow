@@ -159,35 +159,36 @@ def register(player: PlayerCreate):
             (playerID, verf_token, expiry)
         )
 
-        # Set up email details
-        sender_email = os.getenv("EMAIL_ADDRESS")
-        password = os.getenv("EMAIL_PASSWORD")
-        receiver_email = player.email
+        print(verf_token)
 
-        # Create the message
-        msg = EmailMessage()
-        msg["Subject"] = "Backrow Verification"
-        msg["From"] = sender_email
-        msg["To"] = receiver_email
-        msg.set_content(
-            "Click on this link to verify your account\n"
-            f"{os.getenv('BACKEND_URL')}/verify?token={verf_token}"
-        )
+        # # Set up email details
+        # sender_email = os.getenv("EMAIL_ADDRESS")
+        # password = os.getenv("EMAIL_PASSWORD")
+        # receiver_email = player.email
 
-        try:
-            with smtplib.SMTP("smtp.gmail.com", 587) as server:
-                server.starttls()  # Secure the connection
-                server.login(sender_email, password)
-                server.send_message(msg)
+        # # Create the message
+        # msg = EmailMessage()
+        # msg["Subject"] = "Backrow Verification"
+        # msg["From"] = sender_email
+        # msg["To"] = receiver_email
+        # msg.set_content(
+        #     "Click on this link to verify your account\n"
+        #     f"{os.getenv('BACKEND_URL')}/verify?token={verf_token}"
+        # )
 
-        except Exception as e:
-            print(f"Error: {e}")
+        # try:
+        #     with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        #         server.starttls()  # Secure the connection
+        #         server.login(sender_email, password)
+        #         server.send_message(msg)
+
+        # except Exception as e:
+        # raise HTTPException(status_code = 500, detail = str(e))
 
         conn.commit()
         return {"detail": "Player registration request sent"}
 
     except Exception as e:
-        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -197,6 +198,7 @@ def register(player: PlayerCreate):
 
 @app.get("/verify", status_code=200)
 def verify(token: str):
+    print(token)
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -435,80 +437,62 @@ def change_password(passwords: dict[str, str], user: dict = Depends(get_current_
         conn.close()
 
 
-@app.get("/get_team_results", status_code=200)
-def get_team_results(payload: dict, user=Depends(get_current_user)):
+@app.post("/fetch_results", status_code=200)
+def fetch_results(query: dict, user=Depends(get_current_user)):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
-        cursor.execute(
-            """
+        isPlayerMode = query["isPlayerMode"]
+        entityName = 'player' if isPlayerMode else 'team'
+        role = user["role"]
+
+        if role == "none":
+            raise HTTPException(status_code = 500, detail="funnyman")
+        elif role == "player":
+            limit_condition = f"WHERE player.ID=(?)"
+        elif role == "manager":
+            limit_condition = f"WHERE team.ID=(?)"
+        else:
+            limit_condition = ""
+
+        results_query = cursor.execute(
+            f"""
             SELECT 
-                player.ID AS playerID
-            """
+                player.ID AS playerID,
+                player.name AS playerName,
+                team.ID AS teamID,
+                team.name AS teamName,
+                {entityName}_result.summaryID,
+                {entityName}_result.youtubeURL,
+                {entityName}_result.gameName
+            FROM 
+                player
+            INNER JOIN membership ON membership.playerID = player.ID
+            FULL OUTER JOIN team ON team.ID = membership.teamID
+            FULL OUTER JOIN {entityName}_result ON 
+                {entityName}_result.{entityName}ID = {entityName}.ID
+            WHERE
+                {entityName}.ID = (?)""",
+            (query[f"{entityName}ID"], )
         )
-        payload['selectedPlayerID']
-        payload['selectedTeamID']
+
+        cols = [col[0] for col in results_query.description]
+
+        results = []
+        for value in results_query.fetchall():
+            data = {
+                key: str(value) 
+                if value is None else value 
+                for key, value in zip(cols, value)
+            }
+            
+            results.append(Results.model_validate(data))
+
+        return {"data": results, "detail": "fetch_results_success"}
 
     except Exception as e:
-        return HTTPException(status_code=500, detail=str(e))
-
-    finally:
-        conn.rollback()
-        conn.close()
-
-
-@app.post("/post_team_results", status_code=201)
-def post_team_results(payload: ResultsCreate, user=Depends(get_current_user)):
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
-
-    try:
-        history = payload.history
-        gameName = payload.gameName
-        teamName = payload.teamName
-
-        if user["teamID"] is None:
-            raise HTTPException(
-                status_code=404,
-                detail="unassigned_team_error"
-            )
-
-        if len(history) == 0:
-            raise HTTPException(status_code=422, detail="no_results_error")
-
-        cursor.execute(
-            """
-            INSERT INTO team_result (
-                gameName, 
-                teamName, 
-            ) VALUES (?, ?)""",
-            (gameName, teamName)
-        )
-        resultID = cursor.lastrowid
-
-        for event in history:
-            cursor.execute(
-                """
-                INSERT INTO team_event (
-                    eventID, 
-                    resultID, 
-                    pointMethod, 
-                    pointDelta
-                )  VALUES (?, ?, ?, ?)""",
-                (
-                    event.eventID,
-                    resultID,
-                    event.eventType["en"],
-                    event.pointDelta,
-                )
-            )
-
-        # conn.commit()
-        conn.rollback()
-        return {"detail": "team_results_post_success"}
-
-    except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -516,35 +500,47 @@ def post_team_results(payload: ResultsCreate, user=Depends(get_current_user)):
         conn.close()
 
 
-@app.post("/post_player_results", status_code=201)
-def post_player_results(payload: ResultsCreate, user=Depends(get_current_user)):
+@app.post("/post_results", status_code=201)
+def post_results(payload: ResultsCreate, user=Depends(get_current_user)):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
-        if user["playerID"] is None:
-            raise HTTPException(status_code=401, detail="prelogin_error")
-        history = payload.history
+        events = payload.events
+        isPlayerMode = payload.isPlayerMode
+        playerID = payload.playerID
+        teamID = payload.teamID
+        youtubeURL = payload.youtubeURL
         gameName = payload.gameName
-        playerName = payload.playerName
 
+        if (not isPlayerMode) and (user["teamID"] is None):
+            raise HTTPException(
+                status_code=404,
+                detail="unassigned_team_error"
+            )
+
+        if len(events) == 0:
+            raise HTTPException(status_code=422, detail="no_results_error")
+
+        entityName = "player" if isPlayerMode else "team"
         cursor.execute(
-            """
-            INSERT INTO player_result (
-                gameName, 
-                playerName
-            ) VALUES (?, ?)""",
-            (gameName, playerName)
+            f"""
+            INSERT INTO {entityName}_result (
+                youtubeURL,
+                gameName,
+                {entityName}ID
+            ) VALUES (?, ?, ?)""",
+            (youtubeURL, gameName, playerID if isPlayerMode else teamID)
         )
         summaryID = cursor.lastrowid
 
-        for event in history:
+        for event in events:
             cursor.execute(
-                """
-                INSERT INTO player_event (
-                    eventID, 
+                f"""
+                INSERT INTO {entityName}_event (
+                    ID, 
                     summaryID, 
-                    eventType, 
+                    {'eventType' if isPlayerMode else 'pointMethod'}, 
                     pointDelta
                 )  VALUES (?, ?, ?, ?)""",
                 (
@@ -555,11 +551,11 @@ def post_player_results(payload: ResultsCreate, user=Depends(get_current_user)):
                 )
             )
 
-        # conn.commit()
-        conn.rollback()
-        return {"detail": "player_results_post_success"}
+        conn.commit()
+        return {"detail": "results_post_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:

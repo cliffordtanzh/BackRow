@@ -1,10 +1,22 @@
 {
-    "url_input_error": {"en": "Not a YouTube URL", "cn": "不是YouTube链接"},
-    "title_fetch_success": {"en": "Game name fetched", "cn": "已获取标题"},
-    "title_fetch_error": {"en": "Game name could not be fetched", "cn": "标题获取失败"},
-
-    "prelogin_error": {
+    "url_input_error": {
+        "en": "Not a YouTube URL", 
+        "cn": "不是YouTube链接"
+    },
+    "title_fetch_success": {
+        "en": "Game name fetched", 
+        "cn": "已获取标题"
+    },
+    "title_fetch_error": {
+        "en": "Game name could not be fetched", 
+        "cn": "标题获取失败"
+    },
+    "prelogin_post_error": {
         "en": "Log in before submitting results", 
+        "cn": "请先登录再提交数据"
+    },
+    "prelogin_fetch_error": {
+        "en": "Log in before requesting results", 
         "cn": "请先登录再提交数据"
     },
     "unassigned_team_error": {
@@ -15,25 +27,18 @@
         "en": "No data to post",
         "cn": "未输入数据"
     },
-    "team_results_post_success": {
-        "en": "Team results posted succssfully",
-        "cn": "球队成绩已成功公布"
+    "results_post_success": {
+        "en": "Results posted succssfully",
+        "cn": "成绩已成功公布"
     },
-    "player_results_post_success": {
-        "en": "Player results posted succssfully",
-        "cn": "球员成绩已成功公布"
-    },
-    
     "empty_login_details_error": {
         "en": "Email or Password cannot be empty",
         "cn": "电子邮件或密码不能为空"
     },
-
     "empty_password_error": {
         "en": "Passwords cannot be empty",
         "cn": "密码不能为空"
     },
-
     "empty_player_name_error": {
         "en": "Player name cannot be empty",
         "cn": "球员名字不能为空"
@@ -46,7 +51,6 @@
         "en": "Player number cannot be empty",
         "cn": "球员号码不能为空"
     },
-
     "empty_team_name_error": {
         "en": "Team name cannot be empty",
         "cn": "队名不能为空"
@@ -59,7 +63,6 @@
         "en": "Team queried successfully",
         "cn": "球队查询成功"
     },
-
     "email_in_use_error": {
         "en": "Email is already in use",
         "cn": "电子邮件已在使用中"
@@ -76,7 +79,6 @@
         "en": "Player queried successfully",
         "cn": "球员查询成功"
     },
-
     "email_not_found_error": {
         "en": "Email not found",
         "cn": "未找到电子邮件"
@@ -89,7 +91,6 @@
         "en": "Login successful",
         "cn": "登录成功"
     },
-
     "invalid_auth_error": {
         "en": "Missing or invalid Authorisation header",
         "cn": "缺少或无效的授权标头"
@@ -98,7 +99,6 @@
         "en": "Invalid or Expired token",
         "cn": "无效或过期的令牌"
     },
-
     "funnyman": {
         "en": "trying something funny?",
         "cn": "嫑玩"
@@ -111,10 +111,12 @@
         "en": "Membership updated",
         "cn": "球员资格已更新"
     },
-
     "password_change_success": {
         "en": "Password changed",
         "cn": "密码已更改"
+    },
+    "fetch_results_success": {
+        "en": "Results fetched",
+        "cn": "成绩已获取"
     }
-
 }

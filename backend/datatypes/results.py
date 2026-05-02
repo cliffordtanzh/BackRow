@@ -3,15 +3,18 @@ from backend.datatypes import Event
 
 
 class Results(BaseModel):
-    resultID: int
-    history: list[Event]
-    playerName: str
+    summaryID: int
+    playerID: int
+    teamID: int
+    youtubeURL: str
     gameName: str
-    teamName: str
+    youtubeURL: str
 
 
 class ResultsCreate(BaseModel):
-    history: list[Event]
-    playerName: str
+    events: list[Event]
+    isPlayerMode: bool
+    playerID: int
+    teamID: int
+    youtubeURL: str
     gameName: str
-    teamName: str

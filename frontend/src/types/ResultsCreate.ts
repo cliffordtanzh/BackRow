@@ -2,8 +2,10 @@ import Event from "./Event"
 
 
 export type ResultsCreate = {
-    history: Event[],
-    playerName: string,
+    events: Event[],
+    isPlayerMode: boolean,
+    playerID: number,
+    teamID: number,
+    youtubeURL: string,
     gameName: string,
-    teamName: string,
 }

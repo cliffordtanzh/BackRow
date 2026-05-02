@@ -16,13 +16,14 @@ import HistoryButton from '../components/entry/HistoryButton.tsx';
 import HistoryPanel from '../components/entry/HistoryPanel.tsx';
 import StatsInputs from '../components/entry/StatsInputs.tsx';
 
-import useResponse from '../hooks/useResponse';
+import { useResponse } from '../hooks/useResponse';
 
 import Event from '../types/Event';
 
 import { type Response, DEFAULT_RESPONSE } from '../types/Response';
 import { type ResultsCreate } from '../types/ResultsCreate';
 import { type Lang } from '../types/Lang'
+import { type History } from '../types/History'
 
 import headers from '../assets/headers.json';
 import responses from '../assets/responses.json';
@@ -31,29 +32,38 @@ import '../App.css'
 import './EntryPage.css';
 
 
-function useResultsCreate(itemKey: 'player' | 'team', gameName: string): [
-  ResultsCreate,
+function useHistory(itemKey: string, youtubeURL: string, gameName: string): [
+  History,
   React.Dispatch<React.SetStateAction<Event[]>>
 ] {
-  const stored = localStorage.getItem(`${itemKey}History`);
+  const stored = localStorage.getItem(`${itemKey}Events`);
   const arr = stored ? JSON.parse(stored) : [];
 
-  const storedHistory = arr.map((obj: any) => new Event(
+  const storedEvents = arr.map((obj: any) => new Event(
     obj.eventID, 
     obj.eventType, 
     obj.pointDelta, 
   ));
   
-  const [history, setHistory] = useState<Event[]>([...storedHistory]);
+  const [events, setEvents] = useState<Event[]>([...storedEvents]);
 
-  const results: ResultsCreate = {
-    history: history,
+  const results: History = {
+    events: events,
+    isPlayerMode: itemKey === 'player',
+    playerID: Number(localStorage.getItem('playerID')) || 0,
     playerName: localStorage.getItem('playerName') || 'Player',
+    teamID: Number(localStorage.getItem('teamID')) || 0,
     teamName: localStorage.getItem('teamName') || 'Team',
-    gameName: gameName
+    youtubeURL: youtubeURL,
+    gameName: gameName,
   }
 
-  return [ results, setHistory ]
+  useEffect(() => {localStorage.setItem(
+    `${itemKey}Events`, 
+    JSON.stringify(events)
+  )}, [events])
+
+  return [ results, setEvents ]
 }
 
 
@@ -74,6 +84,7 @@ function EntryPage({
   setIsLoggedIn,
 }: EntryPageProps) {
 
+  // From App.tsx
   const loggedInResponse: Response = {
     message: `Hello ${localStorage.getItem('playerName')}`,
     fade: false,
@@ -84,14 +95,14 @@ function EntryPage({
   }, [])
 
   // All states needed
-  const [gameName, setGameName] = useState<string>('');
-  const [teamResultsCreate, setTeamHistory] = useResultsCreate('team', gameName);
-  const [playerResultsCreate, setPlayerHistory] = useResultsCreate('player', gameName);
-
   const [isPlayerMode, setIsPlayerMode] = useState<boolean>(true);
   const [videoURL, setVideoURL] = useState<string>(
-    'https://www.youtube.com/watch?v=hgPI9NJdPFc&list=RDhgPI9NJdPFc&start_radio=1'
+    'https://www.youtube.com/watch?v=qS0L_gR0u0Q'
   );
+
+  const [gameName, setGameName] = useState<string>('');
+  const [teamHistory, setTeamEvents] = useHistory('player', videoURL, gameName);
+  const [playerHistory, setPlayerEvents] = useHistory('team', videoURL, gameName);
 
   const [fetchError, setFetchError, fetchSuccess, setFetchSuccess] = useResponse();
   const [postError, setPostError, postSuccess, setPostSuccess] = useResponse();
@@ -111,11 +122,9 @@ function EntryPage({
   }
 
   const undoHistory = (
-    itemKey: string,
     setter: React.Dispatch<React.SetStateAction<Event[]>>
   ) => {
     setter((prev) => prev.slice(0, -1));
-    localStorage.removeItem(itemKey)
   }
 
   useEffect(() => { 
@@ -211,8 +220,8 @@ function EntryPage({
             <StatsInputs
               lang={lang}
               isPlayerMode={isPlayerMode}
-              results={isPlayerMode ? playerResultsCreate: teamResultsCreate}
-              setHistory={isPlayerMode ? setPlayerHistory : setTeamHistory}
+              history={isPlayerMode ? playerHistory: teamHistory}
+              setEvents={isPlayerMode ? setPlayerEvents : setTeamEvents}
               setPostError={setPostError}
               setPostSuccess={setPostSuccess}
             />
@@ -223,8 +232,7 @@ function EntryPage({
             <HistoryButton
               lang={lang}
               onClick={() => undoHistory(
-                isPlayerMode ? 'player' : 'team',
-                isPlayerMode ? setPlayerHistory : setTeamHistory,
+                isPlayerMode ? setPlayerEvents : setTeamEvents,
               )}
               type={'undo'}
             />
@@ -233,7 +241,7 @@ function EntryPage({
               lang={lang}
               onClick={() => clearHistory(
                 isPlayerMode ? 'player' : 'team',
-                isPlayerMode ? setPlayerHistory : setTeamHistory,
+                isPlayerMode ? setPlayerEvents : setTeamEvents,
               )}
               type={'clear'}
             />
@@ -241,7 +249,7 @@ function EntryPage({
 
           <HistoryPanel
             lang={lang}
-            results={isPlayerMode ? playerResultsCreate : teamResultsCreate}
+            results={isPlayerMode ? playerHistory : teamHistory}
             isPlayerMode={isPlayerMode}
           />
         </div>

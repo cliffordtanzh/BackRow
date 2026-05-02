@@ -39,5 +39,3 @@ export function useResponse(): [
 
   return [ success, setSuccess, error, setError ]
 }
-
-export default useResponse;

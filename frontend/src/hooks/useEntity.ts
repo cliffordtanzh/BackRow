@@ -27,10 +27,10 @@ export function useEntity(lang: Lang, entityName: 'player' | 'team'):[
     axios.get(`${import.meta.env.VITE_API_URL}/${entityName}`)
     .then((resp) => setEntity(resp.data.data))
     .catch((resp) => {
-      const response_key: string = resp.response.data.detail.split(': ')[1]
+      const responseKey: string = resp.response.data.detail.split(': ')[1]
       setEntityError((prev) => ({
         ...prev, 
-        message: responses[response_key as keyof typeof responses][lang]
+        message: responses[responseKey as keyof typeof responses][lang]
       }))
     })
   }

@@ -7,7 +7,7 @@ import SuccessMessage from '../general/SuccessMessage';
 import ErrorMessage from '../general/ErrorMessage';
 import FieldInput from '../general/FieldInput';
 
-import useResponse from '../../hooks/useResponse';
+import { useResponse } from '../../hooks/useResponse';
 
 import { type PlayerCreate, DEFAULT_PLAYER_CREATE } from '../../types/PlayerCreate';
 import { type Lang } from '../../types/Lang';
@@ -64,10 +64,10 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
       }));
 
     }).catch((resp) => {
-      const response_key: string = resp.response.data.detail.split(': ')[1]
+      const responseKey: string = resp.response.data.detail.split(': ')[1]
       setError((prev) => ({
         ...prev, 
-        message: responses[response_key as keyof typeof responses][lang]
+        message: responses[responseKey as keyof typeof responses][lang]
       }))
     })
   }

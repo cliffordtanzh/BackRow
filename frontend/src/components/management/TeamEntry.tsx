@@ -5,7 +5,7 @@ import ErrorMessage from '../general/ErrorMessage';
 import SuccessMessage from '../general/SuccessMessage';
 import FieldInput from '../general/FieldInput';
 
-import useResponse from '../../hooks/useResponse';
+import { useResponse } from '../../hooks/useResponse';
 
 import { type TeamCreate, DEFAULT_TEAM_CREATE } from '../../types/TeamCreate';
 import { type Lang } from '../../types/Lang';
@@ -48,10 +48,10 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
       
     })
     .catch((resp) => {
-      const response_key: string = resp.response.data.detail.split(': ')[1]
+      const responseKey: string = resp.response.data.detail.split(': ')[1]
       setError((prev) => ({
         ...prev, 
-        message: responses[response_key as keyof typeof responses][lang]
+        message: responses[responseKey as keyof typeof responses][lang]
       }))
       setSuccess(DEFAULT_RESPONSE)
     })

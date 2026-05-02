@@ -85,11 +85,8 @@ function ManagementPage({
     fetchPlayers
   ] = useEntity(lang, 'player');
 
-  console.log(selectedTeam, selectedPlayer)
-
   const allErrors: Response[] = [playerError, teamError];
   const hasError = allErrors.some((resp) => (resp && resp.message))
-
 
   const chooseProps = (header: string) => {
     if (header === 'player') {
@@ -141,12 +138,8 @@ function ManagementPage({
     return decoded['role']
   }
 
-  const logOut = () => {
-    localStorage.removeItem('Jwt_token');
-    localStorage.removeItem('playerID');
-    localStorage.removeItem('playerName');
-    localStorage.removeItem('teamID');
-    localStorage.removeItem('teamName');
+  const logout = () => {
+    localStorage.clear();
 
     setAuthorisation('none');
     setIsLoggedIn(false);
@@ -175,7 +168,7 @@ function ManagementPage({
           />
           <GeneralButton 
             label={headers['logout'][lang]} 
-            onClick={logOut}
+            onClick={logout}
           />
         </div>
 
@@ -206,6 +199,7 @@ function ManagementPage({
             <LoginCard
               lang={lang}
               setJwtToken={setJwtToken}
+              logout={logout}
             />
           </div>
 

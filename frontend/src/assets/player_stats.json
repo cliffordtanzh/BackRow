@@ -1,18 +1,17 @@
 {
     "attacks": [
         {"en": "Service Ace", "cn": "发球得分"},
-        {"en": "Block Kill", "cn": "拦网得分"},
         {"en": "Spike Kill", "cn": "扣球得分"},
         {"en": "Tip Kill", "cn": "吊球得分"},
+        {"en": "Block Kill", "cn": "拦网得分"},
         {"en": "Spike Attempt", "cn": "尝试扣球"}
     ],
 
     "attack_mistakes": [
-        {"en": "Spike Error", "cn": "扣球失误"},
         {"en": "Serve Error", "cn": "发球失误"},
-        {"en": "Mistakes", "cn": "自己丢分"},
-        {"en": "Attack Errors", "cn": "进攻失误"},
-        {"en": "Spike Blocked", "cn": "扣球被拦"}
+        {"en": "Spike Error", "cn": "扣球失误"},
+        {"en": "Spike Blocked", "cn": "扣球被拦"},
+        {"en": "Mistake", "cn": "自己丢分"}
     ],
 
     "receives": [

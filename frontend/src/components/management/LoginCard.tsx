@@ -7,7 +7,7 @@ import ErrorMessage from '../general/ErrorMessage';
 import SuccessMessage from '../general/SuccessMessage';
 import FieldInput from '../general/FieldInput';
 
-import useResponse from '../../hooks/useResponse';
+import { useResponse } from '../../hooks/useResponse';
 
 import { DEFAULT_PLAYER_LOGIN, type PlayerLogin } from '../../types/PlayerLogin';
 import { DEFAULT_RESPONSE } from '../../types/Response';
@@ -21,11 +21,12 @@ import './ManageInputs.css';
 
 type loginCardProps = {
   lang: Lang,
-  setJwtToken: React.Dispatch<React.SetStateAction<string | null>>
+  setJwtToken: React.Dispatch<React.SetStateAction<string | null>>,
+  logout: () => void
 }
 
 
-function LoginCard({ lang, setJwtToken }: loginCardProps) {
+function LoginCard({ lang, setJwtToken, logout }: loginCardProps) {
 
   const [error, setError, success, setSuccess] = useResponse();
   const [playerState, setPlayerState] = useState<PlayerLogin>(DEFAULT_PLAYER_LOGIN)
@@ -44,6 +45,14 @@ function LoginCard({ lang, setJwtToken }: loginCardProps) {
       {...playerState}
     )
     .then((resp) => {
+      setError(DEFAULT_RESPONSE);
+      setSuccess((prev) => ({
+        ...prev, 
+        message: responses[resp.data.detail as keyof typeof responses][lang]
+      }));
+
+      logout();
+
       const token = resp.data.data
       const decoded: JwtPayload = jwtDecode(token)
 
@@ -52,22 +61,16 @@ function LoginCard({ lang, setJwtToken }: loginCardProps) {
       localStorage.setItem('playerName', decoded['playerName'])
       localStorage.setItem('teamID', String(decoded['teamID']))
       localStorage.setItem('teamName', decoded['teamName'])
-  
-      setError(DEFAULT_RESPONSE);
-      setSuccess((prev) => ({
-        ...prev, 
-        message: responses[resp.data.detail as keyof typeof responses][lang]
-      }))
-      setJwtToken(token)
-      setPlayerState(DEFAULT_PLAYER_LOGIN)
+
+      setJwtToken(token);
+      setPlayerState(DEFAULT_PLAYER_LOGIN);
     })
 
     .catch((resp) => {
-      console.log(resp)
-      const response_key: string = resp.response.data.detail.split(': ')[1]
+      const responseKey: string = resp.response.data.detail.split(': ')[1]
       setError((prev) => ({
         ...prev, 
-        message: responses[response_key as keyof typeof responses][lang]
+        message: responses[responseKey as keyof typeof responses][lang]
       })
     )})
   }

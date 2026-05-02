@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import EventCard from './EventCard';
 
 import Event from '../../types/Event';
-import { type Results } from '../../types/Results';
+import { type History } from '../../types/History';
 import { type Lang } from '../../types/Lang';
 
 import './HistoryPanel.css'
@@ -11,7 +11,7 @@ import './HistoryPanel.css'
 
 type HistoryPanelProps = {
   lang: Lang,
-  results: Results,
+  results: History,
   isPlayerMode: boolean
 }
 
@@ -19,7 +19,7 @@ type HistoryPanelProps = {
 function HistoryPanel({ lang, results, isPlayerMode }: HistoryPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   
-  const history: Event[] = results.history;
+  const events: Event[] = results.events;
   let pointsWon = 0;
   let pointsLost = 0;
 
@@ -27,14 +27,14 @@ function HistoryPanel({ lang, results, isPlayerMode }: HistoryPanelProps) {
     if (panelRef.current) {
       panelRef.current.scrollTop = panelRef.current.scrollHeight
     }
-  }, [history])
+  }, [events])
   
   return (
     <div className='history-panel' ref={panelRef}>
-      {history.map((event: Event) => {
+      {events.map((event: Event) => {
         if (event.pointDelta > 0) {
           pointsWon += 1;
-        } else {
+        } else if (event.pointDelta < 0) {
           pointsLost += 1;
         }
 

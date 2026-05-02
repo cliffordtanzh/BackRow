@@ -1,9 +1,8 @@
-import Event from './Event';
-
-
 export type Results = {
-    history: Event[],
+    playerID: number,
     playerName: string,
-    gameName: string,
+    teamID: number,
     teamName: string,
+    youtubeURL: string,
+    gameName: string,
 }

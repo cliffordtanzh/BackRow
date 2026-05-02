@@ -4,7 +4,7 @@ import SuccessMessage from '../general/SuccessMessage';
 import ErrorMessage from '../general/ErrorMessage';
 import Selector from '../general/Selector';
 
-import useResponse from '../../hooks/useResponse';
+import { useResponse } from '../../hooks/useResponse';
 
 import { DEFAULT_RESPONSE } from '../../types/Response';
 import { type Lang } from '../../types/Lang';
@@ -43,8 +43,6 @@ function ManageRole({
       role: roleProps.selected.role
     }
 
-    console.log(payload)
-
     const token = localStorage.getItem('Jwt_token')
     axios.post(
       `${import.meta.env.VITE_API_URL}/update_membership`, 
@@ -65,12 +63,12 @@ function ManageRole({
       
     })
     .catch((resp) => {
-      const response_key: string = resp.response.data.detail.split(': ')[1]
+      const responseKey: string = resp.response.data.detail.split(': ')[1]
       
       setSuccess(DEFAULT_RESPONSE)
       setError((prev) => ({
         ...prev, 
-        message: responses[response_key as keyof typeof responses][lang]
+        message: responses[responseKey as keyof typeof responses][lang]
       }))
     })
   }

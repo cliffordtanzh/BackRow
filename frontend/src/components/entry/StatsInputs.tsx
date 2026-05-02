@@ -6,6 +6,7 @@ import Event, { DEFAULT_EVENT } from '../../types/Event';
 import { type Response, DEFAULT_RESPONSE } from '../../types/Response';
 import { type BiLabel } from '../../types/BiLabel';
 import { type Lang } from '../../types/Lang';
+import { type History } from '../../types/History';
 import { type ResultsCreate } from '../../types/ResultsCreate';
 
 import playerStats from '../../assets/player_stats.json'
@@ -17,8 +18,8 @@ import './StatsInputs.css';
 
 function recordPlayerEvent(
   eventType: BiLabel, 
-  results: ResultsCreate, 
-  setHistory: React.Dispatch<React.SetStateAction<Event[]>>
+  history: History, 
+  setEvents: React.Dispatch<React.SetStateAction<Event[]>>
 ) {
   const pointEng = eventType.en
   let pointDelta: number = 0
@@ -40,8 +41,8 @@ function recordPlayerEvent(
     pointDelta = -1
   }
 
-  const history = results.history
-  const lastEvent = history.length > 0 ? history[history.length - 1] : DEFAULT_EVENT;
+  const events = history.events
+  const lastEvent = events.length > 0 ? events[events.length - 1] : DEFAULT_EVENT;
 
   const nextEvent = new Event(
     lastEvent.eventID + 1,
@@ -49,19 +50,19 @@ function recordPlayerEvent(
     pointDelta,
   )
 
-  setHistory((prev) => ([...prev, {...nextEvent}]));
+  setEvents((prev) => ([...prev, {...nextEvent}]));
 };
 
 function recordTeamEvent(
   pointMethod: BiLabel,
-  results: ResultsCreate,
-  setHistory: React.Dispatch<React.SetStateAction<Event[]>>
+  history: History,
+  setEvents: React.Dispatch<React.SetStateAction<Event[]>>
 ) {
   const pointEng = pointMethod.en
   const pointLost = (pointEng.includes('Error') || pointEng.includes('Blocked'));
 
-  const history = results.history
-  const lastEvent = history.length > 0 ? history[history.length - 1] : DEFAULT_EVENT;
+  const events = history.events
+  const lastEvent = events.length > 0 ? events[events.length - 1] : DEFAULT_EVENT;
 
   const nextEvent = new Event(
     lastEvent.eventID + 1,
@@ -69,23 +70,23 @@ function recordTeamEvent(
     pointLost ? -1 : 1,
   );
 
-  setHistory((prev) => ([...prev, nextEvent]));
+  setEvents((prev) => ([...prev, nextEvent]));
 }
 
 type StatsInputsProps = {
   lang: Lang;
-  results: ResultsCreate,
   isPlayerMode: boolean,
-  setHistory: React.Dispatch<React.SetStateAction<Event[]>>
+  history: History,
+  setEvents: React.Dispatch<React.SetStateAction<Event[]>>
   setPostError: React.Dispatch<React.SetStateAction<Response>>
   setPostSuccess: React.Dispatch<React.SetStateAction<Response>>
 }
 
 function StatsInputs({
   lang,
-  results,
   isPlayerMode,
-  setHistory,
+  history,
+  setEvents,
   setPostError,
   setPostSuccess,
 }: StatsInputsProps) {
@@ -93,13 +94,20 @@ function StatsInputs({
   const submitEvents = () => {
     const token = localStorage.getItem('Jwt_token') || null
     const teamID = localStorage.getItem('teamID') || null
-    const payload = {
-      ...results,
-      history: results.history.map(obj => ({...obj}))
+
+    const payload: ResultsCreate = {
+      events: history.events.map(obj => ({...obj})),
+      isPlayerMode: isPlayerMode,
+      playerID: history.playerID,
+      teamID: history.teamID,
+      youtubeURL: history.youtubeURL,
+      gameName: history.gameName,
     }
 
+    console.log(payload);
+
     if (token === null) {
-      setPostError((prev) => ({...prev, message: responses['prelogin_error'][lang]}))
+      setPostError((prev) => ({...prev, message: responses['prelogin_post_error'][lang]}))
       setPostSuccess(DEFAULT_RESPONSE);
       return;
     }
@@ -110,14 +118,14 @@ function StatsInputs({
       return;
     }
 
-    if (payload.history.length === 0) {
+    if (payload.events.length === 0) {
       setPostError((prev) => ({...prev, message: responses['no_results_error'][lang]}));
       setPostSuccess(DEFAULT_RESPONSE);
       return;
     }
 
     axios.post(
-      `${import.meta.env.VITE_API_URL}/post_${isPlayerMode ? 'player' : 'team'}_results`,
+      `${import.meta.env.VITE_API_URL}/post_results`,
       payload,
       {headers: {Authorisation: `Bearer ${token}`}}
 
@@ -129,10 +137,10 @@ function StatsInputs({
       }));
 
     }).catch((resp) => {
-      const response_key: string = resp.response.data.detail.split(': ')[1]
+      const responseKey: string = resp.response.data.detail.split(': ')[1]
       setPostError((prev) => ({
         ...prev, 
-        message: responses[response_key as keyof typeof responses][lang]
+        message: responses[responseKey as keyof typeof responses][lang]
       }))
       setPostSuccess(DEFAULT_RESPONSE)
     })
@@ -149,7 +157,7 @@ function StatsInputs({
               {statHeader.map((header: BiLabel) => (
                 <StatsButton
                   key={header['en']}
-                  onClick={() => recordEvent(header, results, setHistory)}
+                  onClick={() => recordEvent(header, history, setEvents)}
                   label={header[lang]}
                 />
               ))}
