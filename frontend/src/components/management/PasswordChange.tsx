@@ -10,6 +10,7 @@ import { useResponse } from '../../hooks/useResponse';
 
 import { DEFAULT_RESPONSE } from '../../types/Response';
 import { type Lang } from '../../types/Lang';
+import { type PasswordData } from '../../types/PasswordData';
 
 import headers from '../../assets/headers.json';
 import responses from '../../assets/responses.json';
@@ -35,9 +36,9 @@ function PasswordChange({ lang }: PasswordChangeProps) {
       return;
     }
 
-    const passwords = {
-      old: oldPassword,
-      new: newPassword
+    const passwords: PasswordData = {
+      oldPassword: oldPassword,
+      newPassword: newPassword
     }
 
     const token = localStorage.getItem("Jwt_token")

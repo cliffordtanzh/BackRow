@@ -1,0 +1,70 @@
+/* MUI X-Charts Theming for BackRow App */
+.MuiChartsLegend-root,
+.MuiChartsAxis-root,
+.MuiChartsAxis-tickLabel,
+.MuiChartsAxis-label,
+.MuiChartsTooltip-root {
+  color: var(--text) !important;
+  font-family: inherit;
+}
+
+.MuiChartsAxis-line,
+.MuiChartsAxis-tick {
+  stroke: var(--border) !important;
+}
+
+.MuiChartsGrid-line {
+  stroke: var(--surface-2) !important;
+  opacity: 0.7;
+}
+
+.MuiChartsScatter-seriesPath {
+  stroke: var(--accent) !important;
+  fill: var(--accent-2) !important;
+  opacity: 0.85;
+}
+
+.MuiChartsScatter-point {
+  fill: var(--accent) !important;
+  stroke: var(--surface) !important;
+  stroke-width: 2;
+  opacity: 0.95;
+  transition: r 0.2s;
+}
+.MuiChartsScatter-point:hover {
+  fill: var(--success) !important;
+  r: 8;
+}
+
+.MuiChartsRadar-area {
+  fill: var(--accent-2) !important;
+  opacity: 0.3;
+}
+.MuiChartsRadar-line {
+  stroke: var(--accent) !important;
+  stroke-width: 2;
+}
+.MuiChartsRadar-point {
+  fill: var(--accent) !important;
+  stroke: var(--surface) !important;
+  stroke-width: 2;
+}
+
+.MuiChartsTooltip-root {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.MuiChartsLegend-root {
+  background: transparent !important;
+}
+
+.MuiChartsChart-root {
+  background: var(--surface) !important;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 1rem;
+}

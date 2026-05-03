@@ -104,8 +104,6 @@ function StatsInputs({
       gameName: history.gameName,
     }
 
-    console.log(payload);
-
     if (token === null) {
       setPostError((prev) => ({...prev, message: responses['prelogin_post_error'][lang]}))
       setPostSuccess(DEFAULT_RESPONSE);

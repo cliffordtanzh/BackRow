@@ -11,6 +11,7 @@ from email.message import EmailMessage
 
 from pathlib import Path
 from dotenv import load_dotenv
+import json
 from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI, Depends, HTTPException, status, Request
@@ -25,6 +26,9 @@ load_dotenv(Path(__file__).parent / ".env")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 DATABASE_URL = os.getenv("DATABASE_URL")
+
+TEAM_STATS = json.load(open("frontend/src/assets/team_stats.json"))
+PLAYER_STATS = json.load(open("frontend/src/assets/player_stats.json"))
 
 app = FastAPI()
 
@@ -173,7 +177,7 @@ def register(player: PlayerCreate):
         # msg["To"] = receiver_email
         # msg.set_content(
         #     "Click on this link to verify your account\n"
-        #     f"{os.getenv('BACKEND_URL')}/verify?token={verf_token}"
+        #     f"{os.getenv("BACKEND_URL")}/verify?token={verf_token}"
         # )
 
         # try:
@@ -317,6 +321,61 @@ def login(player: PlayerLogin):
         conn.close()
 
 
+@app.post("/fetch_events", status_code=200)
+def fetch_events(query: EventQuery):
+    def repack_event_type(event_type, isPlayerMode):
+        stats = PLAYER_STATS if isPlayerMode else TEAM_STATS
+        for events in stats.values():
+            for event in events:
+                if event["en"] != event_type:
+                    continue
+
+                return event
+
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        isPlayerMode = query.isPlayerMode
+        entityName = "player" if isPlayerMode else "team"
+        eventTypeName = "eventType" if isPlayerMode else "pointMethod"
+
+        event_query = cursor.execute(f"""
+            SELECT
+                *
+            FROM
+                {entityName}_event
+            WHERE
+                resultID=(?)""",
+            (query.ID, )
+        )
+
+        cols = [col[0] for col in event_query.description]
+        results = event_query.fetchall()
+
+        events = []
+        for values in results:
+            data = {
+                key: value
+                for key, value in zip(cols, values)
+            }
+
+            eventType = repack_event_type(data[eventTypeName], isPlayerMode)
+            del data[eventTypeName]
+            data["eventType"] = eventType
+
+            events.append(Event.model_validate(data))
+
+        return {"data": events, "detail": "fetch_events_success"}
+
+    except Exception as e:
+        return HTTPException(status_code = 500, detail = str(e))
+    
+    finally:
+        conn.rollback()
+        conn.close()
+
+
 # JWT dependency
 async def get_current_user(request: Request):
     auth_header = request.headers.get("Authorisation")
@@ -349,7 +408,9 @@ async def update_membership(update: Membership, user: dict = Depends(get_current
             """
             SELECT 
                 * 
-            FROM player
+            FROM 
+                player
+            /*Team might be None, use outer join*/
             INNER JOIN membership ON membership.playerID = player.ID
             FULL OUTER JOIN team ON membership.teamID = team.ID
             WHERE player.ID = (?)
@@ -395,7 +456,7 @@ async def update_membership(update: Membership, user: dict = Depends(get_current
 
 
 @app.post("/change_password")
-def change_password(passwords: dict[str, str], user: dict = Depends(get_current_user)):
+def change_password(passwords: PasswordData, user: dict = Depends(get_current_user)):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -413,15 +474,15 @@ def change_password(passwords: dict[str, str], user: dict = Depends(get_current_
 
         data = dict(zip(cols, result))
         login = bcrypt.checkpw(
-            passwords["old"].encode("utf-8"),
+            passwords.oldPassword.encode("utf-8"),
             data["passwordHash"].encode("utf-8")
         )
 
-        if (not login) and (passwords["old"] != "forgot..."):
+        if (not login) and (passwords.oldPassword != "forgot..."):
             raise HTTPException(status_code=401, detail="wrong_password_error")
 
         password_hash = bcrypt.hashpw(
-            passwords["new"].encode("utf-8"), bcrypt.gensalt())
+            passwords.newPassword.encode("utf-8"), bcrypt.gensalt())
         password_hash = password_hash.decode("utf-8")
 
         cursor.execute(
@@ -437,71 +498,8 @@ def change_password(passwords: dict[str, str], user: dict = Depends(get_current_
         conn.close()
 
 
-@app.post("/fetch_results", status_code=200)
-def fetch_results(query: dict, user=Depends(get_current_user)):
-    conn = sqlite3.connect(DATABASE_URL)
-    cursor = conn.cursor()
-
-    try:
-        isPlayerMode = query["isPlayerMode"]
-        entityName = 'player' if isPlayerMode else 'team'
-        role = user["role"]
-
-        if role == "none":
-            raise HTTPException(status_code = 500, detail="funnyman")
-        elif role == "player":
-            limit_condition = f"WHERE player.ID=(?)"
-        elif role == "manager":
-            limit_condition = f"WHERE team.ID=(?)"
-        else:
-            limit_condition = ""
-
-        results_query = cursor.execute(
-            f"""
-            SELECT 
-                player.ID AS playerID,
-                player.name AS playerName,
-                team.ID AS teamID,
-                team.name AS teamName,
-                {entityName}_result.summaryID,
-                {entityName}_result.youtubeURL,
-                {entityName}_result.gameName
-            FROM 
-                player
-            INNER JOIN membership ON membership.playerID = player.ID
-            FULL OUTER JOIN team ON team.ID = membership.teamID
-            FULL OUTER JOIN {entityName}_result ON 
-                {entityName}_result.{entityName}ID = {entityName}.ID
-            WHERE
-                {entityName}.ID = (?)""",
-            (query[f"{entityName}ID"], )
-        )
-
-        cols = [col[0] for col in results_query.description]
-
-        results = []
-        for value in results_query.fetchall():
-            data = {
-                key: str(value) 
-                if value is None else value 
-                for key, value in zip(cols, value)
-            }
-            
-            results.append(Results.model_validate(data))
-
-        return {"data": results, "detail": "fetch_results_success"}
-
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail=str(e))
-
-    finally:
-        conn.rollback()
-        conn.close()
-
-
 @app.post("/post_results", status_code=201)
-def post_results(payload: ResultsCreate, user=Depends(get_current_user)):
+def post_results(payload: ResultCreate, user=Depends(get_current_user)):
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -523,6 +521,7 @@ def post_results(payload: ResultsCreate, user=Depends(get_current_user)):
             raise HTTPException(status_code=422, detail="no_results_error")
 
         entityName = "player" if isPlayerMode else "team"
+        eventTypeName = "eventType" if isPlayerMode else "pointMethod"
         cursor.execute(
             f"""
             INSERT INTO {entityName}_result (
@@ -532,20 +531,20 @@ def post_results(payload: ResultsCreate, user=Depends(get_current_user)):
             ) VALUES (?, ?, ?)""",
             (youtubeURL, gameName, playerID if isPlayerMode else teamID)
         )
-        summaryID = cursor.lastrowid
+        resultID = cursor.lastrowid
 
         for event in events:
             cursor.execute(
                 f"""
                 INSERT INTO {entityName}_event (
                     ID, 
-                    summaryID, 
-                    {'eventType' if isPlayerMode else 'pointMethod'}, 
+                    resultID, 
+                    {eventTypeName}, 
                     pointDelta
                 )  VALUES (?, ?, ?, ?)""",
                 (
                     event.eventID,
-                    summaryID,
+                    resultID,
                     event.eventType["en"],
                     event.pointDelta,
                 )
@@ -553,6 +552,56 @@ def post_results(payload: ResultsCreate, user=Depends(get_current_user)):
 
         conn.commit()
         return {"detail": "results_post_success"}
+
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        conn.rollback()
+        conn.close()
+
+
+@app.post("/fetch_results", status_code=200)
+def fetch_results(query: ResultQuery, user=Depends(get_current_user)):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        isPlayerMode = query.isPlayerMode
+        entityName = "player" if isPlayerMode else "team"
+
+        results_query = cursor.execute(
+            f"""
+            SELECT
+                player.ID AS playerID,
+                player.name AS playerName,
+                team.ID AS teamID,
+                team.name AS teamName,
+                {entityName}_result.ID AS resultID,
+                {entityName}_result.youtubeURL,
+                {entityName}_result.gameName
+            FROM 
+                player
+            /*Have to assume the values exist, use inner join*/
+            INNER JOIN membership ON membership.playerID = player.ID
+            INNER JOIN team ON team.ID = membership.teamID
+            INNER JOIN {entityName}_result ON 
+                {entityName}_result.{entityName}ID = {entityName}.ID
+            WHERE
+                {entityName}.ID = (?)""",
+            (getattr(query, f"{entityName}ID"), )
+        )
+
+        cols = [col[0] for col in results_query.description]
+        query_results = results_query.fetchall()
+
+        results = []
+        for value in query_results:
+            data = dict(zip(cols, value))
+            results.append(Result.model_validate(data))
+
+        return {"data": results, "detail": "fetch_results_success"}
 
     except Exception as e:
         print(e)

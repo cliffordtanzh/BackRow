@@ -50,7 +50,7 @@ class Membership(Base):
 
 class TeamResult(Base):
     __tablename__ = "team_result"
-    summaryID = Column(Integer, primary_key = True, autoincrement = True)
+    ID = Column(Integer, primary_key = True, autoincrement = True)
     youtubeURL = Column(String, nullable = False)
     gameName = Column(String, nullable = True)
     teamID = Column(String, ForeignKey("team.ID"), nullable = False)
@@ -59,14 +59,14 @@ class TeamResult(Base):
 class TeamEvent(Base):
     __tablename__ = "team_event"
     ID = Column(Integer, primary_key = True)
-    summaryID = Column(Integer, ForeignKey("team_result.summaryID"), primary_key = True)
+    resultID = Column(Integer, ForeignKey("team_result.ID"), primary_key = True)
     pointMethod = Column(String, nullable = False)
     pointDelta = Column(Integer, nullable = False)
 
 
 class PlayerResult(Base):
     __tablename__ = "player_result"
-    summaryID = Column(Integer, primary_key = True, autoincrement = True)
+    ID = Column(Integer, primary_key = True, autoincrement = True)
     youtubeURL = Column(String, nullable = False)
     gameName = Column(String, nullable = True)
     playerID = Column(String, ForeignKey("player.ID"), nullable = False)
@@ -75,6 +75,6 @@ class PlayerResult(Base):
 class PlayerEvent(Base):
     __tablename__ = "player_event"
     ID = Column(Integer, primary_key = True)
-    summaryID = Column(Integer, ForeignKey("player_result.summaryID"), primary_key = True)
+    resultID = Column(Integer, ForeignKey("player_result.ID"), primary_key = True)
     eventType = Column(String, nullable = False)
     pointDelta = Column(Integer, nullable = False)

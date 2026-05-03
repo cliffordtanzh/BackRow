@@ -4,7 +4,9 @@
   gap: 16px;
 }
 
-.entry-video {
+.entry-video,
+.entry-center,
+.entry-right {
   display: flex;
   flex-direction: column;
   background: var(--surface);
@@ -13,6 +15,7 @@
   box-shadow: var(--shadow);
   padding: 16px;
   gap: 16px;
+  height: 80vh;
 }
 
 .entry-header {
@@ -39,18 +42,6 @@
 .entry-video__frame > * {
   width: 100% !important;
   height: 100% !important;
-}
-
-.entry-center,
-.entry-right {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  gap: 16px;
 }
 
 

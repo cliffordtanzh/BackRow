@@ -9,16 +9,25 @@ import { type Response, DEFAULT_RESPONSE } from '../types/Response';
 import responses from '../assets/responses.json'
 
 
-export function useEntity(lang: Lang, entityName: 'player' | 'team'):[
-  Team[] | Player[],
-  Team | Player,
-  React.Dispatch<React.SetStateAction<Team | Player>>,
+type EntityMap = {
+  team: Team,
+  player: Player
+}
+
+
+export function useEntity<K extends keyof EntityMap>(
+  lang: Lang, 
+  entityName: K
+):[
+  EntityMap[K][],
+  EntityMap[K],
+  React.Dispatch<React.SetStateAction<EntityMap[K]>>,
   Response,
   () => void,
 ] {
-  const[entity, setEntity] = useState<Team[] | Player[]>([])
-  const[selectedEntity, setSelectedEntity] = useState<Team | Player>(
-    entityName === 'player' ? DEFAULT_PLAYER : DEFAULT_TEAM
+  const[entity, setEntity] = useState<EntityMap[K][]>([])
+  const[selectedEntity, setSelectedEntity] = useState<EntityMap[K]>(
+    entityName === 'player' ? DEFAULT_PLAYER as EntityMap[K]: DEFAULT_TEAM as EntityMap[K]
   )
 
   const[entityError, setEntityError] = useState<Response>(DEFAULT_RESPONSE);

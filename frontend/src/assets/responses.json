@@ -117,6 +117,10 @@
     },
     "fetch_results_success": {
         "en": "Results fetched",
-        "cn": "成绩已获取"
+        "cn": "已获取数据"
+    },
+    "fetch_events_success": {
+        "en": "Events fetched",
+        "cn": "已获取数据"
     }
 }

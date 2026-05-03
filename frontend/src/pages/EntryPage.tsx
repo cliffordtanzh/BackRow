@@ -1,8 +1,10 @@
+import ReactPlayer from 'react-player'
+import axios from 'axios';
+
 import { useState, useEffect } from 'react';
 import { type NavigateFunction } from 'react-router-dom';
 
-import ReactPlayer from 'react-player'
-import axios from 'axios';
+import { useResponse } from '../hooks/useResponse';
 
 import LanguageSelector from '../components/general/LanguageSelector.tsx';
 import ModeSelector from '../components/general/ModeSelector.tsx';
@@ -13,15 +15,11 @@ import NavButton from '../components/general/NavButton.tsx';
 import GeneralButton from '../components/general/GeneralButton.tsx';
 
 import HistoryButton from '../components/entry/HistoryButton.tsx';
-import HistoryPanel from '../components/entry/HistoryPanel.tsx';
+import HistoryPanel from '../components/general/HistoryPanel.tsx';
 import StatsInputs from '../components/entry/StatsInputs.tsx';
 
-import { useResponse } from '../hooks/useResponse';
-
 import Event from '../types/Event';
-
 import { type Response, DEFAULT_RESPONSE } from '../types/Response';
-import { type ResultsCreate } from '../types/ResultsCreate';
 import { type Lang } from '../types/Lang'
 import { type History } from '../types/History'
 
@@ -96,13 +94,15 @@ function EntryPage({
 
   // All states needed
   const [isPlayerMode, setIsPlayerMode] = useState<boolean>(true);
-  const [videoURL, setVideoURL] = useState<string>(
+  const [youtubeURL, setVideoURL] = useState<string>(() => (
+    localStorage.getItem('youtubeURL') ||
     'https://www.youtube.com/watch?v=qS0L_gR0u0Q'
-  );
+
+  ));
 
   const [gameName, setGameName] = useState<string>('');
-  const [teamHistory, setTeamEvents] = useHistory('player', videoURL, gameName);
-  const [playerHistory, setPlayerEvents] = useHistory('team', videoURL, gameName);
+  const [teamHistory, setTeamEvents] = useHistory('player', youtubeURL, gameName);
+  const [playerHistory, setPlayerEvents] = useHistory('team', youtubeURL, gameName);
 
   const [fetchError, setFetchError, fetchSuccess, setFetchSuccess] = useResponse();
   const [postError, setPostError, postSuccess, setPostSuccess] = useResponse();
@@ -128,17 +128,19 @@ function EntryPage({
   }
 
   useEffect(() => { 
-    if (!videoURL) {
+    if (!youtubeURL) {
       return;
     }
 
-    if (!videoURL.includes('youtube.com/watch?v=')) {
+    if (!youtubeURL.includes('youtube.com/watch?v=')) {
       setFetchError((prev) => ({...prev, message: responses['url_input_error'][lang]}))
       setFetchSuccess(DEFAULT_RESPONSE)
       return;
     }
 
-    axios.get(`https://www.youtube.com/oembed?url=${videoURL}&format=json`)
+    localStorage.setItem('youtubeURL', youtubeURL)
+
+    axios.get(`https://www.youtube.com/oembed?url=${youtubeURL}&format=json`)
     .then((resp) => {
       setGameName(resp.data.title)
       setFetchError(DEFAULT_RESPONSE)
@@ -151,7 +153,7 @@ function EntryPage({
       setFetchSuccess(DEFAULT_RESPONSE)
     })
 
-  }, [videoURL])
+  }, [youtubeURL])
 
   return (
     <div className='shell'>
@@ -202,12 +204,12 @@ function EntryPage({
           </div>
           <FieldInput
             setField={setVideoURL}
-            value={videoURL}
+            value={youtubeURL}
             placeholder={'YouTube URL'}
           />
           <div className='entry-video__frame'>
-            {videoURL && <ReactPlayer
-              src={videoURL}
+            {youtubeURL && <ReactPlayer
+              src={youtubeURL}
               controls={true} 
               />}
           </div>
@@ -249,7 +251,7 @@ function EntryPage({
 
           <HistoryPanel
             lang={lang}
-            results={isPlayerMode ? playerHistory : teamHistory}
+            history={isPlayerMode ? playerHistory : teamHistory}
             isPlayerMode={isPlayerMode}
           />
         </div>

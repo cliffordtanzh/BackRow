@@ -27,7 +27,7 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
   const [error, setError, success, setSuccess] = useResponse();
   const [teamState, setTeamState] = useState<TeamCreate>(DEFAULT_TEAM_CREATE);
 
-  const handleSubmit = async (event: React.SubmitEvent) => {
+  const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault();
     if(teamState.name === DEFAULT_TEAM_CREATE.name) {
       setError((prev) => ({...prev, message: responses['empty_player_number_error'][lang]}))

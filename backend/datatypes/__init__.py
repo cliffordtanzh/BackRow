@@ -1,8 +1,10 @@
 from backend.datatypes.player import Player, PlayerCreate, PlayerLogin
 from backend.datatypes.team import Team, TeamCreate
-from backend.datatypes.event import Event
-from backend.datatypes.results import Results, ResultsCreate
+from backend.datatypes.event import Event, EventQuery
+from backend.datatypes.result import Result, ResultCreate, ResultQuery
 from backend.datatypes.membership import Membership
+from backend.datatypes.password_data import PasswordData
+
 
 __all__ = [
     "Player",
@@ -12,6 +14,9 @@ __all__ = [
     "TeamCreate",
     "Membership",
     "Event",
-    "Results",
-    "ResultsCreate",
+    "EventQuery",
+    "Result",
+    "ResultCreate",
+    "ResultQuery",
+    "PasswordData"
 ]
