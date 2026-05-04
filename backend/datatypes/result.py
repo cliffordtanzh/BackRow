@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from backend.datatypes import Event
+from backend.datatypes.event import EventCreate
 
 
 class Result(BaseModel):
@@ -14,7 +14,7 @@ class Result(BaseModel):
 
 
 class ResultCreate(BaseModel):
-    events: list[Event]
+    events: list[EventCreate]
     isPlayerMode: bool
     playerID: int
     teamID: int

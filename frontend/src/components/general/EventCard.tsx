@@ -1,4 +1,4 @@
-import Event from '../../types/Event';
+import Event from '../../types/EventCreate';
 import { type Lang } from '../../types/Lang';
 
 import './EventCard.css';

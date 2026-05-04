@@ -18,7 +18,7 @@ import HistoryButton from '../components/entry/HistoryButton.tsx';
 import HistoryPanel from '../components/general/HistoryPanel.tsx';
 import StatsInputs from '../components/entry/StatsInputs.tsx';
 
-import Event from '../types/Event';
+import Event from '../types/EventCreate.ts';
 import { type Response, DEFAULT_RESPONSE } from '../types/Response';
 import { type Lang } from '../types/Lang'
 import { type History } from '../types/History'
@@ -38,7 +38,7 @@ function useHistory(itemKey: string, youtubeURL: string, gameName: string): [
   const arr = stored ? JSON.parse(stored) : [];
 
   const storedEvents = arr.map((obj: any) => new Event(
-    obj.eventID, 
+    obj.ID, 
     obj.eventType, 
     obj.pointDelta, 
   ));

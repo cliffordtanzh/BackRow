@@ -1,7 +1,7 @@
-import Event from "./Event"
+import Event from "./EventCreate"
 
 
-export type ResultsCreate = {
+export type ResultCreate = {
     events: Event[],
     isPlayerMode: boolean,
     playerID: number,

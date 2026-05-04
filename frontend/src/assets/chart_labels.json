@@ -1,0 +1,11 @@
+{
+    "player_stats": {
+        "attacks": {"en": "Attacks", "cn": "进攻"},
+        "attack_mistakes": {"en": "Attack Mistakes", "cn": "进攻失误"},
+        "receives": {"en": "Receives", "cn": "接球"},
+        "receive_mistakes": {"en": "Receive Mistakes", "cn": "接球失误"}
+    },
+    "team_stats": {
+        "scored": {"en": "Scored", "cn": "得分"}
+    }
+}

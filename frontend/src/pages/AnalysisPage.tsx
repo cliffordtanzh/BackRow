@@ -8,23 +8,22 @@ import { useEntity } from '../hooks/useEntity';
 import { useResponse } from '../hooks/useResponse';
 
 import ResultsViewer from '../components/analysis/ResultsViewer';
-import MatchOverview from '../components/analysis/MatchOverview';
+import StatsOverview from '../components/analysis/StatsOverview';
 
 import LanguageSelector from '../components/general/LanguageSelector';
 import Selector from '../components/general/Selector';
 import NavButton from '../components/general/NavButton';
 import ModeSelector from '../components/general/ModeSelector';
 import SuccessMessage from '../components/general/SuccessMessage';
+import ErrorMessage from '../components/general/ErrorMessage';
+import GeneralButton from '../components/general/GeneralButton';
 import HistoryPanel from '../components/general/HistoryPanel';
 
 import { type Lang } from '../types/Lang';
-import { type EventQuery } from '../types/EventQuery';
-import { type Response, DEFAULT_RESPONSE } from '../types/Response';
+import { type Response } from '../types/Response';
 import { type Role, DEFAULT_ROLE } from '../types/Role';
-import { type History, DEFAULT_HISTORY } from '../types/History';
 
 import headers from '../assets/headers.json'
-import responses from '../assets/responses.json'
 
 import '../App.css'
 import './AnalysisPage.css'
@@ -48,7 +47,7 @@ function AnalysisPage({
 }: AnalysisPageProps) {
 
   const loggedInResponse: Response = {
-    message: `Hello ${localStorage.getItem('playerName')}`,
+    message: isLoggedIn ? `Hello ${localStorage.getItem('playerName')}`: 'Log in to view results',
     fade: false,
   }
 
@@ -69,7 +68,7 @@ function AnalysisPage({
   const [role, setRole] = useState<Role>(DEFAULT_ROLE);
   const [fetchSuccess, setFetchSuccess, fetchError, setFetchError] = useResponse();
 
-  const [ results, selectedResult, setSelectedResult ] = useResults(
+  const [ results, history, selectedResult, setSelectedResult ] = useResults(
     lang,
     isPlayerMode,
     selectedPlayer,
@@ -79,56 +78,10 @@ function AnalysisPage({
     setFetchError,
   );
 
-  const [ history, setHistory ] = useState<History>(DEFAULT_HISTORY);
-
-  const fetchHistory = () => {
-    const payload: EventQuery = {
-      ID: selectedResult.resultID,
-      isPlayerMode: isPlayerMode
-    }
-
-    axios.post(`${import.meta.env.VITE_API_URL}/fetch_events`, payload)
-    .then((resp) => {
-      setFetchError(DEFAULT_RESPONSE);
-      setFetchSuccess((prev) => ({
-        ...prev, 
-        message: responses[resp.data.detail as keyof typeof responses][lang]
-      }));
-
-      setHistory((prev) => ({
-        ...prev, 
-        events: resp.data.data,
-        isPlayerMode: isPlayerMode,
-        playerID: selectedPlayer.ID,
-        playerName: selectedPlayer.name,
-        teamID: selectedTeam.ID,
-        teamName: selectedTeam.name,
-        youtubeURL: selectedResult.youtubeURL,
-        gameName: selectedResult.gameName
-      }));
-    })
-    .catch((resp) => {
-      const responseKey: string = resp.response.data.detail.split(': ')[1]
-      setFetchError((prev) => ({
-        ...prev,
-        message: responses[responseKey as keyof typeof responses][lang]
-      }));
-      setFetchSuccess(DEFAULT_RESPONSE);
-    })
-  }
-
   useEffect(() => {
     setIsLoggedIn((localStorage.getItem('Jwt_token') || null) !== null);
   }, [])
 
-  useEffect(() => {
-    if (selectedResult == null) {
-      return
-    }
-
-    fetchHistory()
-  }, [selectedResult, isPlayerMode])
-  
   return (
     <div className='shell'>
       <div className='control-panel'>
@@ -152,7 +105,14 @@ function AnalysisPage({
         </div>
 
         <div className='shell-error'>
-          {isLoggedIn && <SuccessMessage response={loggedInResponse}/>}
+          {isLoggedIn ? 
+            <SuccessMessage response={loggedInResponse}/> : 
+            <ErrorMessage response={loggedInResponse}/>
+          }
+          <GeneralButton
+            label='Good Luck'
+            onClick={() => (null)}
+            />
         </div>
 
         <div className='shell-title'>
@@ -203,18 +163,18 @@ function AnalysisPage({
         </div>
 
         <div className='analysis-panel'>
-          {(history.events.length > 0) && <MatchOverview
+          {(history.events.length > 0) && <StatsOverview
             lang={lang}
             history={history}
           />}
         </div>
 
-        <HistoryPanel
+        {(history.events.length > 0) && <HistoryPanel
           lang={lang}
           history={history}
           isPlayerMode={isPlayerMode}
           analysisMode={true}
-        />
+        />}
 
       </div>
     </div>

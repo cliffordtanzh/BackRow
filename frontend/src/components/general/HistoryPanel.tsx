@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 
-import EventCard from '../entry/EventCard';
+import EventCard from './EventCard';
 
-import Event from '../../types/Event';
+import Event from '../../types/EventCreate';
 import { type History } from '../../types/History';
 import { type Lang } from '../../types/Lang';
 

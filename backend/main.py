@@ -543,7 +543,7 @@ def post_results(payload: ResultCreate, user=Depends(get_current_user)):
                     pointDelta
                 )  VALUES (?, ?, ?, ?)""",
                 (
-                    event.eventID,
+                    event.ID,
                     resultID,
                     event.eventType["en"],
                     event.pointDelta,

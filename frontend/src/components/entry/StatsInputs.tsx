@@ -2,12 +2,12 @@ import axios from 'axios';
 
 import StatsButton from './StatsButton';
 
-import Event, { DEFAULT_EVENT } from '../../types/Event';
+import EventCreate, { DEFAULT_EVENT_CREATE } from '../../types/EventCreate';
 import { type Response, DEFAULT_RESPONSE } from '../../types/Response';
 import { type BiLabel } from '../../types/BiLabel';
 import { type Lang } from '../../types/Lang';
 import { type History } from '../../types/History';
-import { type ResultsCreate } from '../../types/ResultsCreate';
+import { type ResultCreate } from '../../types/ResultCreate';
 
 import playerStats from '../../assets/player_stats.json'
 import teamStats from '../../assets/team_stats.json'
@@ -19,7 +19,7 @@ import './StatsInputs.css';
 function recordPlayerEvent(
   eventType: BiLabel, 
   history: History, 
-  setEvents: React.Dispatch<React.SetStateAction<Event[]>>
+  setEvents: React.Dispatch<React.SetStateAction<EventCreate[]>>
 ) {
   const pointEng = eventType.en
   let pointDelta: number = 0
@@ -42,10 +42,10 @@ function recordPlayerEvent(
   }
 
   const events = history.events
-  const lastEvent = events.length > 0 ? events[events.length - 1] : DEFAULT_EVENT;
+  const lastEvent = events.length > 0 ? events[events.length - 1] : DEFAULT_EVENT_CREATE;
 
-  const nextEvent = new Event(
-    lastEvent.eventID + 1,
+  const nextEvent = new EventCreate(
+    lastEvent.ID + 1,
     eventType,
     pointDelta,
   )
@@ -56,16 +56,16 @@ function recordPlayerEvent(
 function recordTeamEvent(
   pointMethod: BiLabel,
   history: History,
-  setEvents: React.Dispatch<React.SetStateAction<Event[]>>
+  setEvents: React.Dispatch<React.SetStateAction<EventCreate[]>>
 ) {
   const pointEng = pointMethod.en
   const pointLost = (pointEng.includes('Error') || pointEng.includes('Blocked'));
 
   const events = history.events
-  const lastEvent = events.length > 0 ? events[events.length - 1] : DEFAULT_EVENT;
+  const lastEvent = events.length > 0 ? events[events.length - 1] : DEFAULT_EVENT_CREATE;
 
-  const nextEvent = new Event(
-    lastEvent.eventID + 1,
+  const nextEvent = new EventCreate(
+    lastEvent.ID + 1,
     pointMethod,
     pointLost ? -1 : 1,
   );
@@ -77,7 +77,7 @@ type StatsInputsProps = {
   lang: Lang;
   isPlayerMode: boolean,
   history: History,
-  setEvents: React.Dispatch<React.SetStateAction<Event[]>>
+  setEvents: React.Dispatch<React.SetStateAction<EventCreate[]>>
   setPostError: React.Dispatch<React.SetStateAction<Response>>
   setPostSuccess: React.Dispatch<React.SetStateAction<Response>>
 }
@@ -95,7 +95,7 @@ function StatsInputs({
     const token = localStorage.getItem('Jwt_token') || null
     const teamID = localStorage.getItem('teamID') || null
 
-    const payload: ResultsCreate = {
+    const payload: ResultCreate = {
       events: history.events.map(obj => ({...obj})),
       isPlayerMode: isPlayerMode,
       playerID: history.playerID,
@@ -121,6 +121,8 @@ function StatsInputs({
       setPostSuccess(DEFAULT_RESPONSE);
       return;
     }
+
+    console.log(payload)
 
     axios.post(
       `${import.meta.env.VITE_API_URL}/post_results`,
