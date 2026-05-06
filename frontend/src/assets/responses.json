@@ -45,11 +45,11 @@
     },
     "invalid_email_error": {
         "en": "Email is not valid",
-        "cn": "电子电子邮件无效"
+        "cn": "电子邮件无效"
     },
     "empty_player_number_error": {
-        "en": "Player number cannot be empty",
-        "cn": "球员号码不能为空"
+        "en": "Player number is invalid",
+        "cn": "球员号码无效"
     },
     "empty_team_name_error": {
         "en": "Team name cannot be empty",

@@ -28,7 +28,7 @@ export function useResponse(): [
   useEffect(() => {
     if (error.message) {
       const fadeTimer = setTimeout(() => setError((prev) => ({...prev, fade: true})), 100);
-      const fieldTimer = setTimeout(() => setError(DEFAULT_RESPONSE), 2000);
+      const fieldTimer = setTimeout(() => setError(DEFAULT_RESPONSE), 3000);
 
       return () => {
         clearTimeout(fieldTimer);

@@ -10,7 +10,6 @@ class Result(BaseModel):
     teamName: str
     youtubeURL: str
     gameName: str
-    youtubeURL: str
 
 
 class ResultCreate(BaseModel):

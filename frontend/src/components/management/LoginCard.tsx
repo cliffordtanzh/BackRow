@@ -54,25 +54,27 @@ function LoginCard({ lang, setJwtToken, logout }: loginCardProps) {
       logout();
 
       const token = resp.data.data
-      const decoded: JwtPayload = jwtDecode(token)
-
-      localStorage.setItem('Jwt_token', token)
-      localStorage.setItem('playerID', String(decoded['playerID']))
-      localStorage.setItem('playerName', decoded['playerName'])
-      localStorage.setItem('teamID', String(decoded['teamID']))
-      localStorage.setItem('teamName', decoded['teamName'])
+      localStorage.setItem('jwtToken', token)      
 
       setJwtToken(token);
       setPlayerState(DEFAULT_PLAYER_LOGIN);
     })
 
     .catch((resp) => {
-      const responseKey: string = resp.response.data.detail.split(': ')[1]
-      setError((prev) => ({
-        ...prev, 
-        message: responses[responseKey as keyof typeof responses][lang]
-      })
-    )})
+      if (resp.response.data.detail) {
+        const responseKey: string = resp.response.data.detail.split(': ')[1]
+        setError((prev) => ({
+          ...prev, 
+          message: responses[responseKey as keyof typeof responses][lang]
+        }))
+      }
+      else {
+        setError((prev) => ({
+          ...prev,
+          message: 'Something went wrong'
+        }))
+      }
+    })
   }
   
   return (

@@ -20,8 +20,8 @@ function Selector<T>({
   getName,
 }: SelectorProps<T>) {
 
-  const[query, setQuery] = useState<string>(getName(selected));
-  const[isOpen, setIsOpen] = useState<boolean>(false);
+  const [query, setQuery] = useState<string>(getName(selected));
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
   const filtered: T[] = items
   .sort((a, b) => {

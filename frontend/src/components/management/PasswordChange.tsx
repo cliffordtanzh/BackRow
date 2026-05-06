@@ -41,7 +41,7 @@ function PasswordChange({ lang }: PasswordChangeProps) {
       newPassword: newPassword
     }
 
-    const token = localStorage.getItem("Jwt_token")
+    const token = localStorage.getItem("jwtToken")
     axios.post(
       `${import.meta.env.VITE_API_URL}/change_password`,
       passwords,
@@ -58,11 +58,19 @@ function PasswordChange({ lang }: PasswordChangeProps) {
       }))
     })
     .catch((resp) => {
-      const responseKey: string = resp.response.data.detail.split(': ')[1]
-      setError((prev) => ({
-        ...prev, 
-        message: responses[responseKey as keyof typeof responses][lang]
-      }))
+      if (resp.response.data.detail) {
+        const responseKey: string = resp.response.data.detail.split(': ')[1]
+        setError((prev) => ({
+          ...prev, 
+          message: responses[responseKey as keyof typeof responses][lang]
+        }))
+      }
+      else {
+        setError((prev) => ({
+          ...prev,
+          message: 'Something went wrong'
+        }))
+      }
       setSuccess(DEFAULT_RESPONSE)
     })
   }

@@ -29,8 +29,9 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
 
   const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault();
+    
     if(teamState.name === DEFAULT_TEAM_CREATE.name) {
-      setError((prev) => ({...prev, message: responses['empty_player_number_error'][lang]}))
+      setError((prev) => ({...prev, message: responses['empty_team_name_error'][lang]}))
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
@@ -48,11 +49,19 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
       
     })
     .catch((resp) => {
-      const responseKey: string = resp.response.data.detail.split(': ')[1]
-      setError((prev) => ({
-        ...prev, 
-        message: responses[responseKey as keyof typeof responses][lang]
-      }))
+      if (resp.response.data.detail) {
+        const responseKey: string = resp.response.data.detail.split(': ')[1]
+        setError((prev) => ({
+          ...prev, 
+          message: responses[responseKey as keyof typeof responses][lang]
+        }))
+      }
+      else {
+        setError((prev) => ({
+          ...prev,
+          message: 'Something went wrong'
+        }))
+      }
       setSuccess(DEFAULT_RESPONSE)
     })
   }

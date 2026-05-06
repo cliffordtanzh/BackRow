@@ -43,7 +43,7 @@ function ManageRole({
       role: roleProps.selected.role
     }
 
-    const token = localStorage.getItem('Jwt_token')
+    const token = localStorage.getItem('jwtToken')
     axios.post(
       `${import.meta.env.VITE_API_URL}/update_membership`, 
       payload,
@@ -57,19 +57,25 @@ function ManageRole({
       setError(DEFAULT_RESPONSE)
 
       if (payload.playerID === Number(localStorage.getItem('playerID'))) {
-        localStorage.setItem('Jwt_token', resp.data.data)
+        localStorage.setItem('jwtToken', resp.data.data)
         setJwtToken(resp.data.data);
       }
       
     })
     .catch((resp) => {
-      const responseKey: string = resp.response.data.detail.split(': ')[1]
-      
-      setSuccess(DEFAULT_RESPONSE)
-      setError((prev) => ({
-        ...prev, 
-        message: responses[responseKey as keyof typeof responses][lang]
-      }))
+      if (resp.response.data.detail) {
+        const responseKey: string = resp.response.data.detail.split(': ')[1]
+        setError((prev) => ({
+          ...prev, 
+          message: responses[responseKey as keyof typeof responses][lang]
+        }))
+      }
+      else {
+        setError((prev) => ({
+          ...prev,
+          message: 'Something went wrong'
+        }))
+      }
     })
   }
 

@@ -16,10 +16,10 @@ function App() {
     localStorage.getItem('lang') as Lang || 'en'
   );
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
-    const stored = localStorage.getItem('Jwt_token') || null;
+    const stored = localStorage.getItem('jwtToken') || null;
     return stored !== null;
   })
-    
+  
   return (
     <div>
       <Routes>
@@ -38,7 +38,6 @@ function App() {
             lang={lang}
             setLang={setLang}
             isLoggedIn={isLoggedIn}
-            setIsLoggedIn={setIsLoggedIn}
           />
         }/>
         <Route path='/analysis' element={
@@ -47,7 +46,6 @@ function App() {
             lang={lang}
             setLang={setLang}
             isLoggedIn={isLoggedIn}
-            setIsLoggedIn={setIsLoggedIn}
           />
         }/>
       </Routes>

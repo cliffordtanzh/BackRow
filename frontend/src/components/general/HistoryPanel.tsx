@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react';
 
 import EventCard from './EventCard';
 
-import Event from '../../types/EventCreate';
-import { type History } from '../../types/History';
+import EventCreate from '../../types/EventCreate';
+import { type Event } from '../../types/Event';
 import { type Lang } from '../../types/Lang';
 
 import './HistoryPanel.css'
@@ -11,16 +11,24 @@ import './HistoryPanel.css'
 
 type HistoryPanelProps = {
   lang: Lang,
-  history: History,
+  events: Event[] | EventCreate[],
   isPlayerMode: boolean,
-  analysisMode?: boolean
+  teamName: string,
+  playerName: string,
+  analysisMode?: boolean,
 }
 
 
-function HistoryPanel({ lang, history, isPlayerMode, analysisMode = true }: HistoryPanelProps) {
+function HistoryPanel({ 
+  lang, 
+  events, 
+  isPlayerMode, 
+  teamName, 
+  playerName, 
+  analysisMode = false 
+}: HistoryPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   
-  const events: Event[] = history.events;
   let pointsWon = 0;
   let pointsLost = 0;
 
@@ -39,7 +47,7 @@ function HistoryPanel({ lang, history, isPlayerMode, analysisMode = true }: Hist
       className={`history-panel ${analysisMode ? 'analysis-panel' : ''}`} 
       ref={panelRef}
     >
-      {events.map((event: Event) => {
+      {events.map((event: Event | EventCreate) => {
         if (event.pointDelta > 0) {
           pointsWon += 1;
         } else if (event.pointDelta < 0) {
@@ -48,10 +56,10 @@ function HistoryPanel({ lang, history, isPlayerMode, analysisMode = true }: Hist
 
         return (
           <EventCard 
-            key={`${isPlayerMode}_${event.eventID}`}
+            key={`${isPlayerMode}_${event.ID}`}
             lang={lang}
             event={event}
-            entityName={isPlayerMode ? history.playerName : history.teamName}
+            entityName={isPlayerMode ? playerName : teamName}
             pointsWon={pointsWon}
             pointsLost={pointsLost}
           />

@@ -2,7 +2,7 @@ export type Result = {
   resultID: number,
   playerID: number,
   playerName: string,
-  teamID: number,
+  teamID: string,
   teamName: string,
   youtubeURL: string,
   gameName: string,

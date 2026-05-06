@@ -1,8 +1,8 @@
-import Event from './EventCreate';
+import EventCreate from './EventCreate';
 
 
 export type History = {
-  events: Event[],
+  events: EventCreate[],
   isPlayerMode: boolean,
   playerID: number,
   playerName: string,

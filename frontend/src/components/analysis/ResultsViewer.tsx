@@ -1,15 +1,18 @@
 import { List, ListItemButton, ListItemText } from '@mui/material';
-import IconButton  from '@mui/material/IconButton';
+import { IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-import { type Result } from '../../types/Result.ts';
+
+import type { Lang } from "../../types/Lang";
+import type { Result } from "../../types/Result";
+
 import './ResultsViewer.css'
 
 
 type ResultsViewerProps = {
   results: Result[]
-  selectedResult: Result
-  setSelectedResult: React.Dispatch<React.SetStateAction<Result>>
+  selectedResult: Result,
+  setSelectedResult: React.Dispatch<React.SetStateAction<Result | null>>,
 }
 
 
@@ -20,39 +23,25 @@ function ResultsViewer({
 }: ResultsViewerProps) {
 
   return (
-    <div className='results-viewer'>
-      <List className='result-list'>
-        {
-          results.map((res: Result) => {
-            return (
-              <div key={res.resultID} className='result-card'>
-                <ListItemButton
-                  selected={res === selectedResult}
-                  onClick={() => (setSelectedResult(res))}
-                >
-
-                  <ListItemText
-                    className='result-title'
-                    primary={res.gameName}
-                    secondary={res.youtubeURL}
-                  />
-
-                  <IconButton
-                    edge={'end'}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      console.log("hi")
-                    }}>
-                    <DeleteIcon/>
-                  </IconButton>
-
-                </ListItemButton>
-              </div>
-            )
-          })
-        }
-      </List>
-    </div>
+    <List className='result-list'>
+      {results.map((result: Result) => (
+        <ListItemButton 
+          className='result-card'
+          key={result.resultID}
+          selected={selectedResult.resultID === result.resultID}
+          onClick={(event) => setSelectedResult(result)}
+        >
+          <ListItemText className='result-title'
+            primary={result.gameName}
+          />
+          <IconButton edge='end' onClick={(event) => {
+            event.stopPropagation();
+          }}>
+            <DeleteIcon></DeleteIcon>
+          </IconButton>
+        </ListItemButton>
+      ))}
+    </List>
   )
 }
 

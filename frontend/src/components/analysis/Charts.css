@@ -1,9 +1,24 @@
-.chart {
+.stats-overview {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.metrics,
+.stats {
   background: var(--chart-bg);
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
   border-radius: 16px;
-  padding: 16px;
+}
+
+.metrics {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px;
+  gap: 20px;
 }
 
 svg text {

@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: ec470c08d2e3
+Revision ID: de9339b1a92a
 Revises: 
-Create Date: 2026-05-03 00:38:46.548358
+Create Date: 2026-05-05 17:01:33.476211
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'ec470c08d2e3'
+revision: str = 'de9339b1a92a'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -45,20 +45,20 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('playerID')
     )
     op.create_table('player_result',
-    sa.Column('summaryID', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('ID', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('youtubeURL', sa.String(), nullable=False),
     sa.Column('gameName', sa.String(), nullable=True),
     sa.Column('playerID', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['playerID'], ['player.ID'], ),
-    sa.PrimaryKeyConstraint('summaryID')
+    sa.PrimaryKeyConstraint('ID')
     )
     op.create_table('team_result',
-    sa.Column('summaryID', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('ID', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('youtubeURL', sa.String(), nullable=False),
     sa.Column('gameName', sa.String(), nullable=True),
     sa.Column('teamID', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['teamID'], ['team.ID'], ),
-    sa.PrimaryKeyConstraint('summaryID')
+    sa.PrimaryKeyConstraint('ID')
     )
     op.create_table('verification',
     sa.Column('playerID', sa.Integer(), nullable=False),
@@ -69,19 +69,19 @@ def upgrade() -> None:
     )
     op.create_table('player_event',
     sa.Column('ID', sa.Integer(), nullable=False),
-    sa.Column('summaryID', sa.Integer(), nullable=False),
+    sa.Column('resultID', sa.Integer(), nullable=False),
     sa.Column('eventType', sa.String(), nullable=False),
     sa.Column('pointDelta', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['summaryID'], ['player_result.summaryID'], ),
-    sa.PrimaryKeyConstraint('ID', 'summaryID')
+    sa.ForeignKeyConstraint(['resultID'], ['player_result.ID'], ),
+    sa.PrimaryKeyConstraint('ID', 'resultID')
     )
     op.create_table('team_event',
     sa.Column('ID', sa.Integer(), nullable=False),
-    sa.Column('summaryID', sa.Integer(), nullable=False),
+    sa.Column('resultID', sa.Integer(), nullable=False),
     sa.Column('pointMethod', sa.String(), nullable=False),
     sa.Column('pointDelta', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['summaryID'], ['team_result.summaryID'], ),
-    sa.PrimaryKeyConstraint('ID', 'summaryID')
+    sa.ForeignKeyConstraint(['resultID'], ['team_result.ID'], ),
+    sa.PrimaryKeyConstraint('ID', 'resultID')
     )
     # ### end Alembic commands ###
 

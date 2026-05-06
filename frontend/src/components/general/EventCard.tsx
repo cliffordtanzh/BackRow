@@ -1,4 +1,4 @@
-import Event from '../../types/EventCreate';
+import EventCreate from '../../types/EventCreate';
 import { type Lang } from '../../types/Lang';
 
 import './EventCard.css';
@@ -6,7 +6,7 @@ import './EventCard.css';
 
 type EventCardProps = {
   lang: Lang
-  event: Event
+  event: EventCreate
   entityName: string
   pointsWon: number
   pointsLost: number

@@ -34,6 +34,7 @@ import headers from '../assets/headers.json';
 
 import '../App.css'
 import './ManagementPage.css';
+import useAuthentication from '../hooks/useAuthentication';
 
 
 type ManagementPageProps = {
@@ -58,15 +59,9 @@ function ManagementPage({
     fade: false,
   }
 
-  useEffect(() => {
-    setIsLoggedIn((localStorage.getItem('Jwt_token') || null) !== null);
-  }, [])
-
   // All states needed
-  const[jwtToken, setJwtToken] = useState<string | null>(null);
-  const[authorisation, setAuthorisation] = useState<Role>(DEFAULT_ROLE);
-
-  const[selectedMembership, setSelectedMembership] = useState<Membership>(DEFAULT_MEMBERSHIP)
+  const [jwtToken, setJwtToken, authorisation, setAuthorisation] = useAuthentication();
+  const [selectedMembership, setSelectedMembership] = useState<Membership>(DEFAULT_MEMBERSHIP)
   const roles = [DEFAULT_MEMBER_PLAYER, DEFAULT_MEMBER_MANAGER]
 
   const [
@@ -86,7 +81,7 @@ function ManagementPage({
   ] = useEntity(lang, 'player');
 
   const allErrors: Response[] = [playerError, teamError];
-  const hasError = allErrors.some((resp) => (resp && resp.message))
+  const hasError: boolean = allErrors.some((resp) => (resp && resp.message))
 
   const chooseProps = (header: string) => {
     if (header === 'player') {
@@ -119,7 +114,7 @@ function ManagementPage({
   }
 
   const checkAuthorisation = () => {
-    const token = localStorage.getItem('Jwt_token')
+    const token = localStorage.getItem('jwtToken')
     if(token === null) {
       setIsLoggedIn(false);
       return 'none';
@@ -130,10 +125,10 @@ function ManagementPage({
     setSelectedMembership((prev) => ({...prev, role: decoded['role']}))
 
     setSelectedPlayer((prev) => (
-      players.find((player) => player.ID = decoded['playerID']) || prev
+      players.find((player) => player.ID === decoded['playerID']) || prev
     ))
     setSelectedTeam((prev) => (
-      teams.find((team) => team.ID = decoded['teamID']) || prev
+      teams.find((team) => team.ID === decoded['teamID']) || prev
     ))
     return decoded['role']
   }

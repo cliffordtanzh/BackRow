@@ -29,6 +29,8 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
   const [error, setError, success, setSuccess] = useResponse();
   const [playerState, setPlayerState] = useState<PlayerCreate>(DEFAULT_PLAYER_CREATE);
 
+  const [playerNumberStr, setPlayerNumberStr] = useState<string>('');
+
   const handleSubmit = (event: React.SubmitEvent) => {
     event.preventDefault();
 
@@ -44,11 +46,19 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
       return;
     }
 
-    if(playerState.playerNumber === -1) {
+    if (playerState.password === '') {
+      setError((prev) => ({...prev, message: responses['empty_password_error'][lang]}));
+      setSuccess(DEFAULT_RESPONSE);
+      return;
+    }
+
+    if (isNaN(Number(playerNumberStr))) {
       setError((prev) => ({...prev, message: responses['empty_player_number_error'][lang]}));
       setSuccess(DEFAULT_RESPONSE);
       return;
     }
+
+    setPlayerState((prev) => ({...prev, playerNumber: Number(playerNumberStr)}))
 
     axios.post(
       `${import.meta.env.VITE_API_URL}/register`, 
@@ -64,11 +74,20 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
       }));
 
     }).catch((resp) => {
-      const responseKey: string = resp.response.data.detail.split(': ')[1]
-      setError((prev) => ({
-        ...prev, 
-        message: responses[responseKey as keyof typeof responses][lang]
-      }))
+      if (resp.response.data.detail) {
+        const responseKey: string = resp.response.data.detail.split(': ')[1]
+        setError((prev) => ({
+          ...prev, 
+          message: responses[responseKey as keyof typeof responses][lang]
+        }))
+      }
+      else {
+        setError((prev) => ({
+          ...prev,
+          message: 'Something went wrong'
+        }))
+      }
+      setSuccess(DEFAULT_RESPONSE)
     })
   }
 
@@ -88,14 +107,16 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
                   key={header['key']}
                   password={header['key'] === 'password'}
                   value={
-                    (header['key'] !== 'playerNumber' || playerState.playerNumber !== -1) ? 
+                    header['key'] !== 'playerNumber' ? 
                     String(playerState[header['key'] as keyof PlayerCreate]) :
-                    ''
+                    playerNumberStr
                   }
                   setField={(val) => (
-                    setPlayerState((prev) => ({...prev, [header['key']]: 
-                        header['key'] === 'playerNumber' ? Number(val) : val}
-                    ))
+                    header['key'] !== 'playerNumber' ?
+                      setPlayerState((prev) => ({...prev, [header['key']]: 
+                          header['key'] === 'playerNumber' ? Number(playerNumberStr) : val}
+                      ))
+                    : setPlayerNumberStr(val)
                   )}
                 />
               </div>

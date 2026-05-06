@@ -190,7 +190,7 @@ def register(player: PlayerCreate):
         # raise HTTPException(status_code = 500, detail = str(e))
 
         conn.commit()
-        return {"detail": "Player registration request sent"}
+        return {"detail": "player_registration_success"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -369,7 +369,8 @@ def fetch_events(query: EventQuery):
         return {"data": events, "detail": "fetch_events_success"}
 
     except Exception as e:
-        return HTTPException(status_code = 500, detail = str(e))
+        print(e)
+        raise HTTPException(status_code = 500, detail = str(e))
     
     finally:
         conn.rollback()
@@ -462,7 +463,7 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
 
     try:
         query = cursor.execute(
-            "SELECT * FROM player WHERE playerID = (?)",
+            "SELECT * FROM player WHERE ID = (?)",
             (user["playerID"], )
         )
         cols = [col[0] for col in query.description]
@@ -486,12 +487,15 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
         password_hash = password_hash.decode("utf-8")
 
         cursor.execute(
-            "UPDATE player SET passwordHash = (?) WHERE playerID = (?)",
+            "UPDATE player SET passwordHash = (?) WHERE ID = (?)",
             (password_hash, user["playerID"])
         )
 
         conn.commit()
         return {"detail": "password_change_success"}
+    
+    except Exception as e:
+        raise HTTPException(status_code = 500, detail=str(e))
 
     finally:
         conn.rollback()
@@ -584,8 +588,8 @@ def fetch_results(query: ResultQuery, user=Depends(get_current_user)):
             FROM 
                 player
             /*Have to assume the values exist, use inner join*/
-            INNER JOIN membership ON membership.playerID = player.ID
-            INNER JOIN team ON team.ID = membership.teamID
+            INNER JOIN membership ON player.ID = membership.playerID
+            INNER JOIN team ON membership.teamID = team.ID
             INNER JOIN {entityName}_result ON 
                 {entityName}_result.{entityName}ID = {entityName}.ID
             WHERE

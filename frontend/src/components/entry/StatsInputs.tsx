@@ -80,6 +80,7 @@ type StatsInputsProps = {
   setEvents: React.Dispatch<React.SetStateAction<EventCreate[]>>
   setPostError: React.Dispatch<React.SetStateAction<Response>>
   setPostSuccess: React.Dispatch<React.SetStateAction<Response>>
+  clearHistory: () => void
 }
 
 function StatsInputs({
@@ -89,10 +90,11 @@ function StatsInputs({
   setEvents,
   setPostError,
   setPostSuccess,
+  clearHistory,
 }: StatsInputsProps) {
   
   const submitEvents = () => {
-    const token = localStorage.getItem('Jwt_token') || null
+    const token = localStorage.getItem('jwtToken') || null
     const teamID = localStorage.getItem('teamID') || null
 
     const payload: ResultCreate = {
@@ -135,13 +137,22 @@ function StatsInputs({
         ...prev, 
         message: responses[resp.data.detail as keyof typeof responses][lang]
       }));
+      clearHistory();
 
     }).catch((resp) => {
-      const responseKey: string = resp.response.data.detail.split(': ')[1]
-      setPostError((prev) => ({
-        ...prev, 
-        message: responses[responseKey as keyof typeof responses][lang]
-      }))
+      if (resp.response.data.detail) {
+        const responseKey: string = resp.response.data.detail.split(': ')[1]
+        setPostError((prev) => ({
+          ...prev, 
+          message: responses[responseKey as keyof typeof responses][lang]
+        }))
+      }
+      else {
+        setPostError((prev) => ({
+          ...prev,
+          message: 'Something went wrong'
+        }))
+      }
       setPostSuccess(DEFAULT_RESPONSE)
     })
   }

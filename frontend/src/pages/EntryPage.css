@@ -28,6 +28,12 @@
   color: var(--text);
 }
 
+.entry-video__inputs {
+  display: grid;
+  grid-template-columns: 1fr 0.5fr;
+  gap: 24px;
+}
+
 .entry-video__frame {
   width: 100%;
   max-width: min(100%, 56rem);

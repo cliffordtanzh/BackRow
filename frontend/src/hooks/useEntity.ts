@@ -25,22 +25,30 @@ export function useEntity<K extends keyof EntityMap>(
   Response,
   () => void,
 ] {
-  const[entity, setEntity] = useState<EntityMap[K][]>([])
-  const[selectedEntity, setSelectedEntity] = useState<EntityMap[K]>(
+  const [entity, setEntity] = useState<EntityMap[K][]>([])
+  const [selectedEntity, setSelectedEntity] = useState<EntityMap[K]>(
     entityName === 'player' ? DEFAULT_PLAYER as EntityMap[K]: DEFAULT_TEAM as EntityMap[K]
   )
 
-  const[entityError, setEntityError] = useState<Response>(DEFAULT_RESPONSE);
+  const [entityError, setEntityError] = useState<Response>(DEFAULT_RESPONSE);
 
   const fetchEntities = () => {
     axios.get(`${import.meta.env.VITE_API_URL}/${entityName}`)
     .then((resp) => setEntity(resp.data.data))
     .catch((resp) => {
-      const responseKey: string = resp.response.data.detail.split(': ')[1]
-      setEntityError((prev) => ({
-        ...prev, 
-        message: responses[responseKey as keyof typeof responses][lang]
-      }))
+      if (resp.response.data.detail) {
+        const responseKey: string = resp.response.data.detail.split(': ')[1]
+        setEntityError((prev) => ({
+          ...prev, 
+          message: responses[responseKey as keyof typeof responses][lang]
+        }))
+      }
+      else {
+        setEntityError((prev) => ({
+          ...prev,
+          message: 'Something went wrong'
+        }))
+      }
     })
   }
 
