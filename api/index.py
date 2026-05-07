@@ -8,6 +8,7 @@ from jose.exceptions import JWTError
 
 import smtplib
 from email.message import EmailMessage
+import threading
 
 from pathlib import Path
 from dotenv import load_dotenv
@@ -184,21 +185,27 @@ def register(player: PlayerCreate):
             f"{os.getenv('BACKEND_URL')}/verify?token={verf_token}"
         )
 
-        try:
-            with smtplib.SMTP("smtp.gmail.com", 587) as server:
-                server.starttls()  # Secure the connection
-                server.login(sender_email, password)
-                server.send_message(msg)
+        def send_email_async(sender, msg, password):
+            try:
+                with smtplib.SMTP("smtp.gmail.com", 465, timeout=10) as server:
+                    server.starttls()  # Secure the connection
+                    server.login(sender, password)
+                    server.send_message(msg)
 
-        except Exception as e:
-            print("register error: ", e)
-            raise HTTPException(status_code=500, detail=str(e))
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=str(e))
+
+        email_thread = threading.Thread(
+            target=send_email_async,
+            args=(sender_email, msg, password)
+        )
+        email_thread.daemon = True
+        email_thread.start()
 
         conn.commit()
         return {"detail": "player_registration_success"}
 
     except Exception as e:
-        print("register error: ", e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
