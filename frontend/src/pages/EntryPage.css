@@ -54,9 +54,12 @@
 @media (max-width: 790px) {
   .entry {
     grid-template-columns: 1fr;
+    gap: 46px;
   }
 
+  .entry-video,
+  .entry-center,
   .entry-right {
-    height: 60vh;
+    height: 100%;
   }
 }

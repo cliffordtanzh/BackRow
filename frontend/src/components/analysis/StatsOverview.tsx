@@ -43,7 +43,7 @@ function StatsOverview({ lang, loadedEvents }: StatsOverviewProps) {
   
   for (const event of events) {
     const key = LUT[event.eventType['en']]
-    if (key !== undefined) {
+    if ((key !== undefined) && (!event.eventType['en'].includes('Attempt'))) {
       overviewCounts[key]++
     }
   }
@@ -81,7 +81,7 @@ function StatsOverview({ lang, loadedEvents }: StatsOverviewProps) {
         height={300}
         series={[{ 'data': Object.values(overviewCounts) }]}
         radar={{
-          max: 8,
+          max: loadedEvents.isPlayerMode ? 12 : 28,
           metrics: overviewMetrics,
         }}
         colors={blueberryTwilightPalette}
@@ -112,7 +112,7 @@ function StatsOverview({ lang, loadedEvents }: StatsOverviewProps) {
               <ToggleButton
                 key={key}
                 value={key}
-                sx={{color: 'white', textTransform: 'none'}}
+                sx={ {color: 'white', textTransform: 'none'} }
               >
                 {labels[key as keyof typeof labels][lang]}
               </ToggleButton>
@@ -127,7 +127,7 @@ function StatsOverview({ lang, loadedEvents }: StatsOverviewProps) {
             height={300}
             series={[{ 'data': Object.values(inDepthCounts) }]}
             radar={{
-              max: 8,
+              max: loadedEvents.isPlayerMode ? 8 : 16,
               metrics: inDepthMetrics,
             }}
             colors={blueberryTwilightPalette}

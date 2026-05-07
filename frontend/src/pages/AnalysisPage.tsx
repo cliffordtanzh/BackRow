@@ -6,6 +6,10 @@ import { useEntity } from '../hooks/useEntity';
 
 import useResults from '../hooks/useResults';
 import useAuthentication from '../hooks/useAuthentication';
+import { useResponse } from '../hooks/useResponse';
+
+import ResultsViewer from '../components/analysis/ResultsViewer';
+import StatsOverview from '../components/analysis/StatsOverview';
 
 import Selector from '../components/general/Selector';
 import LanguageSelector from '../components/general/LanguageSelector';
@@ -18,16 +22,18 @@ import HistoryPanel from '../components/general/HistoryPanel';
 
 import { type Player } from '../types/Player';
 import { type Team } from '../types/Team';
+import { DEFAULT_TEAM_MEMBER, type TeamMember } from '../types/TeamMember';
 import { type Lang } from '../types/Lang';
 import { type Response } from '../types/Response';
 import { type Result } from '../types/Result';
 import { type LoadedEvents, DEFAULT_LOADED_EVENT } from '../types/LoadedEvents';
 import { type EventQuery } from '../types/EventQuery';
-import headers from '../assets/headers.json'
+
+import headers from '../assets/headers.json';
+import responses from '../assets/responses.json';
 import '../App.css'
 import './AnalysisPage.css'
-import ResultsViewer from '../components/analysis/ResultsViewer';
-import StatsOverview from '../components/analysis/StatsOverview';
+import { useTeamMembers } from '../hooks/useTeamMembers';
 
 
 type AnalysisPageProps = {
@@ -51,16 +57,23 @@ function AnalysisPage({
   }
 
   const [, , authorisation] = useAuthentication();
-  const [isPlayerMode, setIsPlayerMode] = useState<boolean>(false);
+  const [isPlayerMode, setIsPlayerMode] = useState<boolean>(true);
 
   const [teams, selectedTeam, setSelectedTeam] = useEntity(lang, 'team');
-  const [players, selectedPlayer, setSelectedPlayer] = useEntity(lang, 'player');
+  const [teamMembers, memberSuccess, memberError] = useTeamMembers(lang, selectedTeam);
+  const [selectedPlayer, setSelectedPlayer] = useState<TeamMember>({
+    teamID: Number(localStorage.getItem('teamID') || 0),
+    teamName: localStorage.getItem('teamName') || '',
+    playerID: Number(localStorage.getItem('playerID') || 0),
+    playerName: localStorage.getItem('playerName') || '',
+    role: authorisation,
+  });
 
   const storedPlayerID = Number(localStorage.getItem('playerID') || 0);
   const storedTeamID = Number(localStorage.getItem('teamID') || 0);
 
   const queryPlayerID = (
-    authorisation === 'player' ? storedPlayerID : selectedPlayer.ID
+    authorisation === 'player' ? storedPlayerID : selectedPlayer.playerID
   );
 
   const queryTeamID = (
@@ -76,6 +89,13 @@ function AnalysisPage({
 
   const [selectedResult, setSelectedResult] = useState<Result | null>(null);
   const [loadedEvents, setLoadedEvents] = useState<LoadedEvents>(DEFAULT_LOADED_EVENT)
+  const [fetchSuccess, setFetchSuccess, fetchError, setFetchError] = useResponse();
+
+  const allErrors: Response[] = [memberError, fetchError]
+  const allSuccess: Response[] = [memberSuccess, fetchSuccess]
+
+  const hasError: boolean = allErrors.some((resp) => (resp && resp.message))
+  const hasSuccess: boolean = allSuccess.some((resp) => (resp && resp.message))
 
   useEffect(() => {
     setSelectedResult(null);
@@ -132,13 +152,36 @@ function AnalysisPage({
           isPlayerMode: isPlayerMode,
           events: resp.data.data,
         });
+        setFetchSuccess((prev) => ({
+          ...prev, 
+          message: responses[resp.data.detail as keyof typeof responses][lang]
+        }))
       })
       .catch((resp) => {
         if (!isCurrent) {
           return;
         }
-
-        console.log(resp)
+        
+        if (resp.response.data.detail) {
+          const responseKey = resp.response.data.detail
+          if (responseKey instanceof String) {
+            setFetchError((prev) => ({
+              ...prev, 
+              message: responses[responseKey as keyof typeof responses][lang]
+            }))
+          } else {
+            setFetchError((prev) => ({
+              ...prev, 
+              message: responseKey.msg
+            }))
+          }
+        }
+        else {
+          setFetchError((prev) => ({
+            ...prev,
+            message: 'Something went wrong'
+          }))
+        }
       })
     }
 
@@ -146,6 +189,12 @@ function AnalysisPage({
       isCurrent = false;
     }
   }, [selectedResult, isPlayerMode])
+
+  useEffect(() => {
+    if (teamMembers.length > 0) {
+      setSelectedPlayer(teamMembers[0])
+    }
+  }, [teamMembers])
 
   // !!
   const canRenderCharts = (
@@ -181,10 +230,16 @@ function AnalysisPage({
             <SuccessMessage response={loggedInResponse}/> : 
             <ErrorMessage response={loggedInResponse}/>
           }
-          <GeneralButton
+          {hasSuccess && allSuccess.map((success: Response) => (
+            success.message && <SuccessMessage key={success.message} response={success}/>
+          ))}
+          {hasError && allErrors.map((error: Response) => (
+            error.message && <ErrorMessage key={error.message} response={error}/>
+          ))}
+          {!hasError && !hasSuccess && <GeneralButton
             label='Good Luck'
             onClick={() => (null)}
-            />
+            />}
         </div>
 
         <div className='shell-title'>
@@ -199,11 +254,11 @@ function AnalysisPage({
               {['manager', 'root'].includes(authorisation) && <div>
                 <div className='selector-label'>Player Name</div>
                 <Selector
-                  items={players}
+                  items={teamMembers}
                   selected={selectedPlayer}
                   setSelected={setSelectedPlayer}
-                  getID={(player: Player) => (player.ID)}
-                  getName={(player: Player) => (player.name)}
+                  getID={(player: TeamMember) => (player.playerID)}
+                  getName={(player: TeamMember) => (player.playerName)}
                 />
               </div>}
             </div>
@@ -242,7 +297,7 @@ function AnalysisPage({
           events={loadedEvents.events}
           isPlayerMode={isPlayerMode}
           teamName={selectedTeam.name}
-          playerName={selectedPlayer.name}
+          playerName={selectedPlayer.playerName}
           analysisMode={true}
         />}
       </div>

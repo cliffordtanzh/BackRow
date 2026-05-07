@@ -23,7 +23,6 @@ import {
   DEFAULT_MEMBER_MANAGER 
 } from '../types/Membership';
 
-import { type Role, DEFAULT_ROLE } from '../types/Role';
 import { type Lang } from '../types/Lang';
 import { type Team } from '../types/Team';
 import { type Player } from '../types/Player';

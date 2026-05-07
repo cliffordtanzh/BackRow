@@ -1,9 +1,4 @@
-import { List, ListItemButton, ListItemText } from '@mui/material';
-import { IconButton } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-
-
-import type { Lang } from "../../types/Lang";
+import ResultCard from '../analysis/ResultCard';
 import type { Result } from "../../types/Result";
 
 import './ResultsViewer.css'
@@ -23,25 +18,17 @@ function ResultsViewer({
 }: ResultsViewerProps) {
 
   return (
-    <List className='result-list'>
-      {results.map((result: Result) => (
-        <ListItemButton 
-          className='result-card'
-          key={result.resultID}
-          selected={selectedResult.resultID === result.resultID}
-          onClick={(event) => setSelectedResult(result)}
-        >
-          <ListItemText className='result-title'
-            primary={result.gameName}
+    <div className='results-viewer'>
+      <li className='result-list'>
+        {results.map((result: Result) => (
+          <ResultCard 
+            result={result}
+            selected={selectedResult.resultID === result.resultID}
+            onClick={() => setSelectedResult(result)}
           />
-          <IconButton edge='end' onClick={(event) => {
-            event.stopPropagation();
-          }}>
-            <DeleteIcon></DeleteIcon>
-          </IconButton>
-        </ListItemButton>
-      ))}
-    </List>
+        ))}
+      </li>
+    </div>
   )
 }
 

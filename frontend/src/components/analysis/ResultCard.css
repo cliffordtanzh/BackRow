@@ -1,0 +1,108 @@
+.result-card,
+.result-card--selected {
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.result-card:hover {
+  border-color: var(--accent-2);
+  transform: translateY(-1px);
+}
+
+.result-card--selected {
+  background: linear-gradient(
+    135deg,
+    rgba(95, 209, 255, 0.9),
+    rgba(95, 209, 255, 0.7)
+  );
+  border-color: var(--accent-2);
+  color: var(--bg);
+}
+
+.result-card__content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.result-card__title {
+  font-weight: 700;
+  line-height: 1;
+  word-break: break-word;
+}
+
+.result-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.result-card--selected .result-card__meta {
+  color: var(--bg);
+}
+
+.result-card__pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.8rem;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.result-card--selected .result-card__pill {
+  background: rgba(15, 23, 36, 0.12);
+  border-color: rgba(15, 23, 36, 0.18);
+}
+
+.result-card__action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.result-card__subtitle {
+  font-size: 0.70rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-card--selected .result-card__subtitle {
+  color: rgba(15, 23, 36, 0.72);
+}
+
+@media (max-width: 790px) {
+  .result-card,
+  .result-card--selected {
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+
+  .result-card__action {
+    justify-content: flex-start;
+  }
+}

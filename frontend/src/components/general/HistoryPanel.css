@@ -8,3 +8,9 @@
   border: 1px solid var(--border);
   border-radius: 12px;
 }
+
+@media (max-width: 790px) {
+  .history-panel {
+    height: 60vh;
+  }
+}

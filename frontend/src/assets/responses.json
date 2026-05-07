@@ -47,6 +47,10 @@
         "en": "Email is not valid",
         "cn": "电子邮件无效"
     },
+    "unverified_user_error": {
+        "en": "Verify your email through the link sent",
+        "cn": "请通过发送的链接验证您的电子邮件"
+    },
     "empty_player_number_error": {
         "en": "Player number is invalid",
         "cn": "球员号码无效"
@@ -122,5 +126,9 @@
     "fetch_events_success": {
         "en": "Events fetched",
         "cn": "已获取数据"
+    },
+    "invalid_membership": {
+        "en": "Only managers can fetch Team Members",
+        "cn": "只有球队经理能查球队球员" 
     }
 }

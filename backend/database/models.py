@@ -1,5 +1,6 @@
 import enum
 
+from backend.datatypes import Role
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import (
     Column, Integer, String,
@@ -10,12 +11,6 @@ from sqlalchemy import (
 
 class Base(DeclarativeBase):
     pass
-
-
-class Role(enum.Enum):
-    player = "player"
-    manager = "manager"
-    root = "root"
 
 
 class Team(Base):
@@ -52,8 +47,8 @@ class TeamResult(Base):
     __tablename__ = "team_result"
     ID = Column(Integer, primary_key=True, autoincrement=True)
     youtubeURL = Column(String, nullable=False)
-    gameName = Column(String, nullable=True)
-    teamID = Column(String, ForeignKey("team.ID"), nullable=False)
+    gameName = Column(String, nullable=False)
+    teamID = Column(Integer, ForeignKey("team.ID"), nullable=False)
 
 
 class TeamEvent(Base):
@@ -68,8 +63,8 @@ class PlayerResult(Base):
     __tablename__ = "player_result"
     ID = Column(Integer, primary_key=True, autoincrement=True)
     youtubeURL = Column(String, nullable=False)
-    gameName = Column(String, nullable=True)
-    playerID = Column(String, ForeignKey("player.ID"), nullable=False)
+    gameName = Column(String, nullable=False)
+    playerID = Column(Integer, ForeignKey("player.ID"), nullable=False)
 
 
 class PlayerEvent(Base):

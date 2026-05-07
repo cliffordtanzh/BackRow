@@ -124,8 +124,6 @@ function StatsInputs({
       return;
     }
 
-    console.log(payload)
-
     axios.post(
       `${import.meta.env.VITE_API_URL}/post_results`,
       payload,

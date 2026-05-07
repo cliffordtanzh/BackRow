@@ -32,7 +32,7 @@ function useResults(
 
     const payload: ResultQuery =  {
       playerID: playerID,
-      teamID: teamID,
+      teamID: teamID || -1,
       isPlayerMode: isPlayerMode,
     }
 
@@ -59,10 +59,17 @@ function useResults(
 
       if (resp.response.data.detail) {
         const responseKey = resp.response.data.detail
-        setFetchError((prev) => ({
-          ...prev, 
-          message: responses[responseKey as keyof typeof responses][lang]}
-        ))
+        if (responseKey instanceof String) {
+          setFetchError((prev) => ({
+            ...prev, 
+            message: responses[responseKey as keyof typeof responses][lang]
+          }))
+        } else {
+          setFetchError((prev) => ({
+            ...prev, 
+            message: responseKey.msg
+          }))
+        }
       }
       else {
         setFetchError((prev) => ({

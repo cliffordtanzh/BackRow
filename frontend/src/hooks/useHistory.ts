@@ -4,7 +4,11 @@ import EventCreate from '../types/EventCreate';
 import { type History } from '../types/History'
 
 
-export function useHistory(itemKey: string, youtubeURL: string, gameName: string): [
+export function useHistory(
+  itemKey: string, 
+  youtubeURL: string, 
+  gameName: string
+): [
   History,
   React.Dispatch<React.SetStateAction<EventCreate[]>>
 ] {
@@ -19,13 +23,18 @@ export function useHistory(itemKey: string, youtubeURL: string, gameName: string
   
   const [events, setEvents] = useState<EventCreate[]>([...storedEvents]);
 
+  const playerID = localStorage.getItem('playerID') || 'null'
+  const playerName = localStorage.getItem('playerName') || 'null'
+  const teamID = localStorage.getItem('teamID') || 'null'
+  const teamName = localStorage.getItem('teamName') || 'null'
+
   const history: History = {
     events: events,
     isPlayerMode: itemKey === 'player',
-    playerID: Number(localStorage.getItem('playerID')) || 0,
-    playerName: localStorage.getItem('playerName') || 'Player',
-    teamID: Number(localStorage.getItem('teamID')) || 0,
-    teamName: localStorage.getItem('teamName') || 'Team',
+    playerID: playerID !== 'null' ? Number(playerID) : 0,
+    playerName: playerName !== 'null' ? playerName : 'Player',
+    teamID: teamID !== 'null' ? Number(teamID) : 0,
+    teamName: teamName !== 'null' ? teamName : 'Team',
     youtubeURL: youtubeURL,
     gameName: gameName,
   }

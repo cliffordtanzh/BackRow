@@ -19,12 +19,10 @@ import NavButton from '../components/general/NavButton.tsx';
 import GeneralButton from '../components/general/GeneralButton.tsx';
 
 import Event from '../types/EventCreate.ts';
-import { type History } from '../types/History.ts';
-import { type Response, DEFAULT_RESPONSE } from '../types/Response';
+import { type Response } from '../types/Response';
 import { type Lang } from '../types/Lang'
 
 import headers from '../assets/headers.json';
-import responses from '../assets/responses.json';
 
 import '../App.css'
 import './EntryPage.css';
@@ -56,8 +54,9 @@ function EntryPage({
   const [isPlayerMode, setIsPlayerMode] = useState<boolean>(true);
   
   const [videoURL, setVideoURL, gameName, setGameName, fetchError, fetchSuccess] = useVideo(lang);
-  const [teamHistory, setTeamEvents] = useHistory('player', videoURL, gameName);
-  const [playerHistory, setPlayerEvents] = useHistory('team', videoURL, gameName);
+  const [teamHistory, setTeamEvents] = useHistory('team', videoURL, gameName);
+  const [playerHistory, setPlayerEvents] = useHistory('player', videoURL, gameName);
+  const history = isPlayerMode ? playerHistory : teamHistory
 
   const [postError, setPostError, postSuccess, setPostSuccess] = useResponse();
 
@@ -66,8 +65,6 @@ function EntryPage({
 
   const hasError: boolean = allErrors.some((resp) => (resp && resp.message))
   const hasSuccess: boolean = allSuccess.some((resp) => (resp && resp.message))
-
-  const history: History = isPlayerMode ? playerHistory : teamHistory
 
   const clearHistory = (
     itemKey: string,

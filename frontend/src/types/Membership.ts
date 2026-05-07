@@ -1,7 +1,7 @@
 import { type Role } from "./Role"
 
 export type Membership = {
-  teamID: number,
+  teamID: number | null,
   playerID: number,
   role: Role
 }

@@ -163,31 +163,29 @@ def register(player: PlayerCreate):
             (playerID, verf_token, expiry)
         )
 
-        print(verf_token)
+        # Set up email details
+        sender_email = os.getenv("EMAIL_ADDRESS")
+        password = os.getenv("EMAIL_PASSWORD")
+        receiver_email = player.email
 
-        # # Set up email details
-        # sender_email = os.getenv("EMAIL_ADDRESS")
-        # password = os.getenv("EMAIL_PASSWORD")
-        # receiver_email = player.email
+        # Create the message
+        msg = EmailMessage()
+        msg["Subject"] = "Backrow Verification"
+        msg["From"] = sender_email
+        msg["To"] = receiver_email
+        msg.set_content(
+            "Click on this link to verify your account\n"
+            f"{os.getenv("BACKEND_URL")}/verify?token={verf_token}"
+        )
 
-        # # Create the message
-        # msg = EmailMessage()
-        # msg["Subject"] = "Backrow Verification"
-        # msg["From"] = sender_email
-        # msg["To"] = receiver_email
-        # msg.set_content(
-        #     "Click on this link to verify your account\n"
-        #     f"{os.getenv("BACKEND_URL")}/verify?token={verf_token}"
-        # )
+        try:
+            with smtplib.SMTP("smtp.gmail.com", 587) as server:
+                server.starttls()  # Secure the connection
+                server.login(sender_email, password)
+                server.send_message(msg)
 
-        # try:
-        #     with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        #         server.starttls()  # Secure the connection
-        #         server.login(sender_email, password)
-        #         server.send_message(msg)
-
-        # except Exception as e:
-        # raise HTTPException(status_code = 500, detail = str(e))
+        except Exception as e:
+            raise HTTPException(status_code = 500, detail = str(e))
 
         conn.commit()
         return {"detail": "player_registration_success"}
@@ -202,7 +200,6 @@ def register(player: PlayerCreate):
 
 @app.get("/verify", status_code=200)
 def verify(token: str):
-    print(token)
     conn = sqlite3.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -270,6 +267,7 @@ def login(player: PlayerLogin):
                 player.playerNumber,
                 player.email,
                 player.passwordHash,
+                player.isVerified,
                 membership.role,
                 team.ID AS teamID,
                 team.name AS teamName
@@ -289,6 +287,8 @@ def login(player: PlayerLogin):
                 status_code=404, detail="email_not_found_error")
 
         data = dict(zip(cols, values))
+        if not data["isVerified"]:
+            raise HTTPException(status_code=401, detail="unverified_user")
         login = bcrypt.checkpw(
             player.password.encode("utf-8"),
             data["passwordHash"].encode("utf-8")
@@ -313,7 +313,6 @@ def login(player: PlayerLogin):
         return {"data": jwt_token, "detail": "login_success"}
 
     except Exception as e:
-        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -346,7 +345,8 @@ def fetch_events(query: EventQuery):
             FROM
                 {entityName}_event
             WHERE
-                resultID=(?)""",
+                resultID=(?)
+            ORDER BY resultID DESC""",
             (query.ID, )
         )
 
@@ -369,7 +369,6 @@ def fetch_events(query: EventQuery):
         return {"data": events, "detail": "fetch_events_success"}
 
     except Exception as e:
-        print(e)
         raise HTTPException(status_code = 500, detail = str(e))
     
     finally:
@@ -479,7 +478,7 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
             data["passwordHash"].encode("utf-8")
         )
 
-        if (not login) and (passwords.oldPassword != "forgot..."):
+        if not login:
             raise HTTPException(status_code=401, detail="wrong_password_error")
 
         password_hash = bcrypt.hashpw(
@@ -497,6 +496,47 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
     except Exception as e:
         raise HTTPException(status_code = 500, detail=str(e))
 
+    finally:
+        conn.rollback()
+        conn.close()
+
+
+@app.post("/fetch_team_members", status_code=201)
+def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
+    conn = sqlite3.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        role = user["role"]
+        if role not in ["manager", "root"]:
+            raise HTTPException(status_code=401, detail= "invalid_membership")
+        
+        query = cursor.execute("""
+            SELECT 
+                team.ID AS teamID,
+                team.name AS teamName,
+                player.ID AS playerID,
+                player.name AS playerName,
+                membership.role
+            FROM
+                player
+            INNER JOIN membership ON membership.playerID = player.ID
+            INNER JOIN team ON membership.teamID = team.ID
+            WHERE team.ID = (?)""",
+            (teamID["teamID"], )
+        )
+        cols = [col[0] for col in query.description]
+
+        team_members = []
+        for values in query.fetchall():
+            data = dict(zip(cols, values))
+            team_members.append(TeamMember.model_validate(data))
+
+        return {"data": team_members, "detail": "fetch_results_success"}
+
+    except Exception as e:
+        raise HTTPException(status=500, detail=str(e))
+    
     finally:
         conn.rollback()
         conn.close()
@@ -558,7 +598,6 @@ def post_results(payload: ResultCreate, user=Depends(get_current_user)):
         return {"detail": "results_post_success"}
 
     except Exception as e:
-        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -575,26 +614,30 @@ def fetch_results(query: ResultQuery, user=Depends(get_current_user)):
         isPlayerMode = query.isPlayerMode
         entityName = "player" if isPlayerMode else "team"
 
+        role = user["role"]
+        if role == "player":
+            limit_cond = f"WHERE {entityName}.ID = (?)"
+            args = (user[f"{entityName}ID"], )
+
+        elif role == "manager":
+            limit_cond = f"WHERE {entityName}.ID = (?)"
+            args = (getattr(query, f"{entityName}ID"), )
+
+        else:
+            limit_cond = ""
+            args = None
+
         results_query = cursor.execute(
             f"""
             SELECT
-                player.ID AS playerID,
-                player.name AS playerName,
-                team.ID AS teamID,
-                team.name AS teamName,
                 {entityName}_result.ID AS resultID,
                 {entityName}_result.youtubeURL,
-                {entityName}_result.gameName
-            FROM 
-                player
-            /*Have to assume the values exist, use inner join*/
-            INNER JOIN membership ON player.ID = membership.playerID
-            INNER JOIN team ON membership.teamID = team.ID
-            INNER JOIN {entityName}_result ON 
-                {entityName}_result.{entityName}ID = {entityName}.ID
-            WHERE
-                {entityName}.ID = (?)""",
-            (getattr(query, f"{entityName}ID"), )
+                {entityName}_result.gameName,
+                {entityName}.ID AS entityID
+            FROM {entityName}_result
+                INNER JOIN {entityName} ON {entityName}_result.{entityName}ID = {entityName}.ID
+            """ + limit_cond,
+            args
         )
 
         cols = [col[0] for col in results_query.description]
