@@ -2,7 +2,7 @@ import ReactPlayer from 'react-player'
 
 import FieldInput from '../../components/general/FieldInput.tsx';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Lang } from '../../types/Lang';
 
 import headers from '../../assets/headers.json';
@@ -27,21 +27,18 @@ function VideoPlayer({
   setGameName,
 }: VideoPlayerProps) {
 
-  const playerRef = useRef<HTMLVideoElement | null>(null)
+  const playerRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState<boolean>(false);
 
-  const togglePlay = () => {setPlaying((prev) => !prev)};
-
-  const seekBy = (seconds: number): void => {
-    const player = playerRef.current;
-    if (!player) return;
-
-    const nextTime = Math.max(0, player.currentTime + seconds);
-    const duration = Number.isFinite(player.duration) ? player.duration : nextTime;
-    player.currentTime = Math.min(nextTime, duration);
-  };
+  const togglePlay = useCallback(() => { setPlaying(prev => !prev); }, []);
 
   useEffect(() => {
+    const seekBy = (seconds: number): void => {
+      const player = playerRef.current;
+      if (!player) return;
+      player.currentTime = Math.max(0, Math.min(player.currentTime + seconds, player.duration || 0));
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!(e.target instanceof HTMLElement)) {
         return;
@@ -74,7 +71,7 @@ function VideoPlayer({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => (window.removeEventListener('keydown', handleKeyDown))
-  }, [])
+  }, [togglePlay])
 
   return (
       <div className='entry-video'>
