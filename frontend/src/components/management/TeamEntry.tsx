@@ -36,7 +36,7 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
       return;
     }
 
-    axios.post(`${import.meta.env.VITE_API_URL}/team`, teamState)
+    axios.post('/team', teamState)
     .then((resp) => {
       onSuccess();
       setTeamState(DEFAULT_TEAM_CREATE);

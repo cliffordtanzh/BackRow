@@ -125,7 +125,7 @@ function StatsInputs({
     }
 
     axios.post(
-      `${import.meta.env.VITE_API_URL}/post_results`,
+      '/post_results',
       payload,
       {headers: {Authorisation: `Bearer ${token}`}}
 

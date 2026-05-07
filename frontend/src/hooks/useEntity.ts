@@ -33,7 +33,7 @@ export function useEntity<K extends keyof EntityMap>(
   const [entityError, setEntityError] = useState<Response>(DEFAULT_RESPONSE);
 
   const fetchEntities = () => {
-    axios.get(`${import.meta.env.VITE_API_URL}/${entityName}`)
+    axios.get(`/${entityName}`)
     .then((resp) => setEntity(resp.data.data))
     .catch((resp) => {
       if (resp.response.data.detail) {

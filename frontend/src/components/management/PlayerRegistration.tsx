@@ -61,7 +61,7 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
     setPlayerState((prev) => ({...prev, playerNumber: Number(playerNumberStr)}))
 
     axios.post(
-      `${import.meta.env.VITE_API_URL}/register`, 
+      '/register', 
       {...playerState}
     ).then((resp) => {
       onSuccess();

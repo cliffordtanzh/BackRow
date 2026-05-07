@@ -43,7 +43,7 @@ function PasswordChange({ lang }: PasswordChangeProps) {
 
     const token = localStorage.getItem("jwtToken")
     axios.post(
-      `${import.meta.env.VITE_API_URL}/change_password`,
+      '/change_password',
       passwords,
       {headers: {Authorisation: `Bearer ${token}`}}
     )

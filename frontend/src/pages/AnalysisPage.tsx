@@ -137,7 +137,7 @@ function AnalysisPage({
       }
 
       axios.post(
-        `${import.meta.env.VITE_API_URL}/fetch_events`,
+        '/fetch_events',
         payload,
         {headers: {Authorisation: `Bearer ${localStorage.getItem('jwtToken')}`}}
       )

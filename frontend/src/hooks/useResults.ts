@@ -37,7 +37,7 @@ function useResults(
     }
 
     axios.post(
-      `${import.meta.env.VITE_API_URL}/fetch_results`, 
+      '/fetch_results', 
       payload,
       {headers: {Authorisation: `Bearer ${token}`}}
     )
