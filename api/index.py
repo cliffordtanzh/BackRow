@@ -191,14 +191,14 @@ def register(player: PlayerCreate):
                 server.send_message(msg)
 
         except Exception as e:
-            print(e)
+            print("register error: ", e)
             raise HTTPException(status_code=500, detail=str(e))
 
         conn.commit()
         return {"detail": "player_registration_success"}
 
     except Exception as e:
-        print(e)
+        print("register error: ", e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
