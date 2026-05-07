@@ -87,6 +87,10 @@
         "en": "Email not found",
         "cn": "未找到电子邮件"
     },
+    "email_send_failed": {
+        "en": "Error during email sending",
+        "cn": "发出电子邮件无效"
+    },
     "wrong_password_error": {
         "en": "Wrong password",
         "cn": "密码错误"

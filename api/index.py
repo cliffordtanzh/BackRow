@@ -6,8 +6,8 @@ import secrets
 from jose import jwt
 from jose.exceptions import JWTError
 
-import smtplib
-from email.message import EmailMessage
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 import threading
 
 from pathlib import Path
@@ -175,32 +175,27 @@ def register(player: PlayerCreate):
         password = os.getenv("EMAIL_PASSWORD")
         receiver_email = player.email
 
-        # Create the message
-        msg = EmailMessage()
-        msg["Subject"] = "Backrow Verification"
-        msg["From"] = sender_email
-        msg["To"] = receiver_email
-        msg.set_content(
-            "Click on this link to verify your account\n"
-            f"{os.getenv('BACKEND_URL')}/verify?token={verf_token}"
-        )
+        # Replace the entire try/except email block with:
+        try:
+            sender_email = os.getenv("EMAIL_ADDRESS")  # Your Gmail (display purposes)
+            receiver_email = player.email
+            
+            message = Mail(
+                from_email=sender_email,
+                to_emails=receiver_email,
+                subject="BackRow Verification",
+                plain_text_content=(
+                    "Click on this link to verify your account\n"
+                    f"{os.getenv('BACKEND_URL')}/verify?token={verf_token}"
+                )
+            )
+            
+            sg = SendGridAPIClient(os.getenv('SENDGRID_API_KEY'))
+            sg.send(message)
 
-        def send_email_async(sender, msg, password):
-            try:
-                with smtplib.SMTP("smtp.gmail.com", 465, timeout=10) as server:
-                    server.starttls()  # Secure the connection
-                    server.login(sender, password)
-                    server.send_message(msg)
-
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=str(e))
-
-        email_thread = threading.Thread(
-            target=send_email_async,
-            args=(sender_email, msg, password)
-        )
-        email_thread.daemon = True
-        email_thread.start()
+        except Exception as e:
+            print(f"Email send failed: {e}")
+            raise HTTPException(status_code=500, detail="email_send_failed")
 
         conn.commit()
         return {"detail": "player_registration_success"}
