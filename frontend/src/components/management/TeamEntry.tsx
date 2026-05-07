@@ -66,8 +66,6 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
     })
   }
 
-  console.log(teamState)
-
   return (
     <div className='manage-inputs'>
       <form onSubmit={handleSubmit}>
