@@ -64,6 +64,7 @@ def get_player():
         return {"data": players, "detail": "player_query_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -89,6 +90,7 @@ def get_team():
         return {"data": teams, "detail": "team_query_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -111,6 +113,7 @@ def post_team(team: TeamCreate):
         return {"detail": "team_post_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -145,9 +148,9 @@ def register(player: PlayerCreate):
         cursor.execute(
             """
             INSERT INTO player (
-                name, 
+                "name", 
                 "playerNumber", 
-                email, 
+                "email", 
                 "passwordHash", 
                 "isVerified"
             ) VALUES (%s, %s, %s, %s, %s) RETURNING "ID""",
@@ -187,12 +190,14 @@ def register(player: PlayerCreate):
                 server.send_message(msg)
 
         except Exception as e:
+            print(e)
             raise HTTPException(status_code=500, detail=str(e))
 
         conn.commit()
         return {"detail": "player_registration_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -248,6 +253,7 @@ def verify(token: str):
         return RedirectResponse(url=os.getenv("FRONTEND_URL"))
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -265,14 +271,14 @@ def login(player: PlayerLogin):
             """
             SELECT 
                 player."ID" AS "playerID",
-                player.name AS "playerName",
+                player."name" AS "playerName",
                 player."playerNumber",
-                player.email,
+                player."email",
                 player."passwordHash",
                 player."isVerified",
-                membership.role,
+                membership."role",
                 team."ID" AS "teamID",
-                team.name AS "teamName"
+                team."name" AS "teamName"
             FROM 
                 player 
             INNER JOIN membership ON membership."playerID" = player."ID"
@@ -315,6 +321,7 @@ def login(player: PlayerLogin):
         return {"data": jwt_token, "detail": "login_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -371,6 +378,7 @@ def fetch_events(query: EventQuery):
         return {"data": events, "detail": "fetch_events_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -393,6 +401,7 @@ async def get_current_user(request: Request):
         return payload
 
     except JWTError:
+        print(e)
         raise HTTPException(status_code=401, detail="invalid_token_error")
 
 
@@ -449,6 +458,7 @@ async def update_membership(update: Membership, user: dict = Depends(get_current
         return {"data": new_token, "detail": "membership_update_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -495,6 +505,7 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
         return {"detail": "password_change_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
@@ -515,10 +526,10 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
         cursor.execute("""
             SELECT 
                 team."ID" AS "teamID",
-                team.name AS "teamName",
+                team."name" AS "teamName",
                 player."ID" AS "playerID",
-                player.name AS "playerName",
-                membership.role
+                player."name" AS "playerName",
+                membership."role"
             FROM
                 player
             INNER JOIN membership ON membership."playerID" = player."ID"
@@ -536,6 +547,7 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
         return {"data": team_members, "detail": "fetch_results_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status=500, detail=str(e))
 
     finally:
@@ -599,6 +611,7 @@ def post_results(payload: ResultCreate, user=Depends(get_current_user)):
         return {"detail": "results_post_success"}
 
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
     finally:
