@@ -19,7 +19,7 @@ function useVideo(lang: Lang ):[
 ] {
   const [videoURL, setVideoURL] = useState<string>(() => (
     localStorage.getItem('videoURL') ||
-    'https://www.youtube.com/watch?v=xEsQvDWAGHQ&t=310s'
+    'https://www.youtube.com/watch?v=aOUUwTYW-S4&t=341s'
   ));
 
   const [gameName, setGameName] = useState<string>('');
