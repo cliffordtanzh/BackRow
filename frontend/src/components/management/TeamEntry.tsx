@@ -36,7 +36,7 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
       return;
     }
 
-    axios.post('/team', teamState)
+    axios.post(`${import.meta.env.VITE_API_URL}/team`, teamState)
     .then((resp) => {
       onSuccess();
       setTeamState(DEFAULT_TEAM_CREATE);
@@ -66,6 +66,8 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
     })
   }
 
+  console.log(teamState)
+
   return (
     <div className='manage-inputs'>
       <form onSubmit={handleSubmit}>
@@ -73,7 +75,8 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
         <div className='manage-inputs__field'>
           <label className='manage-inputs__label'>{teamHeaders[0][lang]}</label>
           <FieldInput
-            setField={(val) => (setTeamState((prev) => ({...prev, teamName: val})))}
+            value={teamState.name}
+            setField={(val) => (setTeamState((prev) => ({...prev, name: val})))}
           />
         </div>
 

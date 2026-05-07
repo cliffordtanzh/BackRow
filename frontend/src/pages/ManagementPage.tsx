@@ -233,11 +233,11 @@ function ManagementPage({
             <div className='manage-panel__title'>
               {headers['membership_management'][lang]}
             </div>
-            <ManageMembership
+            {players && teams && <ManageMembership
               lang={lang}
               chooseProps={chooseProps}
               setJwtToken={setJwtToken}
-            />
+            />}
           </div>
 
         </div>

@@ -39,7 +39,7 @@ function LoginCard({ lang, setJwtToken, logout }: loginCardProps) {
     }
 
     axios.post(
-      '/login',
+      `${import.meta.env.VITE_API_URL}/login`,
       {...playerState}
     )
     .then((resp) => {

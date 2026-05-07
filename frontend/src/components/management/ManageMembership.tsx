@@ -45,7 +45,7 @@ function ManageRole({
 
     const token = localStorage.getItem('jwtToken')
     axios.post(
-      '/update_membership', 
+      `${import.meta.env.VITE_API_URL}/update_membership`, 
       payload,
       {headers: {Authorisation: `Bearer ${token}`}}
 
