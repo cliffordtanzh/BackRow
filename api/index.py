@@ -35,7 +35,7 @@ app = FastAPI()
 # Adding CORS to allow cross-origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
+    allow_origins=["*"],  # Temporarily allow all for debugging
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -527,8 +527,8 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
             INNER JOIN membership ON membership."playerID" = player."ID"
             INNER JOIN team ON membership."teamID" = team."ID"
             WHERE team."ID" = %s""",
-                               (teamID["teamID"], )
-                               )
+                       (teamID["teamID"], )
+                       )
         cols = [col[0] for col in cursor.description]
 
         team_members = []
