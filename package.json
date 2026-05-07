@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "dev": "concurrently \"npm run frontend\" \"npm run api\"",
+    "frontend": "cd frontend && npm run dev",
+    "api": "python -m uvicorn api.index:app --reload"
+  }
+}

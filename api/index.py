@@ -18,7 +18,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.datatypes import *
+from api.datatypes import *
 
 
 load_dotenv(Path(__file__).parent / ".env")
@@ -190,7 +190,7 @@ def register(player: PlayerCreate):
                 server.send_message(msg)
 
         except Exception as e:
-            raise HTTPException(status_code = 500, detail = str(e))
+            raise HTTPException(status_code=500, detail=str(e))
 
         conn.commit()
         return {"detail": "player_registration_success"}
@@ -374,8 +374,8 @@ def fetch_events(query: EventQuery):
         return {"data": events, "detail": "fetch_events_success"}
 
     except Exception as e:
-        raise HTTPException(status_code = 500, detail = str(e))
-    
+        raise HTTPException(status_code=500, detail=str(e))
+
     finally:
         conn.rollback()
         conn.close()
@@ -497,9 +497,9 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
 
         conn.commit()
         return {"detail": "password_change_success"}
-    
+
     except Exception as e:
-        raise HTTPException(status_code = 500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
     finally:
         conn.rollback()
@@ -514,8 +514,8 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
     try:
         role = user["role"]
         if role not in ["manager", "root"]:
-            raise HTTPException(status_code=401, detail= "invalid_membership")
-        
+            raise HTTPException(status_code=401, detail="invalid_membership")
+
         query = cursor.execute("""
             SELECT 
                 team.ID AS teamID,
@@ -528,8 +528,8 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
             INNER JOIN membership ON membership.playerID = player.ID
             INNER JOIN team ON membership.teamID = team.ID
             WHERE team.ID = (?)""",
-            (teamID["teamID"], )
-        )
+                               (teamID["teamID"], )
+                               )
         cols = [col[0] for col in query.description]
 
         team_members = []
@@ -541,7 +541,7 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
 
     except Exception as e:
         raise HTTPException(status=500, detail=str(e))
-    
+
     finally:
         conn.rollback()
         conn.close()
