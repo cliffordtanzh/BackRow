@@ -24,5 +24,6 @@ dist-ssr
 *.sw?
 
 frontend/.env
-backend/.env
-backend/database/database.sqlite3
+api/.env
+**/node_modules/**
+**/__pycache__/**

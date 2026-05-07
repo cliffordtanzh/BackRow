@@ -1,6 +1,6 @@
 import enum
 
-from backend.datatypes import Role
+from api.datatypes import Role
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import (
     Column, Integer, String,

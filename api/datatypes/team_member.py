@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from backend.datatypes.membership import Role
+from api.datatypes.membership import Role
 
 
 class TeamMember(BaseModel):

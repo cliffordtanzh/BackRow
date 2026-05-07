@@ -73,7 +73,8 @@ function TeamEntry ({ lang, onSuccess }: TeamEntryProps) {
         <div className='manage-inputs__field'>
           <label className='manage-inputs__label'>{teamHeaders[0][lang]}</label>
           <FieldInput
-            setField={(val) => (setTeamState((prev) => ({...prev, teamName: val})))}
+            value={teamState.name}
+            setField={(val) => (setTeamState((prev) => ({...prev, name: val})))}
           />
         </div>
 

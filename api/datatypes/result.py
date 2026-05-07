@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from backend.datatypes.event import EventCreate
+from api.datatypes.event import EventCreate
 
 
 class Result(BaseModel):

@@ -58,14 +58,19 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
       return;
     }
 
-    setPlayerState((prev) => ({...prev, playerNumber: Number(playerNumberStr)}))
+    const updatedPlayerState = {
+      ...playerState,
+      playerNumber: Number(playerNumberStr)
+    }
+    setPlayerState(updatedPlayerState)
 
     axios.post(
       `${import.meta.env.VITE_API_URL}/register`, 
-      {...playerState}
+      {...updatedPlayerState}
     ).then((resp) => {
       onSuccess();
       setPlayerState(DEFAULT_PLAYER_CREATE);
+      setPlayerNumberStr('')
       
       setError(DEFAULT_RESPONSE);
       setSuccess((prev) => ({
@@ -97,7 +102,7 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
 
         {
           playerHeaders.map((header) => (
-            (header['key'] !== 'teamName') && (
+            (
               <div 
                 className='manage-inputs__field'
                 key={header['key']}
@@ -114,7 +119,7 @@ function PlayerRegistration ({ lang, onSuccess }: PlayerRegistrationProps) {
                   setField={(val) => (
                     header['key'] !== 'playerNumber' ?
                       setPlayerState((prev) => ({...prev, [header['key']]: 
-                          header['key'] === 'playerNumber' ? Number(playerNumberStr) : val}
+                        header['key'] === 'playerNumber' ? Number(playerNumberStr) : val}
                       ))
                     : setPlayerNumberStr(val)
                   )}
