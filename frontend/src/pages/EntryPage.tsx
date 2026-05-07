@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { type NavigateFunction } from 'react-router-dom';
 
 import { useResponse } from '../hooks/useResponse';
