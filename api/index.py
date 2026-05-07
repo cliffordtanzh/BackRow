@@ -44,11 +44,6 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def root():
-    return {"message": "hello"}
-
-
 @app.get("/player", status_code=200)
 def get_player():
     conn = psycopg2.connect(DATABASE_URL)
