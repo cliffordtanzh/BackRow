@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 import { useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
 
 import ErrorMessage from '../general/ErrorMessage';
 import SuccessMessage from '../general/SuccessMessage';
@@ -12,7 +11,6 @@ import { useResponse } from '../../hooks/useResponse';
 import { DEFAULT_PLAYER_LOGIN, type PlayerLogin } from '../../types/PlayerLogin';
 import { DEFAULT_RESPONSE } from '../../types/Response';
 import { type Lang } from '../../types/Lang';
-import { type JwtPayload } from '../../types/JwtPayload';
 
 import headers from '../../assets/headers.json';
 import responses from '../../assets/responses.json';

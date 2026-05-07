@@ -13,7 +13,7 @@ function StatsButton({
   const formattedLabel = label.charAt(0).toUpperCase() + label.slice(1)
 
   return (
-    <div onKeyDown={(event)=> {return}}>
+    <div onKeyDown={(_)=> {return}}>
       <button 
         className='stats-button'
         onClick={onClick}

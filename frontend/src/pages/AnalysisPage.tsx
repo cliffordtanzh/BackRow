@@ -20,9 +20,8 @@ import ErrorMessage from '../components/general/ErrorMessage';
 import GeneralButton from '../components/general/GeneralButton';
 import HistoryPanel from '../components/general/HistoryPanel';
 
-import { type Player } from '../types/Player';
 import { type Team } from '../types/Team';
-import { DEFAULT_TEAM_MEMBER, type TeamMember } from '../types/TeamMember';
+import { type TeamMember } from '../types/TeamMember';
 import { type Lang } from '../types/Lang';
 import { type Response } from '../types/Response';
 import { type Result } from '../types/Result';
