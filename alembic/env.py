@@ -49,8 +49,7 @@ def run_migrations_offline() -> None:
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
-        render_as_batch=True
+        dialect_opts={"paramstyle": "named"}
     )
 
     with context.begin_transaction():
@@ -66,7 +65,7 @@ def run_migrations_online() -> None:
     """
     db_url = os.getenv("DATABASE_URL")
     if db_url:
-        config.set_main_option("sqlalchemy.url", f"sqlite:///{db_url}")
+        config.set_main_option("sqlalchemy.url", db_url)
 
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
@@ -77,8 +76,7 @@ def run_migrations_online() -> None:
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
-            target_metadata=target_metadata,
-            render_as_batch=True
+            target_metadata=target_metadata
         )
 
         with context.begin_transaction():

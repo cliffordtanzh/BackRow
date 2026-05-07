@@ -1,5 +1,5 @@
 import os
-import sqlite3
+import psycopg2
 import bcrypt
 import secrets
 
@@ -49,13 +49,13 @@ def root():
 
 @app.get("/player", status_code=200)
 def get_player():
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
-        query = cursor.execute("SELECT * FROM player")
-        cols = [col[0] for col in query.description]
-        result = query.fetchall()
+        cursor.execute("SELECT * FROM player")
+        cols = [col[0] for col in cursor.description]
+        result = cursor.fetchall()
 
         players = []
         for values in result:
@@ -76,13 +76,13 @@ def get_player():
 
 @app.get("/team", status_code=200)
 def get_team():
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
-        query = cursor.execute("SELECT * FROM team")
-        cols = [col[0] for col in query.description]
-        result = query.fetchall()
+        cursor.execute("SELECT * FROM team")
+        cols = [col[0] for col in cursor.description]
+        result = cursor.fetchall()
 
         teams = []
         for values in result:
@@ -101,12 +101,12 @@ def get_team():
 
 @app.post("/team", status_code=201)
 def post_team(team: TeamCreate):
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
         cursor.execute(
-            "INSERT INTO team (name) VALUES (?)",
+            "INSERT INTO team (name) VALUES (%s)",
             (team.name, )
         )
 
@@ -123,15 +123,15 @@ def post_team(team: TeamCreate):
 
 @app.post("/register", status_code=201)
 def register(player: PlayerCreate):
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
-        query = cursor.execute(
-            "SELECT email FROM player WHERE email == (?)",
+        cursor.execute(
+            "SELECT email FROM player WHERE email = %s",
             (player.email, )
         )
-        values = query.fetchone()
+        values = cursor.fetchone()
 
         # Email query from DB should return None
         if values is not None:
@@ -149,22 +149,22 @@ def register(player: PlayerCreate):
             """
             INSERT INTO player (
                 name, 
-                playerNumber, 
+                "playerNumber", 
                 email, 
-                passwordHash, 
-                isVerified
-            ) VALUES (?, ?, ?, ?, ?)""",
-            (player.name, player.playerNumber, player.email, password_hash, 0)
+                "passwordHash", 
+                "isVerified"
+            ) VALUES (%s, %s, %s, %s, %s) RETURNING "ID""",
+            (player.name, player.playerNumber, player.email, password_hash, False)
         )
-        playerID = cursor.lastrowid
+        playerID = cursor.fetchone()[0]
 
         cursor.execute(
-            "INSERT INTO membership (playerID, role) VALUES (?, ?)",
+            'INSERT INTO membership ("playerID", role) VALUES (%s, %s)',
             (playerID, "none")
         )
 
         cursor.execute(
-            "INSERT INTO verification (playerID, token, expiry) VALUES (?, ?, ?)",
+            'INSERT INTO verification ("playerID", token, expiry) VALUES (%s, %s, %s)',
             (playerID, verf_token, expiry)
         )
 
@@ -180,7 +180,7 @@ def register(player: PlayerCreate):
         msg["To"] = receiver_email
         msg.set_content(
             "Click on this link to verify your account\n"
-            f"{os.getenv("BACKEND_URL")}/verify?token={verf_token}"
+            f"{os.getenv('BACKEND_URL')}/verify?token={verf_token}"
         )
 
         try:
@@ -205,24 +205,24 @@ def register(player: PlayerCreate):
 
 @app.get("/verify", status_code=200)
 def verify(token: str):
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
         time_now = datetime.now(timezone.utc)
-        query = cursor.execute(
+        cursor.execute(
             """
             SELECT 
                 *
             FROM 
                 player 
-            INNER JOIN verification ON verification.playerID = player.ID
-            WHERE verification.token = (?)
+            INNER JOIN verification ON verification."playerID" = player."ID"
+            WHERE verification.token = %s
             """,
             (token, )
         )
-        cols = [col[0] for col in query.description]
-        values = query.fetchone()
+        cols = [col[0] for col in cursor.description]
+        values = cursor.fetchone()
 
         if values is None:
             raise HTTPException(status_code=404, detail="Token not found")
@@ -233,19 +233,19 @@ def verify(token: str):
 
         if time_now > expiry:
             cursor.execute(
-                "DELETE FROM verification WHERE token = (?)", (token, ))
+                "DELETE FROM verification WHERE token = %s", (token, ))
             raise HTTPException(status_code=410, detail="verification_error")
 
         # Verification complete
         cursor.execute(
-            "UPDATE player SET isVerified = 1 WHERE ID = (?)",
+            'UPDATE player SET "isVerified" = TRUE WHERE "ID" = %s',
             (data["playerID"], )
         )
         cursor.execute(
-            "UPDATE membership SET role = 'player' WHERE playerID = (?)",
+            'UPDATE membership SET role = \'player\' WHERE "playerID" = %s',
             (data["playerID"], )
         )
-        cursor.execute("DELETE FROM verification WHERE token = (?)", (token, ))
+        cursor.execute("DELETE FROM verification WHERE token = %s", (token, ))
 
         conn.commit()
         return RedirectResponse(url=os.getenv("FRONTEND_URL"))
@@ -260,33 +260,33 @@ def verify(token: str):
 
 @app.post("/login", status_code=201)
 def login(player: PlayerLogin):
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
-        query = cursor.execute(
+        cursor.execute(
             """
             SELECT 
-                player.ID AS playerID,
-                player.name AS playerName,
-                player.playerNumber,
+                player."ID" AS "playerID",
+                player.name AS "playerName",
+                player."playerNumber",
                 player.email,
-                player.passwordHash,
-                player.isVerified,
+                player."passwordHash",
+                player."isVerified",
                 membership.role,
-                team.ID AS teamID,
-                team.name AS teamName
+                team."ID" AS "teamID",
+                team.name AS "teamName"
             FROM 
                 player 
-            INNER JOIN membership ON membership.playerID = player.ID
-            LEFT OUTER JOIN team ON team.ID = membership.teamID
-            WHERE player.email = (?)""",
+            INNER JOIN membership ON membership."playerID" = player."ID"
+            LEFT OUTER JOIN team ON team."ID" = membership."teamID"
+            WHERE player.email = %s""",
             (player.email, )
         )
 
-        cols = [col[0] for col in query.description]
+        cols = [col[0] for col in cursor.description]
 
-        values = query.fetchone()
+        values = cursor.fetchone()
         if values is None:
             raise HTTPException(
                 status_code=404, detail="email_not_found_error")
@@ -336,7 +336,7 @@ def fetch_events(query: EventQuery):
 
                 return event
 
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
@@ -344,19 +344,19 @@ def fetch_events(query: EventQuery):
         entityName = "player" if isPlayerMode else "team"
         eventTypeName = "eventType" if isPlayerMode else "pointMethod"
 
-        event_query = cursor.execute(f"""
+        cursor.execute(f"""
             SELECT
                 *
             FROM
                 {entityName}_event
             WHERE
-                resultID=(?)
-            ORDER BY resultID DESC""",
+                "resultID"=(%s)
+            ORDER BY "resultID" DESC""",
             (query.ID, )
         )
 
-        cols = [col[0] for col in event_query.description]
-        results = event_query.fetchall()
+        cols = [col[0] for col in cursor.description]
+        results = cursor.fetchall()
 
         events = []
         for values in results:
@@ -402,46 +402,45 @@ async def get_current_user(request: Request):
 # Protected Endpoints
 @app.post("/update_membership")
 async def update_membership(update: Membership, user: dict = Depends(get_current_user)):
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
         if user["role"] not in ["root"]:
             raise HTTPException(status_code=401, detail="funnyman")
 
-        query = cursor.execute(
+        cursor.execute(
             """
             SELECT 
                 * 
             FROM 
                 player
-            /*Team might be None, use outer join*/
-            INNER JOIN membership ON membership.playerID = player.ID
-            FULL OUTER JOIN team ON membership.teamID = team.ID
-            WHERE player.ID = (?)
+            INNER JOIN membership ON membership."playerID" = player."ID"
+            FULL OUTER JOIN team ON membership."teamID" = team."ID"
+            WHERE player."ID" = %s
             """,
             (update.playerID, )
         )
 
-        result = query.fetchone()
+        result = cursor.fetchone()
         if result is None:
             raise HTTPException(
                 status_code=404, detail="player_not_found_error")
 
-        cols = [col[0] for col in query.description]
+        cols = [col[0] for col in cursor.description]
         data = dict(zip(cols, result))
 
         new_user = {**user}
         if data["teamID"] != update.teamID:
             cursor.execute(
-                "UPDATE membership SET teamID = (?) WHERE playerID = (?)",
+                'UPDATE membership SET "teamID" = %s WHERE "playerID" = %s',
                 (update.teamID, update.playerID)
             )
             new_user["teamID"] = update.teamID
 
         if data["role"] != update.role:
             cursor.execute(
-                "UPDATE membership SET role = (?) WHERE playerID = (?)",
+                'UPDATE membership SET role = %s WHERE "playerID" = %s',
                 (update.role, update.playerID)
             )
             new_user["role"] = update.role
@@ -462,16 +461,16 @@ async def update_membership(update: Membership, user: dict = Depends(get_current
 
 @app.post("/change_password")
 def change_password(passwords: PasswordData, user: dict = Depends(get_current_user)):
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
-        query = cursor.execute(
-            "SELECT * FROM player WHERE ID = (?)",
+        cursor.execute(
+            'SELECT * FROM player WHERE "ID" = %s',
             (user["playerID"], )
         )
-        cols = [col[0] for col in query.description]
-        result = query.fetchone()
+        cols = [col[0] for col in cursor.description]
+        result = cursor.fetchone()
 
         if result is None:
             raise HTTPException(
@@ -491,7 +490,7 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
         password_hash = password_hash.decode("utf-8")
 
         cursor.execute(
-            "UPDATE player SET passwordHash = (?) WHERE ID = (?)",
+            'UPDATE player SET "passwordHash" = %s WHERE "ID" = %s',
             (password_hash, user["playerID"])
         )
 
@@ -508,7 +507,7 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
 
 @app.post("/fetch_team_members", status_code=201)
 def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
@@ -516,24 +515,24 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
         if role not in ["manager", "root"]:
             raise HTTPException(status_code=401, detail="invalid_membership")
 
-        query = cursor.execute("""
+        cursor.execute("""
             SELECT 
-                team.ID AS teamID,
-                team.name AS teamName,
-                player.ID AS playerID,
-                player.name AS playerName,
+                team."ID" AS "teamID",
+                team.name AS "teamName",
+                player."ID" AS "playerID",
+                player.name AS "playerName",
                 membership.role
             FROM
                 player
-            INNER JOIN membership ON membership.playerID = player.ID
-            INNER JOIN team ON membership.teamID = team.ID
-            WHERE team.ID = (?)""",
+            INNER JOIN membership ON membership."playerID" = player."ID"
+            INNER JOIN team ON membership."teamID" = team."ID"
+            WHERE team."ID" = %s""",
                                (teamID["teamID"], )
                                )
-        cols = [col[0] for col in query.description]
+        cols = [col[0] for col in cursor.description]
 
         team_members = []
-        for values in query.fetchall():
+        for values in cursor.fetchall():
             data = dict(zip(cols, values))
             team_members.append(TeamMember.model_validate(data))
 
@@ -549,7 +548,7 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
 
 @app.post("/post_results", status_code=201)
 def post_results(payload: ResultCreate, user=Depends(get_current_user)):
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
@@ -574,23 +573,23 @@ def post_results(payload: ResultCreate, user=Depends(get_current_user)):
         cursor.execute(
             f"""
             INSERT INTO {entityName}_result (
-                youtubeURL,
-                gameName,
-                {entityName}ID
-            ) VALUES (?, ?, ?)""",
+                "youtubeURL",
+                "gameName",
+                "{entityName}ID"
+            ) VALUES (%s, %s, %s) RETURNING "ID""",
             (youtubeURL, gameName, playerID if isPlayerMode else teamID)
         )
-        resultID = cursor.lastrowid
+        resultID = cursor.fetchone()[0]
 
         for event in events:
             cursor.execute(
                 f"""
                 INSERT INTO {entityName}_event (
-                    ID, 
-                    resultID, 
-                    {eventTypeName}, 
-                    pointDelta
-                )  VALUES (?, ?, ?, ?)""",
+                    "ID", 
+                    "resultID", 
+                    "{eventTypeName}", 
+                    "pointDelta"
+                )  VALUES (%s, %s, %s, %s)""",
                 (
                     event.ID,
                     resultID,
@@ -612,7 +611,7 @@ def post_results(payload: ResultCreate, user=Depends(get_current_user)):
 
 @app.post("/fetch_results", status_code=200)
 def fetch_results(query: ResultQuery, user=Depends(get_current_user)):
-    conn = sqlite3.connect(DATABASE_URL)
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     try:
@@ -621,32 +620,34 @@ def fetch_results(query: ResultQuery, user=Depends(get_current_user)):
 
         role = user["role"]
         if role == "player":
-            limit_cond = f"WHERE {entityName}.ID = (?)"
+            limit_cond = f'WHERE {entityName}."ID" = %s'
             args = (user[f"{entityName}ID"], )
 
         elif role == "manager":
-            limit_cond = f"WHERE {entityName}.ID = (?)"
+            limit_cond = f'WHERE {entityName}."ID" = %s'
             args = (getattr(query, f"{entityName}ID"), )
 
         else:
             limit_cond = ""
             args = None
 
-        results_query = cursor.execute(
-            f"""
+        sql = f"""
             SELECT
-                {entityName}_result.ID AS resultID,
-                {entityName}_result.youtubeURL,
-                {entityName}_result.gameName,
-                {entityName}.ID AS entityID
+                {entityName}_result."ID" AS "resultID",
+                {entityName}_result."youtubeURL",
+                {entityName}_result."gameName",
+                {entityName}."ID" AS "entityID"
             FROM {entityName}_result
-                INNER JOIN {entityName} ON {entityName}_result.{entityName}ID = {entityName}.ID
-            """ + limit_cond,
-            args
-        )
+                INNER JOIN {entityName} ON {entityName}_result."{entityName}ID" = {entityName}."ID"
+            """ + limit_cond
 
-        cols = [col[0] for col in results_query.description]
-        query_results = results_query.fetchall()
+        if args is not None:
+            cursor.execute(sql, args)
+        else:
+            cursor.execute(sql)
+
+        cols = [col[0] for col in cursor.description]
+        query_results = cursor.fetchall()
 
         results = []
         for value in query_results:
