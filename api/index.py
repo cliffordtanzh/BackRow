@@ -667,3 +667,13 @@ def fetch_results(query: ResultQuery, user=Depends(get_current_user)):
 dist_path = Path(__file__).parent.parent / "frontend" / "dist"
 if dist_path.exists():
     app.mount("/", StaticFiles(directory=str(dist_path), html=True), name="static")
+
+
+# Create tables on startup if they don't exist
+@app.on_event("startup")
+def create_tables():
+    from sqlalchemy import create_engine
+    from api.database.models import Base
+
+    engine = create_engine(DATABASE_URL)
+    Base.metadata.create_all(bind=engine)
