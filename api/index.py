@@ -37,7 +37,7 @@ app = FastAPI()
 # Since we're serving frontend from same app, this is optional
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Same origin, so CORS not strictly needed
+    allow_origins=[FRONTEND_URL],  # Same origin, so CORS not strictly needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -148,23 +148,24 @@ def register(player: PlayerCreate):
         cursor.execute(
             """
             INSERT INTO player (
-                name, 
-                playernumber, 
-                email, 
-                passwordhash, 
-                isverified
-            ) VALUES (%s, %s, %s, %s, %s) RETURNING id""",
+                "name",
+                "playerNumber",
+                "email",
+                "passwordHash",
+                "isVerified"
+            ) VALUES (%s, %s, %s, %s, %s) RETURNING "ID"
+            """,
             (player.name, player.playerNumber, player.email, password_hash, False)
         )
         playerID = cursor.fetchone()[0]
 
         cursor.execute(
-            'INSERT INTO membership (playerid, role) VALUES (%s, %s)',
+            'INSERT INTO membership ("playerID", "role") VALUES (%s, %s)',
             (playerID, "none")
         )
 
         cursor.execute(
-            'INSERT INTO verification (playerid, token, expiry) VALUES (%s, %s, %s)',
+            'INSERT INTO verification ("playerID", "token", "expiry") VALUES (%s, %s, %s)',
             (playerID, verf_token, expiry)
         )
 
@@ -218,8 +219,8 @@ def verify(token: str):
                 *
             FROM 
                 player 
-            INNER JOIN verification ON verification.playerid = player.id
-            WHERE verification.token = %s
+            INNER JOIN verification ON verification."playerID" = player."ID"
+            WHERE verification."token" = %s
             """,
             (token, )
         )
@@ -227,11 +228,11 @@ def verify(token: str):
         values = cursor.fetchone()
 
         if values is None:
-            raise HTTPException(status_code=404, detail="Token not found")
+            raise HTTPException(status_code=404, detail="invalid_token_error")
 
         data = dict(zip(cols, values))
         expiry = datetime.fromisoformat(
-            data["expiry"]).replace(tzinfo=timezone.utc)
+            str(data["expiry"])).replace(tzinfo=timezone.utc)
 
         if time_now > expiry:
             cursor.execute(
@@ -240,14 +241,14 @@ def verify(token: str):
 
         # Verification complete
         cursor.execute(
-            'UPDATE player SET isverified = TRUE WHERE id = %s',
+            'UPDATE player SET "isVerified" = True WHERE "ID" = %s',
             (data["playerID"], )
         )
         cursor.execute(
-            'UPDATE membership SET role = \'player\' WHERE playerid = %s',
+            'UPDATE membership SET "role" = \'player\' WHERE "playerID" = %s',
             (data["playerID"], )
         )
-        cursor.execute("DELETE FROM verification WHERE token = %s", (token, ))
+        cursor.execute('DELETE FROM verification WHERE "token" = %s', (token, ))
 
         conn.commit()
         return RedirectResponse(url=os.getenv("FRONTEND_URL"))
@@ -270,20 +271,20 @@ def login(player: PlayerLogin):
         cursor.execute(
             """
             SELECT 
-                player.id AS playerid,
-                player.name AS playername,
-                player.playernumber,
-                player.email,
-                player.passwordhash,
-                player.isverified,
-                membership.role,
-                team.id AS teamid,
-                team.name AS teamname
+                player."ID" AS "playerID",
+                player."name" AS "playerName",
+                player."playerNumber",
+                player."email",
+                player."passwordHash",
+                player."isVerified",
+                membership."role",
+                team."ID" AS "teamID",
+                team."name" AS "teamName"
             FROM 
                 player 
-            INNER JOIN membership ON membership.playerid = player.id
-            LEFT OUTER JOIN team ON team.id = membership.teamid
-            WHERE player.email = %s""",
+            INNER JOIN membership ON membership."playerID" = player."ID"
+            LEFT OUTER JOIN team ON team."ID" = membership."teamID"
+            WHERE player."email" = %s""",
             (player.email, )
         )
 
@@ -354,8 +355,8 @@ def fetch_events(query: EventQuery):
             FROM
                 {entityName}_event
             WHERE
-                resultid=(%s)
-            ORDER BY resultid DESC""",
+                "resultID"=(%s)
+            ORDER BY "resultID" DESC""",
             (query.ID, )
         )
 
@@ -420,9 +421,9 @@ async def update_membership(update: Membership, user: dict = Depends(get_current
                 * 
             FROM 
                 player
-            INNER JOIN membership ON membership.playerid = player.id
-            FULL OUTER JOIN team ON membership.teamid = team.id
-            WHERE player.id = %s
+            INNER JOIN membership ON membership."playerID" = player."ID"
+            FULL OUTER JOIN team ON membership."teamID" = team."ID"
+            WHERE player."ID" = %s
             """,
             (update.playerID, )
         )
@@ -438,17 +439,17 @@ async def update_membership(update: Membership, user: dict = Depends(get_current
         new_user = {**user}
         if data["teamID"] != update.teamID:
             cursor.execute(
-                'UPDATE membership SET teamid = %s WHERE playerid = %s',
+                'UPDATE membership SET "teamID" = %s WHERE "playerID" = %s',
                 (update.teamID, update.playerID)
             )
             new_user["teamID"] = update.teamID
 
         if data["role"] != update.role:
             cursor.execute(
-                'UPDATE membership SET role = %s WHERE playerid = %s',
-                (update.role, update.playerID)
+                'UPDATE membership SET "role" = %s WHERE "playerID" = %s',
+                (update.role.name, update.playerID)
             )
-            new_user["role"] = update.role
+            new_user["role"] = update.role.name
 
         secret = os.getenv("JWT_SECRET")
         new_token = jwt.encode(new_user, secret, algorithm="HS256")
@@ -472,7 +473,7 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
 
     try:
         cursor.execute(
-            'SELECT * FROM player WHERE id = %s',
+            'SELECT * FROM player WHERE "ID" = %s',
             (user["playerID"], )
         )
         cols = [col[0] for col in cursor.description]
@@ -496,7 +497,7 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
         password_hash = password_hash.decode("utf-8")
 
         cursor.execute(
-            'UPDATE player SET passwordhash = %s WHERE id = %s',
+            'UPDATE player SET "passwordHash" = %s WHERE "ID" = %s',
             (password_hash, user["playerID"])
         )
 
@@ -524,18 +525,18 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
 
         cursor.execute("""
             SELECT 
-                team.id AS teamid,
-                team.name AS teamname,
-                player.id AS playerid,
+                team."ID" AS teamID,
+                team."name" AS teamName,
+                player."ID" AS playerID,
                 player.name AS playername,
                 membership.role
             FROM
                 player
-            INNER JOIN membership ON membership.playerid = player.id
-            INNER JOIN team ON membership.teamid = team.id
-            WHERE team.id = %s""",
-                       (teamID["teamID"], )
-                       )
+            INNER JOIN membership ON membership."playerID" = player."ID"
+            INNER JOIN team ON membership."teamID" = team."ID"
+            WHERE team."ID" = %s""",
+            (teamID["teamid"], )
+        )
         cols = [col[0] for col in cursor.description]
 
         team_members = []
@@ -581,10 +582,11 @@ def post_results(payload: ResultCreate, user=Depends(get_current_user)):
         cursor.execute(
             f"""
             INSERT INTO {entityName}_result (
-                youtubeurl,
-                gamename,
-                {entityName}id
-            ) VALUES (%s, %s, %s) RETURNING id""",
+                "youtubeURL",
+                "gameName",
+                "{entityName}ID"
+            ) VALUES (%s, %s, %s) RETURNING "ID"
+            """,
             (youtubeURL, gameName, playerID if isPlayerMode else teamID)
         )
         resultID = cursor.fetchone()[0]
@@ -593,10 +595,10 @@ def post_results(payload: ResultCreate, user=Depends(get_current_user)):
             cursor.execute(
                 f"""
                 INSERT INTO {entityName}_event (
-                    id, 
-                    resultid, 
-                    {eventTypeName}, 
-                    pointdelta
+                    "ID", 
+                    "resultID", 
+                    "{eventTypeName}", 
+                    "pointDelta"
                 )  VALUES (%s, %s, %s, %s)""",
                 (
                     event.ID,
@@ -642,12 +644,12 @@ def fetch_results(query: ResultQuery, user=Depends(get_current_user)):
 
         sql = f"""
             SELECT
-                {entityName}_result.id AS resultid,
-                {entityName}_result.youtubeurl,
-                {entityName}_result.gamename,
-                {entityName}.id AS entityid
+                {entityName}_result."ID" AS "resultID",
+                {entityName}_result."youtubeURL",
+                {entityName}_result."gameName",
+                {entityName}."ID" AS "entityID"
             FROM {entityName}_result
-                INNER JOIN {entityName} ON {entityName}_result.{entityName}id = {entityName}.id
+                INNER JOIN {entityName} ON {entityName}_result."{entityName}ID" = {entityName}."ID"
             """ + limit_cond
 
         if args is not None:

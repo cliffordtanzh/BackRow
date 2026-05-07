@@ -33,10 +33,10 @@ export function useEntity<K extends keyof EntityMap>(
   const [entityError, setEntityError] = useState<Response>(DEFAULT_RESPONSE);
 
   const fetchEntities = () => {
-    axios.get(`/${entityName}`)
+    axios.get(`${import.meta.env.VITE_API_URL}/${entityName}`)
     .then((resp) => setEntity(resp.data.data))
     .catch((resp) => {
-      if (resp.response.data.detail) {
+      if (resp.response) {
         const responseKey: string = resp.response.data.detail.split(': ')[1]
         setEntityError((prev) => ({
           ...prev, 
@@ -54,6 +54,9 @@ export function useEntity<K extends keyof EntityMap>(
 
   useEffect(() => { fetchEntities() }, [])
   useEffect(() => {
+    if (!entity) {
+      return;
+    }
 
     if((entity.length > 0) && (localStorage.getItem(`${entityName}ID`))) {
       const entityID = Number(localStorage.getItem(`${entityName}ID`))
