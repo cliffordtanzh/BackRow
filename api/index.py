@@ -17,6 +17,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from api.datatypes import *
 
@@ -32,10 +33,11 @@ PLAYER_STATS = json.load(open("frontend/src/assets/player_stats.json"))
 
 app = FastAPI()
 
-# Adding CORS to allow cross-origin
+# Adding CORS (only needed if frontend is on different domain)
+# Since we're serving frontend from same app, this is optional
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
+    allow_origins=["*"],  # Same origin, so CORS not strictly needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -663,3 +665,10 @@ def fetch_results(query: ResultQuery, user=Depends(get_current_user)):
     finally:
         conn.rollback()
         conn.close()
+
+
+# Serve React static files
+# This must be AFTER all API routes so /api/* routes take precedence
+dist_path = Path(__file__).parent.parent / "frontend" / "dist"
+if dist_path.exists():
+    app.mount("/", StaticFiles(directory=str(dist_path), html=True), name="static")
