@@ -1,5 +1,6 @@
 Desktop view
 - Choose a color palette. Use brightest/darkest color as the primary color, used for buttons and points of attention. Play around with the rest of the colors for the background, card, accents etc.
+- https://coolors.co/002626-0e4749-95c623-e55812-efe7da
 - Grouping buttons vertically instead of horizontally makes group identity clearer
 
 Mobile View
