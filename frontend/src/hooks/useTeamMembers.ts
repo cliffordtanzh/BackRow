@@ -21,7 +21,7 @@ export function useTeamMembers(lang: Lang, team: Team): [
 
   const fetchTeamMembers = () => {
     axios.post(
-      `${import.meta.env.VITE_API_URL}fetch_team_members`, 
+      `${import.meta.env.VITE_API_URL}/fetch_team_members`, 
       {teamID: team.ID}, 
       {headers: {Authorisation: `Bearer ${token}`}}
     )

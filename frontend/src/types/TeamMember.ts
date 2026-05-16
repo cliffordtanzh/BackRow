@@ -16,4 +16,3 @@ export const DEFAULT_TEAM_MEMBER = {
     playerName: '',
     role: DEFAULT_ROLE
 }
-

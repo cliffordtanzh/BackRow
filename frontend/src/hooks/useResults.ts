@@ -18,6 +18,7 @@ function useResults(
   isPlayerMode: boolean
 ): [
   Result[],
+  React.Dispatch<React.SetStateAction<Result[]>>,
   Response,
   Response,
 ] {
@@ -85,7 +86,7 @@ function useResults(
     }
   }, [teamID, playerID, isPlayerMode, lang, token])
 
-  return [results, fetchSuccess, fetchError]
+  return [results, setResults, fetchSuccess, fetchError]
 }
 
 export default useResults;

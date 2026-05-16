@@ -60,6 +60,7 @@ function AnalysisPage({
 
   const [teams, selectedTeam, setSelectedTeam] = useEntity(lang, 'team');
   const [teamMembers, memberSuccess, memberError] = useTeamMembers(lang, selectedTeam);
+
   const [selectedPlayer, setSelectedPlayer] = useState<TeamMember>({
     teamID: Number(localStorage.getItem('teamID') || 0),
     teamName: localStorage.getItem('teamName') || '',
@@ -79,7 +80,7 @@ function AnalysisPage({
     authorisation === 'root' ? selectedTeam.ID : storedTeamID
   );
 
-  const [results] = useResults(
+  const [results, setResults] = useResults(
     lang, 
     queryTeamID,
     queryPlayerID,
@@ -278,6 +279,8 @@ function AnalysisPage({
 
           {isLoggedIn && selectedResult && <ResultsViewer 
             results={results}
+            isPlayerMode={isPlayerMode}
+            setResults={setResults}
             selectedResult={selectedResult}
             setSelectedResult={setSelectedResult}
           ></ResultsViewer>}

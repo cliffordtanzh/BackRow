@@ -19,6 +19,10 @@
         "en": "Log in before requesting results", 
         "cn": "请先登录再提交数据"
     },
+    "prelogin_delete_error": {
+        "en": "Log in before deleting results",
+        "cn": "请先登录再提交数据删除"
+    },
     "unassigned_team_error": {
         "en": "A team has not been assigned to you yet", 
         "cn": "您尚未被分配球队"
@@ -134,5 +138,9 @@
     "invalid_membership": {
         "en": "Only managers can fetch Team Members",
         "cn": "只有球队经理能查球队球员" 
+    },
+    "result_not_found": {
+        "en": "Result not found",
+        "cn": "未找到成绩"
     }
 }

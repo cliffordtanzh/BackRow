@@ -516,7 +516,7 @@ def change_password(passwords: PasswordData, user: dict = Depends(get_current_us
 
 
 @app.post("/fetch_team_members", status_code=201)
-def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
+def fetch_team_members(payload: dict, user=Depends(get_current_user)):
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
@@ -527,17 +527,17 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
 
         cursor.execute("""
             SELECT 
-                team."ID" AS teamID,
-                team."name" AS teamName,
-                player."ID" AS playerID,
-                player.name AS playername,
+                team."ID" AS "teamID",
+                team."name" AS "teamName",
+                player."ID" AS "playerID",
+                player.name AS "playerName",
                 membership.role
             FROM
                 player
             INNER JOIN membership ON membership."playerID" = player."ID"
             INNER JOIN team ON membership."teamID" = team."ID"
             WHERE team."ID" = %s""",
-            (teamID["teamid"], )
+            (payload["teamID"], )
         )
         cols = [col[0] for col in cursor.description]
 
@@ -550,7 +550,7 @@ def fetch_team_members(teamID: dict, user=Depends(get_current_user)):
 
     except Exception as e:
         print(e)
-        raise HTTPException(status=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
     finally:
         conn.rollback()
@@ -622,7 +622,52 @@ def post_results(payload: ResultCreate, user=Depends(get_current_user)):
         conn.close()
 
 
-@app.post("/fetch_results", status_code=200)
+@app.post("/delete_result", status_code = 200)
+def delete_result(payload: dict, user=Depends(get_current_user)):
+    conn = psycopg2.connect(DATABASE_URL)
+    cursor = conn.cursor()
+
+    try:
+        if user["role"] == 'none':
+            raise HTTPException(status_code=401, detail="prelogin_delete_error")
+        
+        entityName = "player" if payload["isPlayerMode"] else "team"
+
+        cursor.execute(f"""
+            SELECT 
+                *
+            FROM player_result 
+            WHERE "ID" = %s
+            """,
+            (payload["resultID"], )
+        )
+        result = cursor.fetchone()
+        
+        if result is None:
+            raise HTTPException(status_code=404, detail="result_not_found")
+        
+        cursor.execute(f"""
+            DELETE FROM {entityName}_event WHERE "resultID" = %s""",
+            (payload["resultID"], )
+        )
+
+        cursor.execute(f"""
+            DELETE FROM {entityName}_result WHERE "ID" = %s""",
+            (payload["resultID"], )
+        )
+
+        conn.commit()
+
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    finally:
+        conn.rollback()
+        conn.close()
+
+
+@app.post("/fetch_results", status_code = 200)
 def fetch_results(query: ResultQuery, user=Depends(get_current_user)):
     conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()

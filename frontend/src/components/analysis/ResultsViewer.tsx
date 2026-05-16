@@ -1,11 +1,13 @@
 import ResultCard from '../analysis/ResultCard';
-import type { Result } from "../../types/Result";
+import { type Result } from "../../types/Result";
 
 import './ResultsViewer.css'
 
 
 type ResultsViewerProps = {
   results: Result[]
+  isPlayerMode: boolean,
+  setResults: React.Dispatch<React.SetStateAction<Result[]>>,
   selectedResult: Result,
   setSelectedResult: React.Dispatch<React.SetStateAction<Result | null>>,
 }
@@ -13,6 +15,8 @@ type ResultsViewerProps = {
 
 function ResultsViewer({ 
   results,
+  isPlayerMode,
+  setResults,
   selectedResult,
   setSelectedResult,
 }: ResultsViewerProps) {
@@ -23,6 +27,8 @@ function ResultsViewer({
         {results.map((result: Result) => (
           <ResultCard 
             result={result}
+            isPlayerMode={isPlayerMode}
+            setResults={setResults}
             selected={selectedResult.resultID === result.resultID}
             onClick={() => setSelectedResult(result)}
           />
